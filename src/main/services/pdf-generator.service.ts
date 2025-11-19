@@ -189,112 +189,105 @@ class PDFGeneratorService {
 
     yPosition += 20
 
-    // Salary Breakdown Section
+    // Side-by-side table: Earnings on left, Deductions on right
+    const tableStartY = yPosition
+    const middleX = leftMargin + contentWidth / 2
+    const columnWidth = contentWidth / 2 - 10
+
+    // Table Headers
     doc
       .fontSize(12)
       .font('Helvetica-Bold')
       .text('EARNINGS', leftMargin, yPosition)
-      .text('AMOUNT (K)', rightMargin - 100, yPosition, { width: 100, align: 'right' })
-
-    yPosition += 20
-
-    // Basic Salary
-    doc
-      .fontSize(10)
-      .font('Helvetica')
-      .text('Basic Salary', leftMargin, yPosition)
-      .text(this.formatCurrency(data.basicSalary), rightMargin - 100, yPosition, {
-        width: 100,
+      .text('AMOUNT (K)', leftMargin + columnWidth - 80, yPosition, { width: 80, align: 'right' })
+      .text('DEDUCTIONS', middleX + 10, yPosition)
+      .text('AMOUNT (K)', middleX + 10 + columnWidth - 80, yPosition, {
+        width: 80,
         align: 'right'
       })
 
-    yPosition += 15
+    yPosition += 20
 
-    // Allowances
-    for (const allowance of data.allowances) {
-      doc
-        .text(allowance.name, leftMargin, yPosition)
-        .text(this.formatCurrency(allowance.amount), rightMargin - 100, yPosition, {
-          width: 100,
-          align: 'right'
-        })
+    // Draw vertical line between columns
+    doc
+      .strokeColor('#cccccc')
+      .lineWidth(0.5)
+      .moveTo(middleX, tableStartY)
+      .lineTo(middleX, yPosition + Math.max(data.allowances.length + 2, data.deductions.length + 1) * 15 + 40)
+      .stroke()
+
+    // Prepare earnings list (Basic Salary + Allowances)
+    const earnings: Array<{ name: string; amount: number }> = [
+      { name: 'Basic Salary', amount: data.basicSalary },
+      ...data.allowances
+    ]
+
+    // Draw earnings and deductions side by side
+    const maxRows = Math.max(earnings.length, data.deductions.length)
+    doc.fontSize(10).font('Helvetica')
+
+    for (let i = 0; i < maxRows; i++) {
+      // Earnings column
+      if (i < earnings.length) {
+        doc
+          .text(earnings[i].name, leftMargin, yPosition)
+          .text(this.formatCurrency(earnings[i].amount), leftMargin + columnWidth - 80, yPosition, {
+            width: 80,
+            align: 'right'
+          })
+      }
+
+      // Deductions column
+      if (i < data.deductions.length) {
+        doc
+          .text(data.deductions[i].name, middleX + 10, yPosition)
+          .text(
+            this.formatCurrency(data.deductions[i].amount),
+            middleX + 10 + columnWidth - 80,
+            yPosition,
+            {
+              width: 80,
+              align: 'right'
+            }
+          )
+      }
+
       yPosition += 15
     }
 
-    // Total Allowances
-    if (data.allowances.length > 0) {
-      doc
-        .font('Helvetica-Bold')
-        .text('Total Allowances', leftMargin, yPosition)
-        .text(this.formatCurrency(data.totalAllowances), rightMargin - 100, yPosition, {
-          width: 100,
-          align: 'right'
-        })
-      yPosition += 15
-    }
-
-    // Gross Pay
+    // Totals row
     yPosition += 5
     doc
       .strokeColor('#cccccc')
       .lineWidth(0.5)
       .moveTo(leftMargin, yPosition)
+      .lineTo(leftMargin + columnWidth, yPosition)
+      .stroke()
+      .moveTo(middleX + 10, yPosition)
       .lineTo(rightMargin, yPosition)
       .stroke()
 
     yPosition += 10
 
+    // Gross Pay and Total Deductions
     doc
       .fontSize(11)
       .font('Helvetica-Bold')
       .text('GROSS PAY', leftMargin, yPosition)
-      .text(this.formatCurrency(data.grossPay), rightMargin - 100, yPosition, {
-        width: 100,
+      .text(this.formatCurrency(data.grossPay), leftMargin + columnWidth - 80, yPosition, {
+        width: 80,
         align: 'right'
       })
-
-    yPosition += 30
-
-    // Deductions Section
-    doc
-      .fontSize(12)
-      .font('Helvetica-Bold')
-      .text('DEDUCTIONS', leftMargin, yPosition)
-      .text('AMOUNT (K)', rightMargin - 100, yPosition, { width: 100, align: 'right' })
-
-    yPosition += 20
-
-    // Individual Deductions
-    doc.fontSize(10).font('Helvetica')
-    for (const deduction of data.deductions) {
-      doc
-        .text(deduction.name, leftMargin, yPosition)
-        .text(this.formatCurrency(deduction.amount), rightMargin - 100, yPosition, {
-          width: 100,
+      .text('TOTAL DEDUCTIONS', middleX + 10, yPosition)
+      .text(
+        this.formatCurrency(data.totalDeductions),
+        middleX + 10 + columnWidth - 80,
+        yPosition,
+        {
+          width: 80,
           align: 'right'
-        })
-      yPosition += 15
-    }
-
-    // Total Deductions
-    yPosition += 5
-    doc
-      .strokeColor('#cccccc')
-      .lineWidth(0.5)
-      .moveTo(leftMargin, yPosition)
-      .lineTo(rightMargin, yPosition)
-      .stroke()
-
-    yPosition += 10
-
-    doc
-      .fontSize(11)
-      .font('Helvetica-Bold')
-      .text('TOTAL DEDUCTIONS', leftMargin, yPosition)
-      .text(this.formatCurrency(data.totalDeductions), rightMargin - 100, yPosition, {
-        width: 100,
-        align: 'right'
-      })
+        }
+      )
 
     yPosition += 30
 

@@ -26,6 +26,20 @@ function createWindow(): void {
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
+    // Allow blank windows (for printing, etc.)
+    if (details.url === 'about:blank' || details.url === '') {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          width: 800,
+          height: 600,
+          webPreferences: {
+            sandbox: false
+          }
+        }
+      }
+    }
+    // Open external URLs in default browser
     shell.openExternal(details.url)
     return { action: 'deny' }
   })

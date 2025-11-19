@@ -28,7 +28,8 @@ import {
   ChevronDown,
   ChevronRight,
   Settings,
-  Loader2
+  Loader2,
+  Printer
 } from 'lucide-react'
 import { getPayrollHistoryService, getEmployeeService } from '@/lib/db/services/service-factory'
 import { useToast } from '@/hooks/use-toast'
@@ -400,6 +401,179 @@ export default function PayrollHistoryDetailPage() {
     }
   }
 
+  const handlePrintPayslips = async () => {
+    if (!payrollRecord || !payrollRecord.items) {
+      toast({
+        title: 'Error',
+        description: 'No payroll data available to print.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    setIsSendingEmails(true) // Reuse loading state
+    try {
+      // Get employee service to fetch full employee details
+      const employeeService = await getEmployeeService()
+
+      // Prepare payslip PDF data for all employees
+      const payslipPDFDataArray: PayslipPDFData[] = []
+
+      for (const item of payrollRecord.items) {
+        try {
+          // Fetch employee details
+          const employee = await employeeService.getEmployeeById(item.employeeId)
+          if (!employee) {
+            console.warn(`Employee not found: ${item.employeeId}`)
+            continue
+          }
+
+          // Prepare allowances breakdown
+          const allowances: Array<{ name: string; amount: number }> = []
+          if (item.allowanceBreakdown && Array.isArray(item.allowanceBreakdown)) {
+            item.allowanceBreakdown.forEach((allowance: any) => {
+              allowances.push({
+                name: allowance.name || 'Allowance',
+                amount: allowance.value || 0
+              })
+            })
+          }
+
+          // Prepare deductions breakdown
+          const deductions: Array<{ name: string; amount: number }> = []
+          if (item.deductionBreakdown && Array.isArray(item.deductionBreakdown)) {
+            item.deductionBreakdown.forEach((deduction: any) => {
+              deductions.push({
+                name: deduction.name || 'Deduction',
+                amount: deduction.value || 0
+              })
+            })
+          }
+
+          // Create PDF data
+          const pdfData: PayslipPDFData = {
+            companyName: 'Your Company Name', // TODO: Get from settings
+            companyAddress: 'Company Address', // TODO: Get from settings
+            employeeName: `${employee.firstName} ${employee.lastName}`,
+            employeeNumber: employee._id,
+            department: employee.department || 'N/A',
+            designation: employee.designation || 'N/A',
+            nrc: employee.nationalId || 'N/A',
+            tpin: employee.taxNumber || 'N/A',
+            accountNumber: employee.accountNumber || 'N/A',
+            bankName: employee.bankName || 'N/A',
+            period: payrollRecord.period || 'Monthly',
+            paymentDate: payrollRecord.paymentDate || payrollRecord.date || new Date().toISOString(),
+            basicSalary: item.basicSalary || 0,
+            allowances: allowances,
+            totalAllowances: item.allowances || 0,
+            grossPay: (item.basicSalary || 0) + (item.allowances || 0),
+            deductions: deductions,
+            totalDeductions: item.deductions || 0,
+            netPay: item.netSalary || 0
+          }
+
+          payslipPDFDataArray.push(pdfData)
+        } catch (error) {
+          console.error(`Error processing employee ${item.employeeId}:`, error)
+        }
+      }
+
+      if (payslipPDFDataArray.length === 0) {
+        toast({
+          title: 'No Valid Employees',
+          description: 'No valid employee data found to generate payslips.',
+          variant: 'destructive'
+        })
+        setIsSendingEmails(false)
+        return
+      }
+
+      // Generate PDFs for all payslips
+      toast({
+        title: 'Generating Payslips',
+        description: `Generating ${payslipPDFDataArray.length} payslip PDFs...`
+      })
+
+      const pdfResult = await pdfService.generateBulkPayslipPDFs(payslipPDFDataArray)
+
+      if (!pdfResult.success || !pdfResult.data) {
+        throw new Error(pdfResult.error || 'Failed to generate PDFs')
+      }
+
+      // Create a new window for printing
+      const printWindow = window.open('', '_blank', 'width=800,height=600')
+      if (!printWindow) {
+        throw new Error('Failed to open print window. Please check Electron configuration.')
+      }
+
+      // Create HTML with embedded PDFs
+      let htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Payslips - ${payrollRecord.period || 'Monthly'}</title>
+          <style>
+            body { margin: 0; padding: 0; }
+            .payslip-page { 
+              page-break-after: always; 
+              page-break-inside: avoid;
+            }
+            .payslip-page:last-child { page-break-after: auto; }
+            embed { 
+              width: 100%; 
+              height: 100vh; 
+            }
+            @media print {
+              .payslip-page { 
+                page-break-after: always;
+                page-break-inside: avoid;
+              }
+            }
+          </style>
+        </head>
+        <body>
+      `
+
+      // Add each PDF as an embedded object
+      Object.values(pdfResult.data).forEach((pdfBase64) => {
+        htmlContent += `
+          <div class="payslip-page">
+            <embed src="data:application/pdf;base64,${pdfBase64}" type="application/pdf" />
+          </div>
+        `
+      })
+
+      htmlContent += `
+        </body>
+        </html>
+      `
+
+      printWindow.document.write(htmlContent)
+      printWindow.document.close()
+
+      // Wait for PDFs to load, then trigger print
+      setTimeout(() => {
+        printWindow.focus()
+        printWindow.print()
+      }, 1500)
+
+      toast({
+        title: 'Print Ready',
+        description: `${payslipPDFDataArray.length} payslips ready to print.`
+      })
+    } catch (error: any) {
+      console.error('Error printing payslips:', error)
+      toast({
+        title: 'Error',
+        description: error.message || 'An unexpected error occurred while preparing payslips for printing.',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsSendingEmails(false)
+    }
+  }
+
   const toggleRowExpansion = (employeeId: string) => {
     const newExpanded = new Set(expandedRows)
     if (newExpanded.has(employeeId)) {
@@ -512,6 +686,10 @@ export default function PayrollHistoryDetailPage() {
               <DropdownMenuItem onClick={handleEmailPayslips}>
                 <Mail className="mr-2 h-4 w-4" />
                 Send to All Employees
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handlePrintPayslips}>
+                <Printer className="mr-2 h-4 w-4" />
+                Print All Payslips
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShowEmailConfig(true)}>
                 <Settings className="mr-2 h-4 w-4" />
