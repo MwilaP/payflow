@@ -6,7 +6,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,7 +25,7 @@ export function EmailConfigDialog({ open, onOpenChange }: EmailConfigDialogProps
   const [isLoading, setIsLoading] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
   const [testEmail, setTestEmail] = useState('')
-  
+
   const [config, setConfig] = useState<EmailConfig>({
     host: '',
     port: 587,
@@ -75,7 +75,7 @@ export function EmailConfigDialog({ open, onOpenChange }: EmailConfigDialogProps
     setIsLoading(true)
     try {
       const result = await emailService.configure(config)
-      
+
       if (result.success) {
         toast({
           title: 'Email Configured',
@@ -113,7 +113,7 @@ export function EmailConfigDialog({ open, onOpenChange }: EmailConfigDialogProps
     setIsTesting(true)
     try {
       const result = await emailService.sendTestEmail(testEmail)
-      
+
       if (result.success) {
         toast({
           title: 'Test Email Sent',
@@ -142,11 +142,9 @@ export function EmailConfigDialog({ open, onOpenChange }: EmailConfigDialogProps
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Email Configuration</DialogTitle>
-          <DialogDescription>
-            Configure SMTP settings to send payslips via email.
-          </DialogDescription>
+          <DialogDescription>Configure SMTP settings to send payslips via email.</DialogDescription>
         </DialogHeader>
-        
+
         <div className="grid gap-4 py-4">
           {/* SMTP Host */}
           <div className="grid grid-cols-4 items-center gap-4">
@@ -201,7 +199,9 @@ export function EmailConfigDialog({ open, onOpenChange }: EmailConfigDialogProps
             <Input
               id="user"
               value={config.auth.user}
-              onChange={(e) => setConfig({ ...config, auth: { ...config.auth, user: e.target.value } })}
+              onChange={(e) =>
+                setConfig({ ...config, auth: { ...config.auth, user: e.target.value } })
+              }
               placeholder="your-email@example.com"
               className="col-span-3"
             />
@@ -216,7 +216,9 @@ export function EmailConfigDialog({ open, onOpenChange }: EmailConfigDialogProps
               id="password"
               type="password"
               value={config.auth.pass}
-              onChange={(e) => setConfig({ ...config, auth: { ...config.auth, pass: e.target.value } })}
+              onChange={(e) =>
+                setConfig({ ...config, auth: { ...config.auth, pass: e.target.value } })
+              }
               placeholder="••••••••"
               className="col-span-3"
             />

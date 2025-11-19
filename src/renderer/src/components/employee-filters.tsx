@@ -1,24 +1,26 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Search } from "lucide-react"
+import { useState } from 'react'
+import { Search } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 interface EmployeeFiltersProps {
-  onFilterChange: (filters: {
-    department?: string
-    status?: string
-    search?: string
-  }) => void
+  onFilterChange: (filters: { department?: string; status?: string; search?: string }) => void
 }
 
 export function EmployeeFilters({ onFilterChange }: EmployeeFiltersProps) {
-  const [search, setSearch] = useState("")
-  const [department, setDepartment] = useState("all")
-  const [status, setStatus] = useState("all")
+  const [search, setSearch] = useState('')
+  const [department, setDepartment] = useState('all')
+  const [status, setStatus] = useState('all')
   return (
     <div className="flex flex-col gap-4 md:flex-row">
       <div className="relative flex-1">
@@ -80,10 +82,10 @@ export function EmployeeFilters({ onFilterChange }: EmployeeFiltersProps) {
           variant="outline"
           className="col-span-2"
           onClick={() => {
-            setSearch("")
-            setDepartment("all")
-            setStatus("all")
-            onFilterChange({ department: "all", status: "all", search: "" })
+            setSearch('')
+            setDepartment('all')
+            setStatus('all')
+            onFilterChange({ department: 'all', status: 'all', search: '' })
           }}
         >
           Reset Filters

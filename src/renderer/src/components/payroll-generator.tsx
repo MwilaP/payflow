@@ -1,31 +1,44 @@
-"use client"
+'use client'
 
-import { Link } from "react-router-dom"
-import { v4 as uuidv4 } from "uuid"
-import { useState, useEffect } from "react"
+import { Link } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
+import { useState, useEffect } from 'react'
 import {
   fetchPayrollStructures,
   fetchAllEmployees,
   fetchEmployeesByStructure,
   savePayrollHistory
-} from "@/lib/db/services/service-factory"
-import type { PayrollHistory } from "@/lib/db/models/payroll-history.model"
-import { useNavigate } from "react-router-dom"
-import { CalendarIcon, CreditCard, Download, Search, FileUp } from "lucide-react"
-import ImportPayrollModal, { ImportedPayrollItem } from "./import-payroll-modal"
+} from '@/lib/db/services/service-factory'
+import type { PayrollHistory } from '@/lib/db/models/payroll-history.model'
+import { useNavigate } from 'react-router-dom'
+import { CalendarIcon, CreditCard, Download, Search, FileUp } from 'lucide-react'
+import ImportPayrollModal, { ImportedPayrollItem } from './import-payroll-modal'
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
-import { useToast } from "@/hooks/use-toast"
-import { format } from "date-fns"
-import { calculateNetSalary } from "@/lib/utils/payroll-calculations"
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/use-toast'
+import { format } from 'date-fns'
+import { calculateNetSalary } from '@/lib/utils/payroll-calculations'
 
 export function PayrollGenerator() {
   const [step, setStep] = useState(1)
@@ -53,28 +66,38 @@ export function PayrollGenerator() {
         ])
 
         // Enhance structures with calculated net salary
-        const enhancedStructures = structures.map(structure => ({
+        const enhancedStructures = structures.map((structure) => ({
           ...structure,
-          calculatedNetSalary: ((structure.basicSalary || 0) +
-            (Array.isArray(structure.allowances) ? structure.allowances.reduce((sum: number, a: any) => sum + (a.value || 0), 0) : 0) -
-            (Array.isArray(structure.deductions) ? structure.deductions.reduce((sum: number, d: any) => sum + (d.value || 0), 0) : 0))
+          calculatedNetSalary:
+            (structure.basicSalary || 0) +
+            (Array.isArray(structure.allowances)
+              ? structure.allowances.reduce((sum: number, a: any) => sum + (a.value || 0), 0)
+              : 0) -
+            (Array.isArray(structure.deductions)
+              ? structure.deductions.reduce((sum: number, d: any) => sum + (d.value || 0), 0)
+              : 0)
         }))
 
         // Create a map of payroll structures by ID for quick lookup
-        const structuresMap = enhancedStructures.reduce((map: Record<string, any>, structure: any) => {
-          map[structure._id] = structure
-          return map
-        }, {})
+        const structuresMap = enhancedStructures.reduce(
+          (map: Record<string, any>, structure: any) => {
+            map[structure._id] = structure
+            return map
+          },
+          {}
+        )
 
         // Enhance employees with payroll structure data
         const enhancedEmployees = employees.map((employee: any) => {
-          console.log("Employee data:", employee)
-          console.log("Employee payroll structure ID:", employee.payrollStructureId, employee.payroll_structure_id)
-          
+          console.log('Employee data:', employee)
+          console.log(
+            'Employee payroll structure ID:',
+            employee.payrollStructureId,
+            employee.payroll_structure_id
+          )
+
           const structureId = employee.payrollStructureId || employee.payroll_structure_id
           const structure = structureId ? structuresMap[structureId] : null
-
-
 
           // Calculate salary details based on the employee's payroll structure
           const basicSalary = structure?.basicSalary || 0
@@ -83,15 +106,25 @@ export function PayrollGenerator() {
             if (!structure) {
               return
             }
-            const salaryStuctures = calculateNetSalary(basicSalary, structure.allowances, structure.deductions)
+            const salaryStuctures = calculateNetSalary(
+              basicSalary,
+              structure.allowances,
+              structure.deductions
+            )
             return salaryStuctures
           }
 
           const employeesStructures = cal()
 
-          console.log("CALCULATOR for", employee.firstName, employee.lastName, ":", employeesStructures)
-          console.log("Structure data:", structure)
-          console.log("Basic salary:", basicSalary)
+          console.log(
+            'CALCULATOR for',
+            employee.firstName,
+            employee.lastName,
+            ':',
+            employeesStructures
+          )
+          console.log('Structure data:', structure)
+          console.log('Basic salary:', basicSalary)
 
           const allowancesTotal = employeesStructures ? employeesStructures?.totalAllowances : 0
           const deductionsTotal = employeesStructures ? employeesStructures?.totalDeductions : 0
@@ -110,11 +143,11 @@ export function PayrollGenerator() {
         setEmployeeData(enhancedEmployees)
         setPayrollStructures(enhancedStructures)
       } catch (error) {
-        console.error("Failed to load data:", error)
+        console.error('Failed to load data:', error)
         toast({
-          title: "Error loading data",
-          description: "Failed to load employees and payroll structures. Please try again.",
-          variant: "destructive"
+          title: 'Error loading data',
+          description: 'Failed to load employees and payroll structures. Please try again.',
+          variant: 'destructive'
         })
       } finally {
         setIsLoading(false)
@@ -125,31 +158,35 @@ export function PayrollGenerator() {
   }, [toast])
 
   // Use employee data from SQLite or fallback to dummy data if loading
-  const displayEmployees = isLoading ? [
-    {
-      _id: "loading",
-      firstName: "Loading",
-      lastName: "...",
-      department: "...",
-      designation: "...",
-      baseSalary: 0,
-      allowances: 0,
-      deductions: 0,
-      netSalary: 0,
-    }
-  ] : employeeData.length === 0 ? [
-    {
-      _id: "no-data",
-      firstName: "No",
-      lastName: "employees found",
-      department: "-",
-      designation: "-",
-      baseSalary: 0,
-      allowances: 0,
-      deductions: 0,
-      netSalary: 0,
-    }
-  ] : employeeData
+  const displayEmployees = isLoading
+    ? [
+        {
+          _id: 'loading',
+          firstName: 'Loading',
+          lastName: '...',
+          department: '...',
+          designation: '...',
+          baseSalary: 0,
+          allowances: 0,
+          deductions: 0,
+          netSalary: 0
+        }
+      ]
+    : employeeData.length === 0
+      ? [
+          {
+            _id: 'no-data',
+            firstName: 'No',
+            lastName: 'employees found',
+            department: '-',
+            designation: '-',
+            baseSalary: 0,
+            allowances: 0,
+            deductions: 0,
+            netSalary: 0
+          }
+        ]
+      : employeeData
 
   // Reset selected employees when employee data changes
   useEffect(() => {
@@ -158,19 +195,19 @@ export function PayrollGenerator() {
     setImportedPayrollItems([])
     setUseImportedData(false)
   }, [employeeData])
-  
+
   // Handle imported payroll data
   const handleImportComplete = (importedItems: ImportedPayrollItem[]) => {
     setImportedPayrollItems(importedItems)
-    
+
     // Auto-select employees that were imported
-    const importedEmployeeIds = importedItems.map(item => item.employeeId)
+    const importedEmployeeIds = importedItems.map((item) => item.employeeId)
     setSelectedEmployees(importedEmployeeIds)
     setUseImportedData(true)
-    
+
     toast({
-      title: "Import Successful",
-      description: `${importedItems.length} employee payroll records imported and selected.`,
+      title: 'Import Successful',
+      description: `${importedItems.length} employee payroll records imported and selected.`
     })
   }
 
@@ -193,24 +230,24 @@ export function PayrollGenerator() {
   const handleGeneratePayroll = async () => {
     try {
       // Get selected employees
-      const selectedEmployeeData = displayEmployees.filter(employee =>
+      const selectedEmployeeData = displayEmployees.filter((employee) =>
         selectedEmployees.includes(employee._id)
       )
 
       // Create payroll items - either from imported data or calculated from employee data
-      let payrollItems;
-      
+      let payrollItems
+
       if (useImportedData && importedPayrollItems.length > 0) {
         // Use the imported payroll data
-        console.log("Using imported payroll data for generation")
-        payrollItems = importedPayrollItems;
+        console.log('Using imported payroll data for generation')
+        payrollItems = importedPayrollItems
       } else {
         // Calculate payroll items from employee data
-        console.log("Calculating payroll items from employee data")
-        payrollItems = selectedEmployeeData.map(employee => {
+        console.log('Calculating payroll items from employee data')
+        payrollItems = selectedEmployeeData.map((employee) => {
           const basicSalary = employee.baseSalary || 0
           const payrollStructure = employee.payrollStructure
-          
+
           // Use the same calculation logic as the data loading
           let housingAllowance = 0
           let transportAllowance = 0
@@ -219,26 +256,31 @@ export function PayrollGenerator() {
           let paye = 0
           let allowanceBreakdown = []
           let deductionBreakdown = []
-          
+
           if (payrollStructure) {
             // Debug logging
-            console.log("Employee:", employee.firstName, employee.lastName)
-            console.log("Basic Salary:", basicSalary)
-            console.log("Payroll Structure:", payrollStructure)
-            console.log("Allowances:", payrollStructure.allowances)
-            console.log("Deductions:", payrollStructure.deductions)
-            
+            console.log('Employee:', employee.firstName, employee.lastName)
+            console.log('Basic Salary:', basicSalary)
+            console.log('Payroll Structure:', payrollStructure)
+            console.log('Allowances:', payrollStructure.allowances)
+            console.log('Deductions:', payrollStructure.deductions)
+
             // Calculate using the same function as data loading
-            const salaryCalculation = calculateNetSalary(basicSalary, payrollStructure.allowances || [], payrollStructure.deductions || [])
-            console.log("Salary Calculation Result:", salaryCalculation)
-            
+            const salaryCalculation = calculateNetSalary(
+              basicSalary,
+              payrollStructure.allowances || [],
+              payrollStructure.deductions || []
+            )
+            console.log('Salary Calculation Result:', salaryCalculation)
+
             // Extract individual allowances
             if (payrollStructure.allowances) {
               allowanceBreakdown = payrollStructure.allowances.map((allowance: any) => {
-                const amount = allowance.type === "percentage" 
-                  ? (basicSalary * allowance.value) / 100 
-                  : allowance.value || 0
-                
+                const amount =
+                  allowance.type === 'percentage'
+                    ? (basicSalary * allowance.value) / 100
+                    : allowance.value || 0
+
                 // Identify specific allowances by name
                 if (allowance.name.toLowerCase().includes('housing')) {
                   housingAllowance = amount
@@ -246,19 +288,20 @@ export function PayrollGenerator() {
                 if (allowance.name.toLowerCase().includes('transport')) {
                   transportAllowance = amount
                 }
-                
+
                 return { ...allowance, value: amount }
               })
             }
-            
+
             // Extract individual deductions
             if (payrollStructure.deductions) {
               deductionBreakdown = payrollStructure.deductions.map((deduction: any) => {
                 const grossPay = salaryCalculation.grossSalary
-                const amount = deduction.type === "percentage" 
-                  ? (grossPay * deduction.value) / 100 
-                  : deduction.value || 0
-                
+                const amount =
+                  deduction.type === 'percentage'
+                    ? (grossPay * deduction.value) / 100
+                    : deduction.value || 0
+
                 // Identify specific deductions by name
                 if (deduction.name.toLowerCase().includes('napsa')) {
                   napsa = amount
@@ -269,11 +312,11 @@ export function PayrollGenerator() {
                 if (deduction.name.toLowerCase().includes('paye')) {
                   paye = amount
                 }
-                
+
                 return { ...deduction, value: amount }
               })
             }
-            
+
             return {
               employeeId: employee._id,
               employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`.trim(),
@@ -298,7 +341,7 @@ export function PayrollGenerator() {
               deductions: salaryCalculation.totalDeductions
             }
           }
-          
+
           // Fallback for employees without payroll structure
           return {
             employeeId: employee._id,
@@ -348,17 +391,17 @@ export function PayrollGenerator() {
       await savePayrollHistory(payrollRecords)
 
       toast({
-        title: "Payroll generated successfully",
-        description: `Payroll for ${format(date, "MMMM yyyy")} has been generated for ${selectedEmployees.length} employees.`,
+        title: 'Payroll generated successfully',
+        description: `Payroll for ${format(date, 'MMMM yyyy')} has been generated for ${selectedEmployees.length} employees.`
       })
 
-      navigate("/payroll")
+      navigate('/payroll')
     } catch (error) {
-      console.error("Error generating payroll:", error)
+      console.error('Error generating payroll:', error)
       toast({
-        title: "Error generating payroll",
-        description: "Failed to save payroll records. Please try again.",
-        variant: "destructive"
+        title: 'Error generating payroll',
+        description: 'Failed to save payroll records. Please try again.',
+        variant: 'destructive'
       })
     }
   }
@@ -375,15 +418,23 @@ export function PayrollGenerator() {
                   <PopoverTrigger asChild>
                     <Button
                       id="payroll-period"
-                      variant={"outline"}
-                      className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
+                      variant={'outline'}
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !date && 'text-muted-foreground'
+                      )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "MMMM yyyy") : <span>Select period</span>}
+                      {date ? format(date, 'MMMM yyyy') : <span>Select period</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={date} onSelect={(date) => date && setDate(date)} initialFocus />
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(date) => date && setDate(date)}
+                      initialFocus
+                    />
                   </PopoverContent>
                 </Popover>
               </div>
@@ -393,15 +444,23 @@ export function PayrollGenerator() {
                   <PopoverTrigger asChild>
                     <Button
                       id="payment-date"
-                      variant={"outline"}
-                      className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
+                      variant={'outline'}
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !date && 'text-muted-foreground'
+                      )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "MMMM dd, yyyy") : <span>Select date</span>}
+                      {date ? format(date, 'MMMM dd, yyyy') : <span>Select date</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={date} onSelect={(date) => date && setDate(date)} initialFocus />
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(date) => date && setDate(date)}
+                      initialFocus
+                    />
                   </PopoverContent>
                 </Popover>
               </div>
@@ -446,11 +505,15 @@ export function PayrollGenerator() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4">Loading payroll structures...</TableCell>
+                    <TableCell colSpan={5} className="text-center py-4">
+                      Loading payroll structures...
+                    </TableCell>
                   </TableRow>
                 ) : payrollStructures.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4">No payroll structures found</TableCell>
+                    <TableCell colSpan={5} className="text-center py-4">
+                      No payroll structures found
+                    </TableCell>
                   </TableRow>
                 ) : (
                   displayEmployees.map((employee) => (
@@ -459,13 +522,15 @@ export function PayrollGenerator() {
                         <Checkbox
                           checked={selectedEmployees.includes(employee._id)}
                           onCheckedChange={() => handleSelectEmployee(employee._id)}
-                          disabled={employee._id === "loading" || employee._id === "no-data"}
+                          disabled={employee._id === 'loading' || employee._id === 'no-data'}
                         />
                       </TableCell>
                       <TableCell className="font-medium">{`${employee.firstName || ''} ${employee.lastName || ''}`}</TableCell>
                       <TableCell>{employee.department || ''}</TableCell>
                       <TableCell>{employee.designation || ''}</TableCell>
-                      <TableCell className="text-right">K{(employee.baseSalary || 0).toLocaleString()}</TableCell>
+                      <TableCell className="text-right">
+                        K{(employee.baseSalary || 0).toLocaleString()}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -496,7 +561,7 @@ export function PayrollGenerator() {
               </Button>
             </div>
           </div>
-          
+
           {/* Import Payroll Modal */}
           <ImportPayrollModal
             open={importModalOpen}
@@ -514,7 +579,8 @@ export function PayrollGenerator() {
                 <div>
                   <h3 className="text-lg font-medium">Payroll Review</h3>
                   <p className="text-sm text-muted-foreground">
-                    Period: {format(date, "MMMM yyyy")} | Payment Date: {format(date, "MMMM dd, yyyy")}
+                    Period: {format(date, 'MMMM yyyy')} | Payment Date:{' '}
+                    {format(date, 'MMMM dd, yyyy')}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -539,11 +605,15 @@ export function PayrollGenerator() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-4">Loading payroll data...</TableCell>
+                    <TableCell colSpan={6} className="text-center py-4">
+                      Loading payroll data...
+                    </TableCell>
                   </TableRow>
                 ) : selectedEmployees.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-4">No employees selected</TableCell>
+                    <TableCell colSpan={6} className="text-center py-4">
+                      No employees selected
+                    </TableCell>
                   </TableRow>
                 ) : (
                   displayEmployees
@@ -553,16 +623,28 @@ export function PayrollGenerator() {
                         <TableCell className="font-medium">{`${employee.firstName || ''} ${employee.lastName || ''}`}</TableCell>
                         <TableCell>{employee.department || ''}</TableCell>
                         <TableCell className="text-right">
-                          K{(employee.baseSalary || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          K
+                          {(employee.baseSalary || 0).toLocaleString(undefined, {
+                            maximumFractionDigits: 2
+                          })}
                         </TableCell>
                         <TableCell className="text-right">
-                          K{(employee.allowances || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          K
+                          {(employee.allowances || 0).toLocaleString(undefined, {
+                            maximumFractionDigits: 2
+                          })}
                         </TableCell>
                         <TableCell className="text-right">
-                          K{(employee.deductions || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          K
+                          {(employee.deductions || 0).toLocaleString(undefined, {
+                            maximumFractionDigits: 2
+                          })}
                         </TableCell>
                         <TableCell className="text-right">
-                          K{(employee.netSalary || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          K
+                          {(employee.netSalary || 0).toLocaleString(undefined, {
+                            maximumFractionDigits: 2
+                          })}
                         </TableCell>
                       </TableRow>
                     ))

@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import type { LeaveRequest } from "@/lib/db/models/leave-request.model"
-import { getDatabases } from "../db-service"
-import { dbOperations } from "../db-service"
+import type { LeaveRequest } from '@/lib/db/models/leave-request.model'
+import { getDatabases } from '../db-service'
+import { dbOperations } from '../db-service'
 
 export class LeaveRequestService {
   private db: any
@@ -13,8 +13,9 @@ export class LeaveRequestService {
 
   static async createService() {
     const databases = await getDatabases()
-    if (!databases.employees) { // Using employees db as fallback
-      console.warn("Database not available")
+    if (!databases.employees) {
+      // Using employees db as fallback
+      console.warn('Database not available')
       return null
     }
     return new LeaveRequestService(databases.employees)
@@ -26,7 +27,7 @@ export class LeaveRequestService {
   }
 
   async getById(id: string): Promise<LeaveRequest | null> {
-    return await dbOperations.getById(this.db, id) as LeaveRequest | null
+    return (await dbOperations.getById(this.db, id)) as LeaveRequest | null
   }
 
   async create(request: Omit<LeaveRequest, '_id' | '_rev'>): Promise<LeaveRequest> {
@@ -44,7 +45,7 @@ export class LeaveRequestService {
   async update(id: string, request: Partial<LeaveRequest>): Promise<LeaveRequest> {
     const existing = await this.getById(id)
     if (!existing) {
-      throw new Error("Leave request not found")
+      throw new Error('Leave request not found')
     }
     const updated = {
       ...existing,
@@ -59,12 +60,12 @@ export class LeaveRequestService {
 export const leaveRequestService = (async () => {
   const service = await LeaveRequestService.createService()
   if (!service) {
-    console.warn("Using mock leave request service")
+    console.warn('Using mock leave request service')
     return {
       getAll: async () => [],
       getById: async () => null,
-      create: async () => ({ _id: '', _rev: '', status: 'pending' } as LeaveRequest),
-      update: async () => ({ _id: '', _rev: '', status: 'pending' } as LeaveRequest)
+      create: async () => ({ _id: '', _rev: '', status: 'pending' }) as LeaveRequest,
+      update: async () => ({ _id: '', _rev: '', status: 'pending' }) as LeaveRequest
     }
   }
   return service

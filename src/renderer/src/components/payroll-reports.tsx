@@ -1,22 +1,44 @@
-"use client"
+'use client'
 
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { CalendarIcon, Download, FileText } from "lucide-react"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts'
+import { CalendarIcon, Download, FileText } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import { useState } from "react"
-import { Calendar } from "@/components/ui/calendar"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { format } from 'date-fns'
+import { useState } from 'react'
+import { Calendar } from '@/components/ui/calendar'
 
 const data = [
-  { name: "Jan", salary: 175000, tax: 43750, pension: 8750, net: 122500 },
-  { name: "Feb", salary: 190000, tax: 47500, pension: 9500, net: 133000 },
-  { name: "Mar", salary: 245678, tax: 61420, pension: 12284, net: 171974 },
+  { name: 'Jan', salary: 175000, tax: 43750, pension: 8750, net: 122500 },
+  { name: 'Feb', salary: 190000, tax: 47500, pension: 9500, net: 133000 },
+  { name: 'Mar', salary: 245678, tax: 61420, pension: 12284, net: 171974 }
 ]
 
 export function PayrollReports() {
@@ -72,7 +94,7 @@ export function PayrollReports() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" />
                 <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
-                <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, ""]} />
+                <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, '']} />
                 <Legend />
                 <Bar dataKey="salary" name="Gross Salary" fill="#0ea5e9" />
                 <Bar dataKey="tax" name="Tax" fill="#f97316" />
@@ -95,15 +117,23 @@ export function PayrollReports() {
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    variant={"outline"}
-                    className={cn("w-full justify-start text-left md:w-[240px]", !date && "text-muted-foreground")}
+                    variant={'outline'}
+                    className={cn(
+                      'w-full justify-start text-left md:w-[240px]',
+                      !date && 'text-muted-foreground'
+                    )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "MMMM yyyy") : <span>Select month</span>}
+                    {date ? format(date, 'MMMM yyyy') : <span>Select month</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={date} onSelect={(date) => date && setDate(date)} initialFocus />
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(date) => date && setDate(date)}
+                    initialFocus
+                  />
                 </PopoverContent>
               </Popover>
             </div>
@@ -192,7 +222,9 @@ export function PayrollReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Payroll Summary</h3>
-                  <p className="text-sm text-muted-foreground">Monthly summary of all payroll transactions</p>
+                  <p className="text-sm text-muted-foreground">
+                    Monthly summary of all payroll transactions
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download
@@ -222,7 +254,9 @@ export function PayrollReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Payroll Register</h3>
-                  <p className="text-sm text-muted-foreground">Detailed register of all payroll entries</p>
+                  <p className="text-sm text-muted-foreground">
+                    Detailed register of all payroll entries
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download

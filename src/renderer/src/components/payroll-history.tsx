@@ -1,13 +1,29 @@
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { DollarSign, Download, Eye, FileText, Mail, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
-import { useDatabase } from "@/lib/db/db-context"
-import { getPayrollHistoryService } from "@/lib/db/services/service-factory"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import {
+  DollarSign,
+  Download,
+  Eye,
+  FileText,
+  Mail,
+  Trash2,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react'
+import { useDatabase } from '@/lib/db/db-context'
+import { getPayrollHistoryService } from '@/lib/db/services/service-factory'
+import { useToast } from '@/hooks/use-toast'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,8 +32,8 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 export function PayrollHistory() {
   const navigate = useNavigate()
   //const { isLoading } = useDatabase()
@@ -35,18 +51,17 @@ export function PayrollHistory() {
   const itemsPerPage = 20
   const { toast } = useToast()
 
-
   useEffect(() => {
     const getPayrollService = async () => {
       try {
         const payrollservice = await getPayrollHistoryService()
         setPayrollHistoryService(payrollservice)
         console.log('Payroll service initialized')
-
       } catch (error) {
-
-        console.error("Error initializing services:", error)
-        setServiceError("Failed to initialize services. The application will run with limited functionality.")
+        console.error('Error initializing services:', error)
+        setServiceError(
+          'Failed to initialize services. The application will run with limited functionality.'
+        )
 
         // Set services to empty implementations to avoid null errors
         //  setEmployeeService({})
@@ -54,11 +69,11 @@ export function PayrollHistory() {
         setServicesLoaded(true)
 
         toast({
-          title: "Warning",
-          description: "Running in limited functionality mode due to database initialization issues.",
-          variant: "destructive",
+          title: 'Warning',
+          description:
+            'Running in limited functionality mode due to database initialization issues.',
+          variant: 'destructive'
         })
-
       }
     }
     getPayrollService()
@@ -74,13 +89,13 @@ export function PayrollHistory() {
         const sorted = [...data].sort((a, b) => {
           return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
         })
-        console.log("payroll-history", sorted)
+        console.log('payroll-history', sorted)
         setPayrollHistory(sorted)
-        
+
         // Calculate total pages
         setTotalPages(Math.max(1, Math.ceil(sorted.length / itemsPerPage)))
       } catch (error) {
-        console.error("Error loading payroll history:", error)
+        console.error('Error loading payroll history:', error)
         setPayrollHistory([])
       } finally {
         setIsLoading(false)
@@ -91,38 +106,38 @@ export function PayrollHistory() {
   }, [payrollHistoryService])
 
   const handleGeneratePayroll = () => {
-    navigate("/payroll/generate")
+    navigate('/payroll/generate')
   }
-  
+
   const handleDeletePayroll = async () => {
     if (!payrollToDelete || !payrollHistoryService) return
-    
+
     try {
       setIsDeleting(true)
       await payrollHistoryService.deletePayrollRecord(payrollToDelete)
-      
+
       // Update the list after deletion
-      setPayrollHistory(prev => prev.filter(item => item._id !== payrollToDelete))
-      
+      setPayrollHistory((prev) => prev.filter((item) => item._id !== payrollToDelete))
+
       toast({
-        title: "Success",
-        description: "Payroll record deleted successfully",
+        title: 'Success',
+        description: 'Payroll record deleted successfully'
       })
-      
+
       // Recalculate total pages
       const newTotalPages = Math.max(1, Math.ceil((payrollHistory.length - 1) / itemsPerPage))
       setTotalPages(newTotalPages)
-      
+
       // Adjust current page if needed
       if (currentPage > newTotalPages) {
         setCurrentPage(newTotalPages)
       }
     } catch (error: any) {
-      console.error("Error deleting payroll record:", error)
+      console.error('Error deleting payroll record:', error)
       toast({
-        title: "Error",
-        description: error.message || "Failed to delete payroll record",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to delete payroll record',
+        variant: 'destructive'
       })
     } finally {
       setIsDeleting(false)
@@ -130,12 +145,12 @@ export function PayrollHistory() {
       setPayrollToDelete(null)
     }
   }
-  
+
   const openDeleteDialog = (payrollId: string) => {
     setPayrollToDelete(payrollId)
     setDeleteDialogOpen(true)
   }
-  
+
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage)
@@ -144,13 +159,13 @@ export function PayrollHistory() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "completed":
+      case 'completed':
         return <Badge className="bg-green-500">Completed</Badge>
-      case "processing":
+      case 'processing':
         return <Badge className="bg-blue-500">Processing</Badge>
-      case "pending":
+      case 'pending':
         return <Badge variant="outline">Pending</Badge>
-      case "cancelled":
+      case 'cancelled':
         return <Badge variant="destructive">Cancelled</Badge>
       default:
         return <Badge variant="secondary">Unknown</Badge>
@@ -162,7 +177,9 @@ export function PayrollHistory() {
     <div className="flex flex-col items-center justify-center py-8 text-center">
       <FileText className="h-10 w-10 text-muted-foreground mb-4" />
       <h3 className="text-lg font-medium">No payroll history</h3>
-      <p className="text-sm text-muted-foreground mt-2 mb-4">Generate your first payroll to see history</p>
+      <p className="text-sm text-muted-foreground mt-2 mb-4">
+        Generate your first payroll to see history
+      </p>
       <Button onClick={handleGeneratePayroll} size="sm">
         <DollarSign className="mr-2 h-4 w-4" />
         Generate Payroll
@@ -210,14 +227,22 @@ export function PayrollHistory() {
                 <TableBody>
                   {paginatedPayrollHistory.map((payroll) => (
                     <TableRow key={payroll._id}>
-                      <TableCell className="font-medium">{payroll.period || "Monthly Payroll"}</TableCell>
-                      <TableCell>{payroll.date ? new Date(payroll.date).toLocaleDateString() : "—"}</TableCell>
+                      <TableCell className="font-medium">
+                        {payroll.period || 'Monthly Payroll'}
+                      </TableCell>
+                      <TableCell>
+                        {payroll.date ? new Date(payroll.date).toLocaleDateString() : '—'}
+                      </TableCell>
                       <TableCell>{payroll.employeeCount || 0}</TableCell>
-                      <TableCell>K{payroll.totalAmount?.toLocaleString() || "0"}</TableCell>
+                      <TableCell>K{payroll.totalAmount?.toLocaleString() || '0'}</TableCell>
                       <TableCell>{getStatusBadge(payroll.status)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => navigate(`/payroll/history/${payroll._id}`)}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/payroll/history/${payroll._id}`)}
+                          >
                             <Eye className="mr-2 h-4 w-4" />
                             View
                           </Button>
@@ -229,11 +254,11 @@ export function PayrollHistory() {
                             <Mail className="mr-2 h-4 w-4" />
                             Email All
                           </Button>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => openDeleteDialog(payroll._id)}
-                            disabled={payroll.status === "processing" || isDeleting}
+                            disabled={payroll.status === 'processing' || isDeleting}
                           >
                             <Trash2 className="mr-2 h-4 w-4 text-red-500" />
                             Delete
@@ -245,7 +270,7 @@ export function PayrollHistory() {
                 </TableBody>
               </Table>
             </div>
-            
+
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center space-x-2 mt-4">
@@ -270,7 +295,7 @@ export function PayrollHistory() {
                 </Button>
               </div>
             )}
-            
+
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
               <AlertDialogContent>
@@ -283,12 +308,12 @@ export function PayrollHistory() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={handleDeletePayroll} 
+                  <AlertDialogAction
+                    onClick={handleDeletePayroll}
                     disabled={isDeleting}
                     className="bg-red-600 hover:bg-red-700"
                   >
-                    {isDeleting ? "Deleting..." : "Delete"}
+                    {isDeleting ? 'Deleting...' : 'Delete'}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

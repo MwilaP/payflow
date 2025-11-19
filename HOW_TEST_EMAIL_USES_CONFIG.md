@@ -33,7 +33,7 @@ The `initialize` method creates a nodemailer transporter with **your credentials
 ```typescript
 async initialize(config: EmailConfig): Promise<void> {
   this.config = config  // ← Stores your config
-  
+
   this.transporter = nodemailer.createTransport({
     host: config.host,              // ← Your SMTP host
     port: config.port,              // ← Your port
@@ -48,7 +48,7 @@ async initialize(config: EmailConfig): Promise<void> {
     debug: true,
     logger: true
   })
-  
+
   // Verifies connection using YOUR credentials
   await this.transporter.verify()
 }
@@ -75,7 +75,7 @@ async sendTestEmail(testEmail: string): Promise<void> {
 
     // Sends using this.transporter which has YOUR credentials
     const info = await this.transporter.sendMail(mailOptions)
-    
+
     console.log('✓ Test email sent successfully')
     console.log('Message ID:', info.messageId)
   } catch (error: any) {
@@ -126,6 +126,7 @@ Message ID: <abc123@yourdomain.com>
 ```
 
 **See the line:** `DEBUG [connection] > AUTH PLAIN [credentials]`
+
 - This is where your username and password are sent to the server
 - The next line shows: `< 235 Authentication successful`
 - This confirms your credentials were accepted
@@ -134,14 +135,14 @@ Message ID: <abc123@yourdomain.com>
 
 ## What Gets Used from Your Configuration
 
-| Configuration Field | Used For | When |
-|---------------------|----------|------|
-| `host` | SMTP server address | Connection |
-| `port` | SMTP server port | Connection |
-| `secure` | SSL/TLS encryption | Connection |
-| `auth.user` | **Username for authentication** | **Every email send** |
-| `auth.pass` | **Password for authentication** | **Every email send** |
-| `from` | Sender email address | Email header |
+| Configuration Field | Used For                        | When                 |
+| ------------------- | ------------------------------- | -------------------- |
+| `host`              | SMTP server address             | Connection           |
+| `port`              | SMTP server port                | Connection           |
+| `secure`            | SSL/TLS encryption              | Connection           |
+| `auth.user`         | **Username for authentication** | **Every email send** |
+| `auth.pass`         | **Password for authentication** | **Every email send** |
+| `from`              | Sender email address            | Email header         |
 
 ---
 
@@ -151,14 +152,14 @@ The email service uses **one transporter instance** for all operations:
 
 ```typescript
 class EmailService {
-  private transporter: Transporter | null = null  // ← Single instance
-  private config: EmailConfig | null = null       // ← Single config
+  private transporter: Transporter | null = null // ← Single instance
+  private config: EmailConfig | null = null // ← Single config
 
   // Initialize ONCE with your credentials
   async initialize(config: EmailConfig) {
     this.transporter = nodemailer.createTransport({
       auth: {
-        user: config.auth.user,  // ← YOUR credentials stored here
+        user: config.auth.user, // ← YOUR credentials stored here
         pass: config.auth.pass
       }
     })
@@ -166,12 +167,12 @@ class EmailService {
 
   // Test email uses THE SAME transporter
   async sendTestEmail(testEmail: string) {
-    await this.transporter.sendMail(mailOptions)  // ← Uses YOUR credentials
+    await this.transporter.sendMail(mailOptions) // ← Uses YOUR credentials
   }
 
   // Payslip emails use THE SAME transporter
   async sendPayslipEmail(data: EmailPayslipData) {
-    await this.transporter.sendMail(mailOptions)  // ← Uses YOUR credentials
+    await this.transporter.sendMail(mailOptions) // ← Uses YOUR credentials
   }
 
   // Bulk emails use THE SAME transporter
@@ -186,12 +187,15 @@ class EmailService {
 ## Common Misconceptions
 
 ### ❌ "Test email uses a different account"
+
 **FALSE** - Test email uses the exact same transporter with your configured credentials.
 
 ### ❌ "I need to configure credentials separately for test emails"
+
 **FALSE** - Once you configure email settings, ALL email operations use those credentials.
 
 ### ❌ "Test email doesn't authenticate"
+
 **FALSE** - Every email (test or real) authenticates with your username and password.
 
 ---
@@ -201,6 +205,7 @@ class EmailService {
 ### **Method 1: Check Terminal Logs**
 
 When you send a test email, look for:
+
 ```
 DEBUG [connection] > AUTH PLAIN [credentials]
 DEBUG [connection] < 235 Authentication successful
@@ -211,6 +216,7 @@ If you see "Authentication successful", your credentials worked!
 ### **Method 2: Check Email Server Logs**
 
 Your email server logs will show:
+
 - Connection from your IP
 - Authentication attempt with your username
 - Email sent from your configured "from" address
@@ -218,6 +224,7 @@ Your email server logs will show:
 ### **Method 3: Check Received Email**
 
 The test email you receive will show:
+
 - **From:** Your configured "from" address
 - **Server:** Your SMTP server in email headers
 - **Authentication:** Email headers show it was authenticated
@@ -225,6 +232,7 @@ The test email you receive will show:
 ### **Method 4: Try Wrong Credentials**
 
 If you configure with wrong credentials:
+
 ```
 ✗ Failed to initialize email service: Error: Invalid login: 535 Authentication failed
 Authentication failed. Check username and password.
@@ -237,6 +245,7 @@ This proves the system IS using your credentials!
 ## Example: Complete Flow
 
 ### Your Configuration:
+
 ```json
 {
   "host": "mail.company.com",
@@ -254,7 +263,7 @@ This proves the system IS using your credentials!
 
 1. **Save Configuration** → Creates transporter with `john@company.com` / `SecurePassword123`
 2. **Verify Connection** → Tests authentication with your credentials
-3. **Send Test Email** → 
+3. **Send Test Email** →
    - Connects to `mail.company.com:587`
    - Authenticates as `john@company.com` with `SecurePassword123`
    - Sends email from `payroll@company.com`
@@ -270,6 +279,7 @@ This proves the system IS using your credentials!
 ## Security Note
 
 Your password is:
+
 - ✅ Stored in memory only (not saved to disk in this implementation)
 - ✅ Used for SMTP authentication
 - ✅ Sent over encrypted connection (TLS/SSL)
@@ -283,6 +293,7 @@ Your password is:
 ### ✅ **YES, test email uses your configured username and password!**
 
 **How it works:**
+
 1. You configure email settings with your username and password
 2. System creates ONE transporter with your credentials
 3. Test email uses that SAME transporter
@@ -290,6 +301,7 @@ Your password is:
 5. All emails authenticate with YOUR credentials
 
 **Proof:**
+
 - Terminal shows `AUTH PLAIN [credentials]` and `Authentication successful`
 - Same transporter instance used for all operations
 - Wrong credentials = authentication failure

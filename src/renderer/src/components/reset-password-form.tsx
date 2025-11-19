@@ -1,42 +1,49 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { CreditCard, Loader2 } from "lucide-react"
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { CreditCard, Loader2 } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/components/ui/use-toast'
 
 export function ResetPasswordForm() {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
-  const [email, setEmail] = useState("")
-  
+  const [email, setEmail] = useState('')
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!email) {
       toast({
-        title: "Error",
-        description: "Please enter your email address",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please enter your email address',
+        variant: 'destructive'
       })
       return
     }
-    
+
     setIsLoading(true)
-    
+
     // Simulate password reset request
     setTimeout(() => {
       toast({
-        title: "Password Reset Email Sent",
-        description: "Check your email for password reset instructions",
+        title: 'Password Reset Email Sent',
+        description: 'Check your email for password reset instructions'
       })
       setIsLoading(false)
     }, 2000)
   }
-  
+
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader className="space-y-2 text-center">
@@ -53,13 +60,13 @@ export function ResetPasswordForm() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input 
-              id="email" 
+            <Input
+              id="email"
               name="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email address" 
+              placeholder="Enter your email address"
             />
           </div>
         </CardContent>
@@ -71,7 +78,7 @@ export function ResetPasswordForm() {
                 Sending...
               </>
             ) : (
-              "Send Reset Link"
+              'Send Reset Link'
             )}
           </Button>
           <div className="text-center text-sm">

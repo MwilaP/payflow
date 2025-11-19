@@ -1,44 +1,55 @@
+import type React from 'react'
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Plus, Search, FileText } from "lucide-react"
-import { AssignStructureModal } from "./assign-structure-modal"
-import { PaySummaryModal } from "./pay-summary-modal"
-import { createPayrollStructureServiceCompat } from "@/lib/db/sqlite-payroll-service"
-import { initializeSQLiteDatabase } from "@/lib/db/indexeddb-sqlite-service"
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { MoreHorizontal, Plus, Search, FileText } from 'lucide-react'
+import { AssignStructureModal } from './assign-structure-modal'
+import { PaySummaryModal } from './pay-summary-modal'
+import { createPayrollStructureServiceCompat } from '@/lib/db/sqlite-payroll-service'
+import { initializeSQLiteDatabase } from '@/lib/db/indexeddb-sqlite-service'
 
 export function PayrollStructuresList() {
   const navigate = useNavigate()
   const [structures, setStructures] = useState<any[]>([])
   const [filteredStructures, setFilteredStructures] = useState<any[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState('')
   const [assignModalOpen, setAssignModalOpen] = useState(false)
   const [paySummaryModalOpen, setPaySummaryModalOpen] = useState(false)
   const [selectedStructure, setSelectedStructure] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [dbInitialized, setDbInitialized] = useState(false)
-  
+
   // Initialize database
   useEffect(() => {
     const initDb = async () => {
       try {
-        const { success } = await initializeSQLiteDatabase();
-        setDbInitialized(success);
+        const { success } = await initializeSQLiteDatabase()
+        setDbInitialized(success)
       } catch (error) {
-        console.error("Error initializing database:", error);
+        console.error('Error initializing database:', error)
       }
-    };
+    }
 
-    initDb();
-  }, []);
+    initDb()
+  }, [])
 
   // Load structures when database is initialized
   useEffect(() => {
@@ -46,19 +57,19 @@ export function PayrollStructuresList() {
       if (!dbInitialized) return
 
       try {
-        setIsLoading(true);
-        console.log("Loading payroll structures from SQLite...");
-        const payrollService = createPayrollStructureServiceCompat();
-        const data = await payrollService.getAll();
-        console.log("Loaded structures:", data);
-        setStructures(data || []);
-        setFilteredStructures(data || []);
+        setIsLoading(true)
+        console.log('Loading payroll structures from SQLite...')
+        const payrollService = createPayrollStructureServiceCompat()
+        const data = await payrollService.getAll()
+        console.log('Loaded structures:', data)
+        setStructures(data || [])
+        setFilteredStructures(data || [])
       } catch (error) {
-        console.error("Error loading payroll structures:", error);
-        setStructures([]);
-        setFilteredStructures([]);
+        console.error('Error loading payroll structures:', error)
+        setStructures([])
+        setFilteredStructures([])
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     }
 
@@ -79,7 +90,8 @@ export function PayrollStructuresList() {
     const query = searchQuery.toLowerCase()
     const filtered = structures.filter(
       (structure) =>
-        structure.name.toLowerCase().includes(query) || structure.description?.toLowerCase().includes(query),
+        structure.name.toLowerCase().includes(query) ||
+        structure.description?.toLowerCase().includes(query)
     )
     setFilteredStructures(filtered)
   }, [structures, searchQuery])
@@ -89,7 +101,7 @@ export function PayrollStructuresList() {
   }
 
   const handleCreateStructure = () => {
-    navigate("/payroll/structures/new")
+    navigate('/payroll/structures/new')
   }
 
   const handleEditStructure = (id: string) => {
@@ -114,8 +126,8 @@ export function PayrollStructuresList() {
       </div>
       <h3 className="text-lg font-medium">No payroll structures found</h3>
       <p className="text-muted-foreground mt-2 mb-6 max-w-md">
-        Create your first payroll structure to define how employee salaries are calculated, including basic salary,
-        allowances, and deductions.
+        Create your first payroll structure to define how employee salaries are calculated,
+        including basic salary, allowances, and deductions.
       </p>
       <Button onClick={handleCreateStructure}>
         <Plus className="mr-2 h-4 w-4" />
@@ -188,16 +200,20 @@ export function PayrollStructuresList() {
                             <div>
                               <div className="font-medium">{structure.name}</div>
                               {structure.description && (
-                                <div className="text-sm text-muted-foreground">{structure.description}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {structure.description}
+                                </div>
                               )}
                             </div>
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="capitalize">
-                              {structure.frequency || "Monthly"}
+                              {structure.frequency || 'Monthly'}
                             </Badge>
                           </TableCell>
-                          <TableCell>ZMW {structure.basicSalary?.toLocaleString() || "0"}</TableCell>
+                          <TableCell>
+                            ZMW {structure.basicSalary?.toLocaleString() || '0'}
+                          </TableCell>
                           <TableCell>{structure.allowances?.length || 0}</TableCell>
                           <TableCell>{structure.deductions?.length || 0}</TableCell>
                           <TableCell className="text-right">
@@ -212,7 +228,9 @@ export function PayrollStructuresList() {
                                 <DropdownMenuItem onClick={() => handleViewPaySummary(structure)}>
                                   View Pay Summary
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleEditStructure(structure._id)}>
+                                <DropdownMenuItem
+                                  onClick={() => handleEditStructure(structure._id)}
+                                >
                                   Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleAssignStructure(structure)}>
@@ -234,8 +252,16 @@ export function PayrollStructuresList() {
 
       {selectedStructure && (
         <>
-          <AssignStructureModal open={assignModalOpen} onOpenChange={setAssignModalOpen} structure={selectedStructure} />
-          <PaySummaryModal open={paySummaryModalOpen} onOpenChange={setPaySummaryModalOpen} structure={selectedStructure} />
+          <AssignStructureModal
+            open={assignModalOpen}
+            onOpenChange={setAssignModalOpen}
+            structure={selectedStructure}
+          />
+          <PaySummaryModal
+            open={paySummaryModalOpen}
+            onOpenChange={setPaySummaryModalOpen}
+            structure={selectedStructure}
+          />
         </>
       )}
     </>

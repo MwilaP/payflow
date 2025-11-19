@@ -1,56 +1,69 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { CalendarIcon, Upload } from "lucide-react"
-import { z } from "zod"
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CalendarIcon, Upload } from 'lucide-react'
+import { z } from 'zod'
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import { useToast } from "@/hooks/use-toast"
-import { createSQLiteEmployeeService } from "@/lib/db/sqlite-employee-service"
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
+import { format } from 'date-fns'
+import { useToast } from '@/hooks/use-toast'
+import { createSQLiteEmployeeService } from '@/lib/db/sqlite-employee-service'
 
 // Form validation schema
 const employeeFormSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
   dob: z.date().optional(),
   gender: z.string().optional(),
   address: z.string().optional(),
-  department: z.string().min(1, "Department is required"),
-  designation: z.string().min(1, "Designation is required"),
-  employmentType: z.string().min(1, "Employment type is required"),
+  department: z.string().min(1, 'Department is required'),
+  designation: z.string().min(1, 'Designation is required'),
+  employmentType: z.string().min(1, 'Employment type is required'),
   hireDate: z.date(),
   reportingTo: z.string().optional(),
   workLocation: z.string().optional(),
-  accountNumber: z.string().min(1, "Account number is required"),
-  bankName: z.string().min(1, "Bank name is required"),
+  accountNumber: z.string().min(1, 'Account number is required'),
+  bankName: z.string().min(1, 'Bank name is required'),
   branchName: z.string().optional(),
   ifscCode: z.string().optional(),
-  nationalId: z.string().min(1, "National ID is required"),
-  taxNumber: z.string().min(1, "Tax number is required"),
+  nationalId: z.string().min(1, 'National ID is required'),
+  taxNumber: z.string().min(1, 'Tax number is required'),
   pensionNumber: z.string().optional(),
-  taxStatus: z.string().optional(),
+  taxStatus: z.string().optional()
 })
 
 type EmployeeFormData = z.infer<typeof employeeFormSchema>
 
 export function NewEmployeeForm() {
-  const [activeTab, setActiveTab] = useState("personal")
+  const [activeTab, setActiveTab] = useState('personal')
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -58,31 +71,31 @@ export function NewEmployeeForm() {
   const form = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeFormSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      address: "",
-      department: "",
-      designation: "",
-      employmentType: "",
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      address: '',
+      department: '',
+      designation: '',
+      employmentType: '',
       hireDate: new Date(),
-      accountNumber: "",
-      bankName: "",
-      branchName: "",
-      ifscCode: "",
-      nationalId: "",
-      taxNumber: "",
-      pensionNumber: "",
-    },
+      accountNumber: '',
+      bankName: '',
+      branchName: '',
+      ifscCode: '',
+      nationalId: '',
+      taxNumber: '',
+      pensionNumber: ''
+    }
   })
 
   const handleSubmit = async (data: EmployeeFormData) => {
     try {
       setIsLoading(true)
-      
+
       const employeeService = createSQLiteEmployeeService()
-      
+
       // Transform form data to employee format
       const employeeData = {
         firstName: data.firstName,
@@ -113,19 +126,19 @@ export function NewEmployeeForm() {
       }
 
       const newEmployee = await employeeService.create(employeeData)
-      
+
       toast({
-        title: "Employee created",
-        description: `${newEmployee.firstName} ${newEmployee.lastName} has been successfully added to the system.`,
+        title: 'Employee created',
+        description: `${newEmployee.firstName} ${newEmployee.lastName} has been successfully added to the system.`
       })
-      
-      navigate("/employees")
+
+      navigate('/employees')
     } catch (error) {
-      console.error("Error creating employee:", error)
+      console.error('Error creating employee:', error)
       toast({
-        title: "Error",
-        description: "Failed to create employee. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to create employee. Please try again.',
+        variant: 'destructive'
       })
     } finally {
       setIsLoading(false)
@@ -217,13 +230,13 @@ export function NewEmployeeForm() {
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant={"outline"}
+                              variant={'outline'}
                               className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground",
+                                'w-full pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
                               )}
                             >
-                              {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                              {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                           </FormControl>
@@ -233,7 +246,7 @@ export function NewEmployeeForm() {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                            disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                             initialFocus
                           />
                         </PopoverContent>
@@ -274,7 +287,11 @@ export function NewEmployeeForm() {
                 <FormItem>
                   <FormLabel>Address</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Enter full address" className="min-h-[80px]" {...field} />
+                    <Textarea
+                      placeholder="Enter full address"
+                      className="min-h-[80px]"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -284,7 +301,7 @@ export function NewEmployeeForm() {
               <Button type="button" variant="outline">
                 Cancel
               </Button>
-              <Button type="button" onClick={() => setActiveTab("job")}>
+              <Button type="button" onClick={() => setActiveTab('job')}>
                 Next
               </Button>
             </div>
@@ -364,10 +381,13 @@ export function NewEmployeeForm() {
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
-                            variant={"outline"}
-                            className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                            variant={'outline'}
+                            className={cn(
+                              'w-full pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
                           >
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -434,10 +454,10 @@ export function NewEmployeeForm() {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setActiveTab("personal")}>
+              <Button type="button" variant="outline" onClick={() => setActiveTab('personal')}>
                 Previous
               </Button>
-              <Button type="button" onClick={() => setActiveTab("banking")}>
+              <Button type="button" onClick={() => setActiveTab('banking')}>
                 Next
               </Button>
             </div>
@@ -498,10 +518,10 @@ export function NewEmployeeForm() {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setActiveTab("job")}>
+              <Button type="button" variant="outline" onClick={() => setActiveTab('job')}>
                 Previous
               </Button>
-              <Button type="button" onClick={() => setActiveTab("tax")}>
+              <Button type="button" onClick={() => setActiveTab('tax')}>
                 Next
               </Button>
             </div>
@@ -590,7 +610,9 @@ export function NewEmployeeForm() {
                     <Upload className="h-8 w-8 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Contract</p>
-                      <p className="text-xs text-muted-foreground">Upload signed employment contract</p>
+                      <p className="text-xs text-muted-foreground">
+                        Upload signed employment contract
+                      </p>
                     </div>
                     <Button type="button" variant="outline" size="sm">
                       Upload
@@ -600,7 +622,7 @@ export function NewEmployeeForm() {
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setActiveTab("banking")}>
+              <Button type="button" variant="outline" onClick={() => setActiveTab('banking')}>
                 Previous
               </Button>
               <Button type="submit">Create Employee</Button>

@@ -46,6 +46,7 @@ DEBUG [connection] < 221 2.0.0 Bye
 ```
 
 **What this means:**
+
 - ✓ Connected to SMTP server
 - ✓ Upgraded to secure connection (TLS)
 - ✓ Authentication successful
@@ -73,6 +74,7 @@ Cannot resolve SMTP host "mail.wrongdomain.com". Please check the hostname.
 ```
 
 **What this means:**
+
 - ✗ Server hostname cannot be found
 - **Fix:** Check spelling, try IP address, check DNS
 
@@ -101,6 +103,7 @@ Connection refused to mail.yourdomain.com:999. Check host and port.
 ```
 
 **What this means:**
+
 - ✗ Server found but not accepting connections on that port
 - **Fix:** Try port 587 or 465, check firewall
 
@@ -139,6 +142,7 @@ Authentication failed. Check username and password.
 ```
 
 **What this means:**
+
 - ✓ Connected to server
 - ✓ TLS upgrade successful
 - ✗ Username or password incorrect
@@ -186,6 +190,7 @@ Response: 250 2.0.0 Ok: queued as ABC123DEF456
 ```
 
 **What this means:**
+
 - ✓ Connected to server
 - ✓ Authenticated successfully
 - ✓ Email accepted by server
@@ -209,6 +214,7 @@ Email service not configured
 ```
 
 **What this means:**
+
 - ✗ Email service hasn't been configured yet
 - **Fix:** Configure email settings first (Save Configuration)
 
@@ -231,6 +237,7 @@ Connection timeout. Check your network and firewall settings.
 ```
 
 **What this means:**
+
 - ✗ Cannot connect to server
 - **Fix:** Check network, firewall, VPN
 
@@ -243,6 +250,7 @@ Connection timeout. Check your network and firewall settings.
 ```
 
 **What this means:**
+
 - Email service is configured and ready
 
 or
@@ -252,6 +260,7 @@ or
 ```
 
 **What this means:**
+
 - Email service needs to be configured
 
 ---
@@ -263,6 +272,7 @@ or
 ```
 
 **What this means:**
+
 - Saved configuration exists
 
 or
@@ -272,6 +282,7 @@ or
 ```
 
 **What this means:**
+
 - No saved configuration found
 
 ---
@@ -317,21 +328,25 @@ Sent: 23, Failed: 2
 ```
 DEBUG [connection] Connecting to mail.yourdomain.com:587
 ```
+
 - Attempting to connect to SMTP server
 
 ```
 DEBUG [connection] Connection established
 ```
+
 - TCP connection successful
 
 ```
 DEBUG [connection] < 220 mail.yourdomain.com ESMTP
 ```
+
 - Server greeting received (< means from server)
 
 ```
 DEBUG [connection] > EHLO [127.0.0.1]
 ```
+
 - Client introducing itself (> means to server)
 
 ### TLS/Security Messages
@@ -339,16 +354,19 @@ DEBUG [connection] > EHLO [127.0.0.1]
 ```
 DEBUG [connection] < 250-STARTTLS
 ```
+
 - Server supports STARTTLS (upgrade to secure connection)
 
 ```
 DEBUG [connection] > STARTTLS
 ```
+
 - Client requesting TLS upgrade
 
 ```
 DEBUG Upgraded to TLS
 ```
+
 - Connection now encrypted
 
 ### Authentication Messages
@@ -356,16 +374,19 @@ DEBUG Upgraded to TLS
 ```
 DEBUG [connection] > AUTH PLAIN [credentials]
 ```
+
 - Sending authentication credentials
 
 ```
 DEBUG [connection] < 235 Authentication successful
 ```
+
 - Server accepted credentials
 
 ```
 DEBUG [connection] < 535 Authentication failed
 ```
+
 - Server rejected credentials
 
 ### Email Sending Messages
@@ -373,42 +394,47 @@ DEBUG [connection] < 535 Authentication failed
 ```
 DEBUG [connection] > MAIL FROM:<sender@domain.com>
 ```
+
 - Specifying sender address
 
 ```
 DEBUG [connection] > RCPT TO:<recipient@domain.com>
 ```
+
 - Specifying recipient address
 
 ```
 DEBUG [connection] > DATA
 ```
+
 - Starting to send email content
 
 ```
 DEBUG [connection] < 250 2.0.0 Ok: queued as ABC123
 ```
+
 - Email accepted and queued for delivery
 
 ---
 
 ## Common Response Codes
 
-| Code | Meaning |
-|------|---------|
-| 220 | Service ready |
-| 235 | Authentication successful |
-| 250 | Requested action completed |
-| 354 | Start mail input |
-| 535 | Authentication failed |
-| 550 | Mailbox unavailable |
-| 554 | Transaction failed |
+| Code | Meaning                    |
+| ---- | -------------------------- |
+| 220  | Service ready              |
+| 235  | Authentication successful  |
+| 250  | Requested action completed |
+| 354  | Start mail input           |
+| 535  | Authentication failed      |
+| 550  | Mailbox unavailable        |
+| 554  | Transaction failed         |
 
 ---
 
 ## What to Look For
 
 ### ✅ Good Signs:
+
 - "Connection established"
 - "Upgraded to TLS"
 - "Authentication successful"
@@ -418,6 +444,7 @@ DEBUG [connection] < 250 2.0.0 Ok: queued as ABC123
 - "250 2.0.0 Ok: queued"
 
 ### ❌ Problem Signs:
+
 - "ENOTFOUND"
 - "ECONNREFUSED"
 - "ETIMEDOUT"

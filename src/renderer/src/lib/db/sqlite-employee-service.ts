@@ -1,29 +1,29 @@
 import { sqliteOperations, getDatabase } from './indexeddb-sqlite-service'
-import { 
-  SQLiteEmployee, 
-  sqliteEmployeeSchema, 
-  convertSQLiteToPouchDB 
-} from './sqlite-models'
+import { SQLiteEmployee, sqliteEmployeeSchema, convertSQLiteToPouchDB } from './sqlite-models'
 import { v4 as uuidv4 } from 'uuid'
 
 export interface SQLiteEmployeeService {
   // CRUD operations
-  create(employee: Omit<SQLiteEmployee, 'id' | 'created_at' | 'updated_at'>): Promise<SQLiteEmployee>
+  create(
+    employee: Omit<SQLiteEmployee, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<SQLiteEmployee>
   getById(id: string): Promise<SQLiteEmployee | null>
   update(id: string, updates: Partial<SQLiteEmployee>): Promise<SQLiteEmployee | null>
   delete(id: string): Promise<boolean>
   getAll(): Promise<SQLiteEmployee[]>
-  
+
   // Search and filter operations
   findByDepartment(department: string): Promise<SQLiteEmployee[]>
   findByStatus(status: string): Promise<SQLiteEmployee[]>
   findByPayrollStructure(payrollStructureId: string): Promise<SQLiteEmployee[]>
   search(query: string): Promise<SQLiteEmployee[]>
-  
+
   // Bulk operations
-  bulkCreate(employees: Omit<SQLiteEmployee, 'id' | 'created_at' | 'updated_at'>[]): Promise<SQLiteEmployee[]>
+  bulkCreate(
+    employees: Omit<SQLiteEmployee, 'id' | 'created_at' | 'updated_at'>[]
+  ): Promise<SQLiteEmployee[]>
   bulkUpdate(updates: { id: string; data: Partial<SQLiteEmployee> }[]): Promise<SQLiteEmployee[]>
-  
+
   // Statistics
   getEmployeeCount(): Promise<number>
   getEmployeesByDepartment(): Promise<Record<string, number>>
@@ -37,12 +37,12 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
         ...employeeData,
         id: `employee_${uuidv4()}`,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
 
       // Validate the employee data
       const validated = sqliteEmployeeSchema.parse(employee)
-      
+
       return sqliteOperations.create('employees', validated)
     },
 
@@ -53,9 +53,9 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
     async update(id: string, updates) {
       const updateData = {
         ...updates,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
-      
+
       return sqliteOperations.update<SQLiteEmployee>('employees', id, updateData)
     },
 
@@ -76,8 +76,8 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
     },
 
     async findByPayrollStructure(payrollStructureId: string) {
-      return sqliteOperations.find<SQLiteEmployee>('employees', { 
-        payroll_structure_id: payrollStructureId 
+      return sqliteOperations.find<SQLiteEmployee>('employees', {
+        payroll_structure_id: payrollStructureId
       })
     },
 
@@ -85,33 +85,34 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
       // For IndexedDB, we'll get all employees and filter in memory
       const allEmployees = await this.getAll()
       const searchTerm = query.toLowerCase()
-      
-      return allEmployees.filter(employee => 
-        employee.first_name.toLowerCase().includes(searchTerm) ||
-        employee.last_name.toLowerCase().includes(searchTerm) ||
-        employee.email.toLowerCase().includes(searchTerm) ||
-        employee.department.toLowerCase().includes(searchTerm) ||
-        employee.designation.toLowerCase().includes(searchTerm)
+
+      return allEmployees.filter(
+        (employee) =>
+          employee.first_name.toLowerCase().includes(searchTerm) ||
+          employee.last_name.toLowerCase().includes(searchTerm) ||
+          employee.email.toLowerCase().includes(searchTerm) ||
+          employee.department.toLowerCase().includes(searchTerm) ||
+          employee.designation.toLowerCase().includes(searchTerm)
       )
     },
 
     async bulkCreate(employeesData) {
       return sqliteOperations.transaction(async (ops) => {
         const results: SQLiteEmployee[] = []
-        
+
         for (const employeeData of employeesData) {
           const employee: SQLiteEmployee = {
             ...employeeData,
             id: `employee_${uuidv4()}`,
             created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }
-          
+
           const validated = sqliteEmployeeSchema.parse(employee)
           const created = await ops.create('employees', validated)
           results.push(created)
         }
-        
+
         return results
       })
     },
@@ -119,19 +120,19 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
     async bulkUpdate(updates) {
       return sqliteOperations.transaction(async (ops) => {
         const results: SQLiteEmployee[] = []
-        
+
         for (const { id, data } of updates) {
           const updateData = {
             ...data,
-            updated_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }
-          
+
           const updated = await ops.update<SQLiteEmployee>('employees', id, updateData)
           if (updated) {
             results.push(updated)
           }
         }
-        
+
         return results
       })
     },
@@ -144,22 +145,22 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
     async getEmployeesByDepartment() {
       const employees = await this.getAll()
       const departmentCounts: Record<string, number> = {}
-      
+
       for (const employee of employees) {
         departmentCounts[employee.department] = (departmentCounts[employee.department] || 0) + 1
       }
-      
+
       return departmentCounts
     },
 
     async getEmployeesByStatus() {
       const employees = await this.getAll()
       const statusCounts: Record<string, number> = {}
-      
+
       for (const employee of employees) {
         statusCounts[employee.status] = (statusCounts[employee.status] || 0) + 1
       }
-      
+
       return statusCounts
     }
   }
@@ -168,7 +169,7 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
 // Compatibility wrapper to maintain the same interface as PouchDB service
 export const createEmployeeServiceCompat = () => {
   const sqliteService = createSQLiteEmployeeService()
-  
+
   return {
     // Convert SQLite service methods to match PouchDB interface
     async create(employeeData: any) {
@@ -196,9 +197,9 @@ export const createEmployeeServiceCompat = () => {
         tax_number: employeeData.taxNumber,
         pension_number: employeeData.pensionNumber,
         tax_status: employeeData.taxStatus,
-        payroll_structure_id: employeeData.payrollStructureId,
+        payroll_structure_id: employeeData.payrollStructureId
       }
-      
+
       const result = await sqliteService.create(sqliteData)
       return convertSQLiteToPouchDB.employee(result)
     },
@@ -213,7 +214,7 @@ export const createEmployeeServiceCompat = () => {
     async update(id: string, updates: any) {
       // Convert PouchDB format updates to SQLite format
       const sqliteUpdates: Partial<SQLiteEmployee> = {}
-      
+
       if (updates.firstName) sqliteUpdates.first_name = updates.firstName
       if (updates.lastName) sqliteUpdates.last_name = updates.lastName
       if (updates.email) sqliteUpdates.email = updates.email
@@ -222,8 +223,9 @@ export const createEmployeeServiceCompat = () => {
       if (updates.designation) sqliteUpdates.designation = updates.designation
       if (updates.employmentType) sqliteUpdates.employment_type = updates.employmentType
       if (updates.status) sqliteUpdates.status = updates.status
-      if (updates.payrollStructureId) sqliteUpdates.payroll_structure_id = updates.payrollStructureId
-      
+      if (updates.payrollStructureId)
+        sqliteUpdates.payroll_structure_id = updates.payrollStructureId
+
       const result = await sqliteService.update(id, sqliteUpdates)
       return result ? convertSQLiteToPouchDB.employee(result) : null
     },
@@ -234,7 +236,10 @@ export const createEmployeeServiceCompat = () => {
 
     async getAll() {
       const results = await sqliteService.getAll()
-      console.log(`SQLite Employee Service: Found ${results.length} employees:`, results.map(r => ({ id: r.id, name: `${r.first_name} ${r.last_name}` })))
+      console.log(
+        `SQLite Employee Service: Found ${results.length} employees:`,
+        results.map((r) => ({ id: r.id, name: `${r.first_name} ${r.last_name}` }))
+      )
       return results.map(convertSQLiteToPouchDB.employee)
     },
 

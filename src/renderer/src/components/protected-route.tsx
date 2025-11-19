@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { useAuth } from "@/lib/auth-context"
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/lib/auth-context'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -18,7 +18,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     // If not authenticated, redirect to login
     if (!isAuthenticated) {
-      navigate("/login")
+      navigate('/login')
     }
   }, [isAuthenticated, isLoading, navigate])
 

@@ -1,4 +1,4 @@
-import { EmployeeForm } from "@/components/employee-form"
+import { EmployeeForm } from '@/components/employee-form'
 
 export default function EmployeeNewPage() {
   return (

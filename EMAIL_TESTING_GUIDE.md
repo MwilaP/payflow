@@ -13,6 +13,7 @@ The email service now provides detailed logging. Watch the terminal where you ra
 ### What to Look For:
 
 #### ✅ Successful Configuration:
+
 ```
 Initializing email service with config: {
   host: 'smtp.gmail.com',
@@ -28,39 +29,50 @@ Verifying SMTP connection...
 #### ❌ Failed Configuration - Common Errors:
 
 **1. ENOTFOUND / EAI_AGAIN (DNS Resolution Error)**
+
 ```
 ✗ Failed to initialize email service: Error: getaddrinfo ENOTFOUND smtp.gmial.com
 Cannot resolve SMTP host "smtp.gmial.com". Please check the hostname.
 ```
+
 **Solution:** Fix the SMTP host typo (e.g., `smtp.gmial.com` → `smtp.gmail.com`)
 
 **2. ECONNREFUSED (Connection Refused)**
+
 ```
 ✗ Failed to initialize email service: Error: connect ECONNREFUSED 127.0.0.1:587
 Connection refused to smtp.gmail.com:587. Check host and port.
 ```
-**Solution:** 
+
+**Solution:**
+
 - Check if the port is correct
 - Verify firewall isn't blocking the connection
 - Try port 465 with `secure: true` instead
 
 **3. ETIMEDOUT (Connection Timeout)**
+
 ```
 ✗ Failed to initialize email service: Error: Connection timeout
 Connection timeout to smtp.gmail.com:587. Check firewall/network.
 ```
+
 **Solution:**
+
 - Check your internet connection
 - Verify firewall/antivirus isn't blocking SMTP
 - Try from a different network
 - Contact your IT department if on corporate network
 
 **4. Authentication Failed**
+
 ```
 ✗ Failed to initialize email service: Error: Invalid login: 535-5.7.8 Username and Password not accepted
 Authentication failed. Check username and password.
 ```
+
 **Solution:**
+
 - For Gmail: Use an App Password, not your regular password
 - Verify username is correct
 - Check password for typos
@@ -76,6 +88,7 @@ Authentication failed. Check username and password.
    - Click the "Email" tab
 
 2. **Fill in Configuration**
+
    ```
    SMTP Host: smtp.gmail.com
    Port: 587
@@ -101,10 +114,13 @@ Authentication failed. Check username and password.
    - Go to Console tab
 
 2. **Check if Email API is Available**
+
    ```javascript
    window.api.email
    ```
+
    Should show:
+
    ```javascript
    {
      configure: ƒ,
@@ -117,6 +133,7 @@ Authentication failed. Check username and password.
    ```
 
 3. **Test Configuration Programmatically**
+
    ```javascript
    // Configure email
    await window.api.email.configure({
@@ -132,6 +149,7 @@ Authentication failed. Check username and password.
    ```
 
 4. **Check if Configured**
+
    ```javascript
    await window.api.email.isConfigured()
    // Should return: true
@@ -151,6 +169,7 @@ Authentication failed. Check username and password.
 **Subject:** Test Email - Payroll System
 
 **Content:**
+
 - ✓ Test Email Successful header
 - Confirmation that configuration is working
 - Your SMTP configuration details
@@ -187,6 +206,7 @@ From Email: your-email@gmail.com
 ```
 
 **Important for Gmail:**
+
 1. Enable 2-Factor Authentication
 2. Generate App Password:
    - Go to: https://myaccount.google.com/apppasswords
@@ -249,14 +269,14 @@ From Email: noreply@yourdomain.com
 
 ## Error Messages Reference
 
-| Error Code | Meaning | Solution |
-|------------|---------|----------|
-| ENOTFOUND | Cannot resolve hostname | Check SMTP host spelling |
-| ECONNREFUSED | Connection refused | Check port, try 465 or 587 |
-| ETIMEDOUT | Connection timeout | Check firewall/network |
-| EAUTH | Authentication failed | Check username/password |
-| 535 | Invalid credentials | Use App Password (Gmail) |
-| ESOCKET | Socket error | Network/firewall issue |
+| Error Code   | Meaning                 | Solution                   |
+| ------------ | ----------------------- | -------------------------- |
+| ENOTFOUND    | Cannot resolve hostname | Check SMTP host spelling   |
+| ECONNREFUSED | Connection refused      | Check port, try 465 or 587 |
+| ETIMEDOUT    | Connection timeout      | Check firewall/network     |
+| EAUTH        | Authentication failed   | Check username/password    |
+| 535          | Invalid credentials     | Use App Password (Gmail)   |
+| ESOCKET      | Socket error            | Network/firewall issue     |
 
 ---
 
@@ -329,17 +349,20 @@ openssl s_client -connect smtp.gmail.com:465 -crlf
 ## Success Indicators
 
 ### ✓ Configuration Successful:
+
 - Terminal shows: "✓ Email service initialized successfully"
 - Toast notification: "Email Configured"
 - Status badge changes to "Configured" (green)
 
 ### ✓ Test Email Successful:
+
 - Terminal shows: "✓ Test email sent successfully"
 - Terminal shows: "Message ID: <...>"
 - Toast notification: "Test Email Sent"
 - Email received in inbox within 5 minutes
 
 ### ✓ Ready for Production:
+
 - Test email received successfully
 - Configuration persists after app restart
 - No errors in terminal logs

@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { PageHeader } from "@/components/page-header"
-import PayrollImporter from "@/components/payroll-importer"
+import { PageHeader } from '@/components/page-header'
+import PayrollImporter from '@/components/payroll-importer'
 
 export default function PayrollImportPage() {
   return (
@@ -10,7 +10,7 @@ export default function PayrollImportPage() {
         heading="Import Payroll"
         subheading="Import payroll data from CSV files and match employees by NRC"
       />
-      
+
       <PayrollImporter />
     </div>
   )

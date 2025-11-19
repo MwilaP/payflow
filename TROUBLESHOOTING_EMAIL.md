@@ -3,7 +3,9 @@
 ## Error: "Cannot read properties of undefined (reading 'configure')"
 
 ### Cause
+
 This error occurs when the email API is not available in the renderer process. This happens because:
+
 1. The preload script changes haven't been loaded yet
 2. The Electron app is using an old version of the preload script
 
@@ -18,10 +20,13 @@ This error occurs when the email API is not available in the renderer process. T
    - Or close the Electron window
 
 2. **Start the application again:**
+
    ```bash
    npm run dev
    ```
+
    or
+
    ```bash
    npm start
    ```
@@ -33,6 +38,7 @@ This error occurs when the email API is not available in the renderer process. T
 ### Why This Happens
 
 Electron applications have three main processes:
+
 - **Main Process**: Runs Node.js code (handles email sending)
 - **Preload Script**: Bridges main and renderer processes (exposes email API)
 - **Renderer Process**: Runs the React UI (uses email API)
@@ -50,7 +56,8 @@ const api = {
     isConfigured: () => ipcRenderer.invoke('email:isConfigured'),
     getConfig: () => ipcRenderer.invoke('email:getConfig'),
     sendPayslip: (data: EmailPayslipData) => ipcRenderer.invoke('email:sendPayslip', data),
-    sendBulkPayslips: (payslips: EmailPayslipData[]) => ipcRenderer.invoke('email:sendBulkPayslips', payslips),
+    sendBulkPayslips: (payslips: EmailPayslipData[]) =>
+      ipcRenderer.invoke('email:sendBulkPayslips', payslips),
     sendTest: (testEmail: string) => ipcRenderer.invoke('email:sendTest', testEmail)
   }
 }
@@ -128,7 +135,8 @@ This will appear in the UI as a toast notification if you try to use email featu
 
 **Cause:** Email SMTP settings haven't been configured yet.
 
-**Solution:** 
+**Solution:**
+
 1. Go to Settings → Email tab
 2. Fill in SMTP configuration
 3. Click "Save Configuration"
@@ -138,6 +146,7 @@ This will appear in the UI as a toast notification if you try to use email featu
 **Cause:** Incorrect SMTP credentials or server settings.
 
 **Solution:**
+
 1. Verify SMTP host and port are correct
 2. Check username and password
 3. For Gmail, use an App Password (not regular password)
@@ -148,6 +157,7 @@ This will appear in the UI as a toast notification if you try to use email featu
 **Cause:** Cannot connect to SMTP server.
 
 **Solution:**
+
 1. Check internet connection
 2. Verify firewall isn't blocking SMTP ports
 3. Try alternative port (587 vs 465)

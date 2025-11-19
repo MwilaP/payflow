@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom"
-import { ChevronLeft, FileEdit } from "lucide-react"
+import { Link } from 'react-router-dom'
+import { ChevronLeft, FileEdit } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { EmployeeProfile } from "@/components/employee-profile"
+import { Button } from '@/components/ui/button'
+import { EmployeeProfile } from '@/components/employee-profile'
 
 interface EmployeeDetailProps {
   employeeId: string

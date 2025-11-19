@@ -1,20 +1,20 @@
-"use client"
+'use client'
 
-import { Link } from "react-router-dom"
-import { Bell, Menu, Search } from "lucide-react"
+import { Link } from 'react-router-dom'
+import { Bell, Menu, Search } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { MainSidebar } from "@/components/main-sidebar"
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { MainSidebar } from '@/components/main-sidebar'
 
 export function MainHeader() {
   return (

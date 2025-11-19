@@ -1,71 +1,78 @@
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { CreditCard, Loader2 } from "lucide-react"
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { CreditCard, Loader2 } from 'lucide-react'
 
-import { useAuth } from "@/lib/auth-context"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from '@/lib/auth-context'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/components/ui/use-toast'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
   const { toast } = useToast()
-  
+
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
+    username: '',
+    password: ''
   })
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!formData.username || !formData.password) {
       toast({
-        title: "Error",
-        description: "Please enter both username and password",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please enter both username and password',
+        variant: 'destructive'
       })
       return
     }
-    
+
     setIsLoading(true)
-    
+
     try {
       const result = await login(formData.username, formData.password)
-      
+
       if (result.success) {
         toast({
-          title: "Success",
-          description: "You have been logged in successfully",
+          title: 'Success',
+          description: 'You have been logged in successfully'
         })
-        navigate("/dashboard")
+        navigate('/dashboard')
       } else {
         toast({
-          title: "Authentication failed",
-          description: result.error || "Invalid credentials",
-          variant: "destructive",
+          title: 'Authentication failed',
+          description: result.error || 'Invalid credentials',
+          variant: 'destructive'
         })
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
+        title: 'Error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive'
       })
     } finally {
       setIsLoading(false)
     }
   }
-  
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
       <Card className="mx-auto w-full max-w-md">
@@ -86,25 +93,28 @@ export default function LoginPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username or Email</Label>
-              <Input 
-                id="username" 
+              <Input
+                id="username"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="Enter username or email" 
+                placeholder="Enter username or email"
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link to="/reset-password" className="text-xs text-primary underline underline-offset-4">
+                <Link
+                  to="/reset-password"
+                  className="text-xs text-primary underline underline-offset-4"
+                >
                   Forgot password?
                 </Link>
               </div>
-              <Input 
-                id="password" 
+              <Input
+                id="password"
                 name="password"
-                type="password" 
+                type="password"
                 value={formData.password}
                 onChange={handleChange}
               />
@@ -118,7 +128,7 @@ export default function LoginPage() {
                   Signing in...
                 </>
               ) : (
-                "Sign in"
+                'Sign in'
               )}
             </Button>
           </CardFooter>

@@ -1,15 +1,22 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react"
+import { useState } from 'react'
+import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { format } from 'date-fns'
 
 export function EmployeeAttendance() {
   const [date, setDate] = useState<Date>(new Date())
@@ -22,7 +29,7 @@ export function EmployeeAttendance() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Monthly Attendance</CardTitle>
-              <CardDescription>Attendance record for {format(month, "MMMM yyyy")}</CardDescription>
+              <CardDescription>Attendance record for {format(month, 'MMMM yyyy')}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -40,11 +47,16 @@ export function EmployeeAttendance() {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="min-w-[120px]">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(month, "MMM yyyy")}
+                    {format(month, 'MMM yyyy')}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={month} onSelect={(date) => date && setMonth(date)} initialFocus />
+                  <Calendar
+                    mode="single"
+                    selected={month}
+                    onSelect={(date) => date && setMonth(date)}
+                    initialFocus
+                  />
                 </PopoverContent>
               </Popover>
               <Button
@@ -63,7 +75,7 @@ export function EmployeeAttendance() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-7 gap-2">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
               <div key={day} className="text-center text-sm font-medium">
                 {day}
               </div>
@@ -79,15 +91,17 @@ export function EmployeeAttendance() {
                 <div
                   key={i}
                   className={cn(
-                    "flex h-12 flex-col items-center justify-center rounded-md border p-1 text-center",
-                    isWeekend && "bg-muted",
-                    isPresent && !isHalfDay && "border-green-500 bg-green-50",
-                    isHalfDay && "border-yellow-500 bg-yellow-50",
-                    isLeave && "border-red-500 bg-red-50",
+                    'flex h-12 flex-col items-center justify-center rounded-md border p-1 text-center',
+                    isWeekend && 'bg-muted',
+                    isPresent && !isHalfDay && 'border-green-500 bg-green-50',
+                    isHalfDay && 'border-yellow-500 bg-yellow-50',
+                    isLeave && 'border-red-500 bg-red-50'
                   )}
                 >
                   <span className="text-sm">{day}</span>
-                  {isPresent && !isHalfDay && <span className="text-[10px] text-green-600">Present</span>}
+                  {isPresent && !isHalfDay && (
+                    <span className="text-[10px] text-green-600">Present</span>
+                  )}
                   {isHalfDay && <span className="text-[10px] text-yellow-600">Half Day</span>}
                   {isLeave && <span className="text-[10px] text-red-600">Leave</span>}
                   {isWeekend && <span className="text-[10px] text-muted-foreground">Weekend</span>}
@@ -126,11 +140,16 @@ export function EmployeeAttendance() {
               <PopoverTrigger asChild>
                 <Button variant="outline">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(date, "PPP")}
+                  {format(date, 'PPP')}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
-                <Calendar mode="single" selected={date} onSelect={(date) => date && setDate(date)} initialFocus />
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(date) => date && setDate(date)}
+                  initialFocus
+                />
               </PopoverContent>
             </Popover>
             <Button variant="outline">Add Manual Entry</Button>
@@ -147,35 +166,35 @@ export function EmployeeAttendance() {
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell>{format(new Date(), "MMM dd, yyyy")}</TableCell>
+                <TableCell>{format(new Date(), 'MMM dd, yyyy')}</TableCell>
                 <TableCell>09:00 AM</TableCell>
                 <TableCell>05:30 PM</TableCell>
                 <TableCell>8.5 hrs</TableCell>
                 <TableCell className="text-green-600">Present</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>{format(new Date(Date.now() - 86400000), "MMM dd, yyyy")}</TableCell>
+                <TableCell>{format(new Date(Date.now() - 86400000), 'MMM dd, yyyy')}</TableCell>
                 <TableCell>09:15 AM</TableCell>
                 <TableCell>05:45 PM</TableCell>
                 <TableCell>8.5 hrs</TableCell>
                 <TableCell className="text-green-600">Present</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>{format(new Date(Date.now() - 172800000), "MMM dd, yyyy")}</TableCell>
+                <TableCell>{format(new Date(Date.now() - 172800000), 'MMM dd, yyyy')}</TableCell>
                 <TableCell>09:05 AM</TableCell>
                 <TableCell>05:30 PM</TableCell>
                 <TableCell>8.5 hrs</TableCell>
                 <TableCell className="text-green-600">Present</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>{format(new Date(Date.now() - 259200000), "MMM dd, yyyy")}</TableCell>
+                <TableCell>{format(new Date(Date.now() - 259200000), 'MMM dd, yyyy')}</TableCell>
                 <TableCell>-</TableCell>
                 <TableCell>-</TableCell>
                 <TableCell>-</TableCell>
                 <TableCell className="text-red-600">Leave</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>{format(new Date(Date.now() - 345600000), "MMM dd, yyyy")}</TableCell>
+                <TableCell>{format(new Date(Date.now() - 345600000), 'MMM dd, yyyy')}</TableCell>
                 <TableCell>09:00 AM</TableCell>
                 <TableCell>01:00 PM</TableCell>
                 <TableCell>4 hrs</TableCell>
@@ -208,8 +227,8 @@ export function EmployeeAttendance() {
             <TableBody>
               <TableRow>
                 <TableCell>Sick Leave</TableCell>
-                <TableCell>{format(new Date(Date.now() - 259200000), "MMM dd, yyyy")}</TableCell>
-                <TableCell>{format(new Date(Date.now() - 259200000), "MMM dd, yyyy")}</TableCell>
+                <TableCell>{format(new Date(Date.now() - 259200000), 'MMM dd, yyyy')}</TableCell>
+                <TableCell>{format(new Date(Date.now() - 259200000), 'MMM dd, yyyy')}</TableCell>
                 <TableCell>1</TableCell>
                 <TableCell>Medical appointment</TableCell>
                 <TableCell className="text-green-600">Approved</TableCell>

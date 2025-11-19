@@ -1,12 +1,12 @@
-import { Link, useParams } from "react-router-dom"
-import { ChevronLeft } from "lucide-react"
+import { Link, useParams } from 'react-router-dom'
+import { ChevronLeft } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { PayrollStructureForm } from "@/components/payroll-structure-form"
+import { Button } from '@/components/ui/button'
+import { PayrollStructureForm } from '@/components/payroll-structure-form'
 
 export default function PayrollStructureEditPage() {
   const { id } = useParams<{ id: string }>()
-  
+
   return (
     <div className="space-y-6 relative">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

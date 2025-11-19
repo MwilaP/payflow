@@ -1,20 +1,20 @@
-"use client"
+'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Download } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Download } from 'lucide-react'
 
 interface Allowance {
   id: string
   name: string
-  type: "fixed" | "percentage"
+  type: 'fixed' | 'percentage'
   value: number
 }
 
 interface Deduction {
   id: string
   name: string
-  type: "fixed" | "percentage"
+  type: 'fixed' | 'percentage'
   value: number
   preTax: boolean
 }
@@ -30,11 +30,11 @@ export function PayrollStructureSummary({
   basicSalary,
   allowances,
   deductions,
-  frequency,
+  frequency
 }: PayrollStructureSummaryProps) {
   // Calculate total allowances
   const totalAllowances = allowances.reduce((total, allowance) => {
-    if (allowance.type === "fixed") {
+    if (allowance.type === 'fixed') {
       return total + allowance.value
     } else {
       // Percentage of basic salary
@@ -49,7 +49,7 @@ export function PayrollStructureSummary({
   const preTaxDeductions = deductions
     .filter((deduction) => deduction.preTax)
     .reduce((total, deduction) => {
-      if (deduction.type === "fixed") {
+      if (deduction.type === 'fixed') {
         return total + deduction.value
       } else {
         // Percentage of gross pay
@@ -64,7 +64,7 @@ export function PayrollStructureSummary({
   const postTaxDeductions = deductions
     .filter((deduction) => !deduction.preTax)
     .reduce((total, deduction) => {
-      if (deduction.type === "fixed") {
+      if (deduction.type === 'fixed') {
         return total + deduction.value
       } else {
         // Percentage of gross pay
@@ -81,14 +81,14 @@ export function PayrollStructureSummary({
   // Format frequency for display
   const formatFrequency = (freq: string) => {
     switch (freq) {
-      case "monthly":
-        return "Monthly"
-      case "biweekly":
-        return "Bi-weekly"
-      case "weekly":
-        return "Weekly"
+      case 'monthly':
+        return 'Monthly'
+      case 'biweekly':
+        return 'Bi-weekly'
+      case 'weekly':
+        return 'Weekly'
       default:
-        return "Monthly"
+        return 'Monthly'
     }
   }
 
@@ -112,11 +112,18 @@ export function PayrollStructureSummary({
                   <span>ZMW{totalAllowances.toLocaleString()}</span>
                 </div>
                 {allowances.map((allowance) => {
-                  const amount = allowance.type === "fixed" ? allowance.value : (allowance.value / 100) * basicSalary
+                  const amount =
+                    allowance.type === 'fixed'
+                      ? allowance.value
+                      : (allowance.value / 100) * basicSalary
                   return (
-                    <div key={allowance.id} className="flex justify-between pl-4 text-xs text-muted-foreground">
+                    <div
+                      key={allowance.id}
+                      className="flex justify-between pl-4 text-xs text-muted-foreground"
+                    >
                       <span>
-                        {allowance.name || "Unnamed"} {allowance.type === "percentage" && `(${allowance.value}%)`}
+                        {allowance.name || 'Unnamed'}{' '}
+                        {allowance.type === 'percentage' && `(${allowance.value}%)`}
                       </span>
                       <span>ZMW{amount.toLocaleString()}</span>
                     </div>
@@ -140,11 +147,18 @@ export function PayrollStructureSummary({
               {deductions
                 .filter((deduction) => deduction.preTax)
                 .map((deduction) => {
-                  const amount = deduction.type === "fixed" ? deduction.value : (deduction.value / 100) * grossPay
+                  const amount =
+                    deduction.type === 'fixed'
+                      ? deduction.value
+                      : (deduction.value / 100) * grossPay
                   return (
-                    <div key={deduction.id} className="flex justify-between pl-4 text-xs text-muted-foreground">
+                    <div
+                      key={deduction.id}
+                      className="flex justify-between pl-4 text-xs text-muted-foreground"
+                    >
                       <span>
-                        {deduction.name || "Unnamed"} {deduction.type === "percentage" && `(${deduction.value}%)`}
+                        {deduction.name || 'Unnamed'}{' '}
+                        {deduction.type === 'percentage' && `(${deduction.value}%)`}
                         <span className="ml-1 text-xs">(Pre-Tax)</span>
                       </span>
                       <span>-ZMW {amount.toLocaleString()}</span>
@@ -154,11 +168,18 @@ export function PayrollStructureSummary({
               {deductions
                 .filter((deduction) => !deduction.preTax)
                 .map((deduction) => {
-                  const amount = deduction.type === "fixed" ? deduction.value : (deduction.value / 100) * grossPay
+                  const amount =
+                    deduction.type === 'fixed'
+                      ? deduction.value
+                      : (deduction.value / 100) * grossPay
                   return (
-                    <div key={deduction.id} className="flex justify-between pl-4 text-xs text-muted-foreground">
+                    <div
+                      key={deduction.id}
+                      className="flex justify-between pl-4 text-xs text-muted-foreground"
+                    >
                       <span>
-                        {deduction.name || "Unnamed"} {deduction.type === "percentage" && `(${deduction.value}%)`}
+                        {deduction.name || 'Unnamed'}{' '}
+                        {deduction.type === 'percentage' && `(${deduction.value}%)`}
                         <span className="ml-1 text-xs">(Post-Tax)</span>
                       </span>
                       <span>-ZMW{amount.toLocaleString()}</span>
@@ -173,19 +194,19 @@ export function PayrollStructureSummary({
               <span>Net Pay ({formatFrequency(frequency)})</span>
               <span className="text-xl">ZMW{netPay.toLocaleString()}</span>
             </div>
-            {frequency === "monthly" && (
+            {frequency === 'monthly' && (
               <div className="mt-2 flex justify-between text-sm text-muted-foreground">
                 <span>Annual</span>
                 <span>ZMW{(netPay * 12).toLocaleString()}</span>
               </div>
             )}
-            {frequency === "biweekly" && (
+            {frequency === 'biweekly' && (
               <div className="mt-2 flex justify-between text-sm text-muted-foreground">
                 <span>Annual (26 pay periods)</span>
                 <span>ZMW{(netPay * 26).toLocaleString()}</span>
               </div>
             )}
-            {frequency === "weekly" && (
+            {frequency === 'weekly' && (
               <div className="mt-2 flex justify-between text-sm text-muted-foreground">
                 <span>Annual (52 pay periods)</span>
                 <span>ZMW{(netPay * 52).toLocaleString()}</span>

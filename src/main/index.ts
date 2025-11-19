@@ -4,6 +4,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { emailService } from './services/email.service'
 import type { EmailConfig, EmailPayslipData } from './services/email.service'
+import { pdfGeneratorService } from './services/pdf-generator.service'
+import type { PayslipPDFData } from './services/pdf-generator.service'
 
 function createWindow(): void {
   // Create the browser window.
@@ -120,6 +122,39 @@ app.whenReady().then(() => {
       await emailService.sendTestEmail(testEmail)
       console.log('========================================\n')
       return { success: true }
+    } catch (error: any) {
+      console.log('========================================\n')
+      return { success: false, error: error.message }
+    }
+  })
+
+  // PDF Generation IPC handlers
+  ipcMain.handle('pdf:generatePayslip', async (_, data: PayslipPDFData) => {
+    console.log('\n========================================')
+    console.log('📄 GENERATING PAYSLIP PDF')
+    console.log(`Employee: ${data.employeeName}`)
+    console.log('========================================')
+    try {
+      const pdfBase64 = await pdfGeneratorService.generatePayslipPDF(data)
+      console.log('========================================\n')
+      return { success: true, data: pdfBase64 }
+    } catch (error: any) {
+      console.log('========================================\n')
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('pdf:generateBulkPayslips', async (_, payslipsData: PayslipPDFData[]) => {
+    console.log('\n========================================')
+    console.log('📄 GENERATING BULK PAYSLIP PDFs')
+    console.log(`Total payslips: ${payslipsData.length}`)
+    console.log('========================================')
+    try {
+      const pdfMap = await pdfGeneratorService.generateBulkPayslipPDFs(payslipsData)
+      // Convert Map to object for IPC transfer
+      const pdfObject = Object.fromEntries(pdfMap)
+      console.log('========================================\n')
+      return { success: true, data: pdfObject }
     } catch (error: any) {
       console.log('========================================\n')
       return { success: false, error: error.message }

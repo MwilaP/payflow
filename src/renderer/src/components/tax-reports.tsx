@@ -1,17 +1,39 @@
-"use client"
+'use client'
 
-import { Download, FileText } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { Download, FileText } from 'lucide-react'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 
 const taxData = [
-  { name: "Jan", incomeTax: 43750, pension: 8750, healthInsurance: 5000, total: 57500 },
-  { name: "Feb", incomeTax: 47500, pension: 9500, healthInsurance: 5500, total: 62500 },
-  { name: "Mar", incomeTax: 61420, pension: 12284, healthInsurance: 7000, total: 80704 },
+  { name: 'Jan', incomeTax: 43750, pension: 8750, healthInsurance: 5000, total: 57500 },
+  { name: 'Feb', incomeTax: 47500, pension: 9500, healthInsurance: 5500, total: 62500 },
+  { name: 'Mar', incomeTax: 61420, pension: 12284, healthInsurance: 7000, total: 80704 }
 ]
 
 export function TaxReports() {
@@ -64,7 +86,7 @@ export function TaxReports() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" />
                 <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
-                <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, ""]} />
+                <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, '']} />
                 <Legend />
                 <Bar dataKey="incomeTax" name="Income Tax" fill="#f97316" />
                 <Bar dataKey="pension" name="Pension" fill="#8b5cf6" />
@@ -153,7 +175,9 @@ export function TaxReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Annual Tax Summary</h3>
-                  <p className="text-sm text-muted-foreground">Complete annual tax deduction summary</p>
+                  <p className="text-sm text-muted-foreground">
+                    Complete annual tax deduction summary
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download
@@ -183,7 +207,9 @@ export function TaxReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Employee Tax Statements</h3>
-                  <p className="text-sm text-muted-foreground">Individual tax statements for all employees</p>
+                  <p className="text-sm text-muted-foreground">
+                    Individual tax statements for all employees
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download
@@ -213,7 +239,9 @@ export function TaxReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Health Insurance Report</h3>
-                  <p className="text-sm text-muted-foreground">Health insurance deductions and coverage</p>
+                  <p className="text-sm text-muted-foreground">
+                    Health insurance deductions and coverage
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download
@@ -228,7 +256,9 @@ export function TaxReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Tax Remittance Report</h3>
-                  <p className="text-sm text-muted-foreground">Report of tax payments to authorities</p>
+                  <p className="text-sm text-muted-foreground">
+                    Report of tax payments to authorities
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download

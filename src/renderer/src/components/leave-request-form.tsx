@@ -1,13 +1,13 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { CalendarIcon, Info } from "lucide-react"
-import { format } from "date-fns"
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { CalendarIcon, Info } from 'lucide-react'
+import { format } from 'date-fns'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -16,34 +16,29 @@ import {
   FormItem,
   FormLabel,
   FormMessage
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from "@/components/ui/select"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { cn } from "@/lib/utils"
-import { toast } from "@/components/ui/use-toast"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Card } from "@/components/ui/card"
+} from '@/components/ui/select'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
+import { cn } from '@/lib/utils'
+import { toast } from '@/components/ui/use-toast'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Card } from '@/components/ui/card'
 
 const formSchema = z.object({
-  employeeName: z.string().min(1, "Employee name is required"),
-  leaveType: z.string().min(1, "Leave type is required"),
+  employeeName: z.string().min(1, 'Employee name is required'),
+  leaveType: z.string().min(1, 'Leave type is required'),
   startDate: z.date(),
   endDate: z.date(),
-  reason: z.string().optional(),
+  reason: z.string().optional()
 })
-
 
 interface Employee {
   id: string
@@ -73,35 +68,37 @@ interface LeaveRequestFormProps {
   onCancel: () => void
 }
 
-export function LeaveRequestForm({ employee, onSubmit, onSuccess, onCancel }: LeaveRequestFormProps) {
+export function LeaveRequestForm({
+  employee,
+  onSubmit,
+  onSuccess,
+  onCancel
+}: LeaveRequestFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      leaveType: "",
-      reason: "",
-    },
+      leaveType: '',
+      reason: ''
+    }
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      console.log("Submiting")
+      console.log('Submiting')
       setIsSubmitting(true)
       const result = await onSubmit(data)
       if (onSuccess) {
         onSuccess(result)
         setIsSubmitting(true)
-
-
       }
-
     } catch (error) {
       console.log(error)
       toast({
-        title: "Error",
-        description: "Failed to submit leave request",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to submit leave request',
+        variant: 'destructive'
       })
     } finally {
       setIsSubmitting(false)
@@ -156,14 +153,14 @@ export function LeaveRequestForm({ employee, onSubmit, onSuccess, onCancel }: Le
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant={'outline'}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, 'PPP')
                           ) : (
                             <span>Select start date</span>
                           )}
@@ -181,9 +178,7 @@ export function LeaveRequestForm({ employee, onSubmit, onSuccess, onCancel }: Le
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormDescription>
-                    First day of leave
-                  </FormDescription>
+                  <FormDescription>First day of leave</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -199,17 +194,13 @@ export function LeaveRequestForm({ employee, onSubmit, onSuccess, onCancel }: Le
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant={'outline'}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
                           )}
                         >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Select end date</span>
-                          )}
+                          {field.value ? format(field.value, 'PPP') : <span>Select end date</span>}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
@@ -219,17 +210,12 @@ export function LeaveRequestForm({ employee, onSubmit, onSuccess, onCancel }: Le
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) =>
-                          date < form.getValues("startDate") ||
-                          date < new Date()
-                        }
+                        disabled={(date) => date < form.getValues('startDate') || date < new Date()}
                         initialFocus
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormDescription>
-                    Last day of leave
-                  </FormDescription>
+                  <FormDescription>Last day of leave</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -248,9 +234,7 @@ export function LeaveRequestForm({ employee, onSubmit, onSuccess, onCancel }: Le
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Minimum 10 characters required
-                  </FormDescription>
+                  <FormDescription>Minimum 10 characters required</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -258,19 +242,11 @@ export function LeaveRequestForm({ employee, onSubmit, onSuccess, onCancel }: Le
           </div>
 
           <div className="flex justify-end gap-4 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Submitting..." : "Submit Request"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting...' : 'Submit Request'}
             </Button>
           </div>
         </form>

@@ -8,7 +8,7 @@ const DB_VERSION = 1
 // Table definitions for IndexedDB object stores
 const TABLES = {
   employees: 'employees',
-  payroll_structures: 'payroll_structures', 
+  payroll_structures: 'payroll_structures',
   allowances: 'allowances',
   deductions: 'deductions',
   payroll_history: 'payroll_history',
@@ -27,7 +27,7 @@ export const initializeSQLiteDatabase = (): Promise<{ success: boolean; error?: 
 
     try {
       console.log('Initializing SQLite-like database using IndexedDB...')
-      
+
       const request = indexedDB.open(DB_NAME, DB_VERSION)
 
       request.onerror = () => {
@@ -50,26 +50,34 @@ export const initializeSQLiteDatabase = (): Promise<{ success: boolean; error?: 
           const employeesStore = database.createObjectStore(TABLES.employees, { keyPath: 'id' })
           employeesStore.createIndex('department', 'department', { unique: false })
           employeesStore.createIndex('status', 'status', { unique: false })
-          employeesStore.createIndex('payroll_structure_id', 'payroll_structure_id', { unique: false })
+          employeesStore.createIndex('payroll_structure_id', 'payroll_structure_id', {
+            unique: false
+          })
           employeesStore.createIndex('email', 'email', { unique: true })
         }
 
         // Create payroll_structures object store
         if (!database.objectStoreNames.contains(TABLES.payroll_structures)) {
-          const structuresStore = database.createObjectStore(TABLES.payroll_structures, { keyPath: 'id' })
+          const structuresStore = database.createObjectStore(TABLES.payroll_structures, {
+            keyPath: 'id'
+          })
           structuresStore.createIndex('name', 'name', { unique: false })
         }
 
         // Create allowances object store
         if (!database.objectStoreNames.contains(TABLES.allowances)) {
           const allowancesStore = database.createObjectStore(TABLES.allowances, { keyPath: 'id' })
-          allowancesStore.createIndex('payroll_structure_id', 'payroll_structure_id', { unique: false })
+          allowancesStore.createIndex('payroll_structure_id', 'payroll_structure_id', {
+            unique: false
+          })
         }
 
         // Create deductions object store
         if (!database.objectStoreNames.contains(TABLES.deductions)) {
           const deductionsStore = database.createObjectStore(TABLES.deductions, { keyPath: 'id' })
-          deductionsStore.createIndex('payroll_structure_id', 'payroll_structure_id', { unique: false })
+          deductionsStore.createIndex('payroll_structure_id', 'payroll_structure_id', {
+            unique: false
+          })
         }
 
         // Create payroll_history object store
@@ -103,9 +111,9 @@ export const initializeSQLiteDatabase = (): Promise<{ success: boolean; error?: 
       }
     } catch (error) {
       console.error('Error initializing database:', error)
-      resolve({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      resolve({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
     }
   })
@@ -155,7 +163,7 @@ export interface SQLiteOperations {
   delete(table: string, id: string): Promise<boolean>
   getAll<T>(table: string): Promise<T[]>
   find<T>(table: string, conditions: Record<string, any>): Promise<T[]>
-  
+
   // Transaction support
   transaction<T>(callback: (ops: SQLiteOperations) => Promise<T>): Promise<T>
 }
@@ -164,27 +172,27 @@ export interface SQLiteOperations {
 export const sqliteOperations: SQLiteOperations = {
   async create<T>(table: string, data: T & { id: string }): Promise<T> {
     if (!db) throw new Error('Database not initialized')
-    
+
     const transaction = db.transaction([table], 'readwrite')
     const store = transaction.objectStore(table)
-    
+
     // Add timestamps
     const dataWithTimestamp = {
       ...data,
       created_at: (data as any).created_at || new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
-    
+
     await promisifyRequest(store.add(dataWithTimestamp))
     return dataWithTimestamp as T
   },
 
   async getById<T>(table: string, id: string): Promise<T | null> {
     if (!db) throw new Error('Database not initialized')
-    
+
     const transaction = db.transaction([table], 'readonly')
     const store = transaction.objectStore(table)
-    
+
     try {
       const result = await promisifyRequest(store.get(id))
       return result || null
@@ -196,22 +204,22 @@ export const sqliteOperations: SQLiteOperations = {
 
   async update<T>(table: string, id: string, data: Partial<T>): Promise<T | null> {
     if (!db) throw new Error('Database not initialized')
-    
+
     const transaction = db.transaction([table], 'readwrite')
     const store = transaction.objectStore(table)
-    
+
     try {
       // Get existing record
       const existing = await promisifyRequest(store.get(id))
       if (!existing) return null
-      
+
       // Merge updates
       const updated = {
         ...existing,
         ...data,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
-      
+
       await promisifyRequest(store.put(updated))
       return updated as T
     } catch (error) {
@@ -222,10 +230,10 @@ export const sqliteOperations: SQLiteOperations = {
 
   async delete(table: string, id: string): Promise<boolean> {
     if (!db) throw new Error('Database not initialized')
-    
+
     const transaction = db.transaction([table], 'readwrite')
     const store = transaction.objectStore(table)
-    
+
     try {
       await promisifyRequest(store.delete(id))
       return true
@@ -237,10 +245,10 @@ export const sqliteOperations: SQLiteOperations = {
 
   async getAll<T>(table: string): Promise<T[]> {
     if (!db) throw new Error('Database not initialized')
-    
+
     const transaction = db.transaction([table], 'readonly')
     const store = transaction.objectStore(table)
-    
+
     try {
       const result = await promisifyRequest(store.getAll())
       return result as T[]
@@ -252,17 +260,17 @@ export const sqliteOperations: SQLiteOperations = {
 
   async find<T>(table: string, conditions: Record<string, any>): Promise<T[]> {
     if (!db) throw new Error('Database not initialized')
-    
+
     const transaction = db.transaction([table], 'readonly')
     const store = transaction.objectStore(table)
-    
+
     try {
       // For simple conditions, try to use indexes if available
       const conditionKeys = Object.keys(conditions)
       if (conditionKeys.length === 1) {
         const key = conditionKeys[0]
         const value = conditions[key]
-        
+
         // Try to use index if available
         try {
           const index = store.index(key)
@@ -272,13 +280,13 @@ export const sqliteOperations: SQLiteOperations = {
           // Index doesn't exist, fall back to full scan
         }
       }
-      
+
       // Fall back to full table scan with filtering
       const allRecords = await promisifyRequest(store.getAll())
       const filtered = allRecords.filter((record: any) => {
         return Object.entries(conditions).every(([key, value]) => record[key] === value)
       })
-      
+
       return filtered as T[]
     } catch (error) {
       console.error(`Error finding records in ${table}:`, error)

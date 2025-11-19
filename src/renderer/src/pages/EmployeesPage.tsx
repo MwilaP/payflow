@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom"
-import { Plus } from "lucide-react"
+import { Link } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { EmployeesList } from "@/components/employees-list"
-import { EmployeeFilters } from "@/components/employee-filters"
+import { Button } from '@/components/ui/button'
+import { EmployeesList } from '@/components/employees-list'
+import { EmployeeFilters } from '@/components/employee-filters'
 
 export default function EmployeesPage() {
   return (

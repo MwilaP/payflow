@@ -1,30 +1,36 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState } from "react"
-import { Minus, Plus, Save } from "lucide-react"
+import { useState } from 'react'
+import { Minus, Plus, Save } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
-import { PayrollStructureSummary } from "../payroll-structure-summary"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/hooks/use-toast'
+import { PayrollStructureSummary } from '../payroll-structure-summary'
 
 interface Allowance {
   id: string
   name: string
-  type: "fixed" | "percentage"
+  type: 'fixed' | 'percentage'
   value: number
 }
 
 interface Deduction {
   id: string
   name: string
-  type: "fixed" | "percentage"
+  type: 'fixed' | 'percentage'
   value: number
   preTax: boolean
 }
@@ -33,28 +39,32 @@ export function PayrollStructureDemo() {
   const { toast } = useToast()
 
   // Form state
-  const [name, setName] = useState("Standard Staff Payroll")
-  const [description, setDescription] = useState("Default structure for regular staff members")
-  const [frequency, setFrequency] = useState("monthly")
+  const [name, setName] = useState('Standard Staff Payroll')
+  const [description, setDescription] = useState('Default structure for regular staff members')
+  const [frequency, setFrequency] = useState('monthly')
   const [basicSalary, setBasicSalary] = useState<number>(5000)
   const [allowances, setAllowances] = useState<Allowance[]>([
-    { id: "1", name: "Housing", type: "percentage", value: 20 },
-    { id: "2", name: "Transport", type: "fixed", value: 500 },
+    { id: '1', name: 'Housing', type: 'percentage', value: 20 },
+    { id: '2', name: 'Transport', type: 'fixed', value: 500 }
   ])
   const [deductions, setDeductions] = useState<Deduction[]>([
-    { id: "1", name: "Tax", type: "percentage", value: 10, preTax: true },
-    { id: "2", name: "Pension", type: "percentage", value: 5, preTax: true },
-    { id: "3", name: "Health Insurance", type: "fixed", value: 200, preTax: false },
+    { id: '1', name: 'Tax', type: 'percentage', value: 10, preTax: true },
+    { id: '2', name: 'Pension', type: 'percentage', value: 5, preTax: true },
+    { id: '3', name: 'Health Insurance', type: 'fixed', value: 200, preTax: false }
   ])
 
   // Handlers for allowances
   const addAllowance = () => {
     const newId = (allowances.length + 1).toString()
-    setAllowances([...allowances, { id: newId, name: "", type: "fixed", value: 0 }])
+    setAllowances([...allowances, { id: newId, name: '', type: 'fixed', value: 0 }])
   }
 
   const updateAllowance = (id: string, field: keyof Allowance, value: any) => {
-    setAllowances(allowances.map((allowance) => (allowance.id === id ? { ...allowance, [field]: value } : allowance)))
+    setAllowances(
+      allowances.map((allowance) =>
+        allowance.id === id ? { ...allowance, [field]: value } : allowance
+      )
+    )
   }
 
   const removeAllowance = (id: string) => {
@@ -64,11 +74,15 @@ export function PayrollStructureDemo() {
   // Handlers for deductions
   const addDeduction = () => {
     const newId = (deductions.length + 1).toString()
-    setDeductions([...deductions, { id: newId, name: "", type: "fixed", value: 0, preTax: true }])
+    setDeductions([...deductions, { id: newId, name: '', type: 'fixed', value: 0, preTax: true }])
   }
 
   const updateDeduction = (id: string, field: keyof Deduction, value: any) => {
-    setDeductions(deductions.map((deduction) => (deduction.id === id ? { ...deduction, [field]: value } : deduction)))
+    setDeductions(
+      deductions.map((deduction) =>
+        deduction.id === id ? { ...deduction, [field]: value } : deduction
+      )
+    )
   }
 
   const removeDeduction = (id: string) => {
@@ -79,29 +93,29 @@ export function PayrollStructureDemo() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     toast({
-      title: "Structure saved in demo mode",
-      description: "In a real environment, this would save the payroll structure to the database.",
+      title: 'Structure saved in demo mode',
+      description: 'In a real environment, this would save the payroll structure to the database.'
     })
   }
 
   // Reset to default values
   const resetDemo = () => {
-    setName("Standard Staff Payroll")
-    setDescription("Default structure for regular staff members")
-    setFrequency("monthly")
+    setName('Standard Staff Payroll')
+    setDescription('Default structure for regular staff members')
+    setFrequency('monthly')
     setBasicSalary(5000)
     setAllowances([
-      { id: "1", name: "Housing", type: "percentage", value: 20 },
-      { id: "2", name: "Transport", type: "fixed", value: 500 },
+      { id: '1', name: 'Housing', type: 'percentage', value: 20 },
+      { id: '2', name: 'Transport', type: 'fixed', value: 500 }
     ])
     setDeductions([
-      { id: "1", name: "Tax", type: "percentage", value: 10, preTax: true },
-      { id: "2", name: "Pension", type: "percentage", value: 5, preTax: true },
-      { id: "3", name: "Health Insurance", type: "fixed", value: 200, preTax: false },
+      { id: '1', name: 'Tax', type: 'percentage', value: 10, preTax: true },
+      { id: '2', name: 'Pension', type: 'percentage', value: 5, preTax: true },
+      { id: '3', name: 'Health Insurance', type: 'fixed', value: 200, preTax: false }
     ])
     toast({
-      title: "Demo reset",
-      description: "The demo has been reset to default values.",
+      title: 'Demo reset',
+      description: 'The demo has been reset to default values.'
     })
   }
 
@@ -112,7 +126,9 @@ export function PayrollStructureDemo() {
           <Card>
             <CardHeader>
               <CardTitle>Structure Details</CardTitle>
-              <CardDescription>Define the basic information for this payroll structure</CardDescription>
+              <CardDescription>
+                Define the basic information for this payroll structure
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -152,13 +168,15 @@ export function PayrollStructureDemo() {
                 <div className="space-y-2">
                   <Label htmlFor="basicSalary">Basic Salary *</Label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">$</span>
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                      $
+                    </span>
                     <Input
                       id="basicSalary"
                       type="number"
                       placeholder="0.00"
                       className="pl-8"
-                      value={basicSalary || ""}
+                      value={basicSalary || ''}
                       onChange={(e) => setBasicSalary(Number.parseFloat(e.target.value) || 0)}
                       required
                     />
@@ -183,28 +201,37 @@ export function PayrollStructureDemo() {
               {allowances.length === 0 ? (
                 <div className="rounded-md border border-dashed p-8 text-center">
                   <p className="text-sm text-muted-foreground">No allowances added yet</p>
-                  <Button type="button" variant="outline" size="sm" className="mt-4" onClick={addAllowance}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={addAllowance}
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     Add Allowance
                   </Button>
                 </div>
               ) : (
                 allowances.map((allowance) => (
-                  <div key={allowance.id} className="grid gap-4 rounded-md border p-4 md:grid-cols-4">
+                  <div
+                    key={allowance.id}
+                    className="grid gap-4 rounded-md border p-4 md:grid-cols-4"
+                  >
                     <div className="space-y-2">
                       <Label htmlFor={`allowance-name-${allowance.id}`}>Name</Label>
                       <Input
                         id={`allowance-name-${allowance.id}`}
                         placeholder="e.g., Housing"
                         value={allowance.name}
-                        onChange={(e) => updateAllowance(allowance.id, "name", e.target.value)}
+                        onChange={(e) => updateAllowance(allowance.id, 'name', e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor={`allowance-type-${allowance.id}`}>Type</Label>
                       <Select
                         value={allowance.type}
-                        onValueChange={(value) => updateAllowance(allowance.id, "type", value)}
+                        onValueChange={(value) => updateAllowance(allowance.id, 'type', value)}
                       >
                         <SelectTrigger id={`allowance-type-${allowance.id}`}>
                           <SelectValue placeholder="Select type" />
@@ -219,16 +246,20 @@ export function PayrollStructureDemo() {
                       <Label htmlFor={`allowance-value-${allowance.id}`}>Value</Label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-                          {allowance.type === "percentage" ? "%" : "$"}
+                          {allowance.type === 'percentage' ? '%' : '$'}
                         </span>
                         <Input
                           id={`allowance-value-${allowance.id}`}
                           type="number"
                           placeholder="0"
                           className="pl-8"
-                          value={allowance.value || ""}
+                          value={allowance.value || ''}
                           onChange={(e) =>
-                            updateAllowance(allowance.id, "value", Number.parseFloat(e.target.value) || 0)
+                            updateAllowance(
+                              allowance.id,
+                              'value',
+                              Number.parseFloat(e.target.value) || 0
+                            )
                           }
                         />
                       </div>
@@ -244,9 +275,10 @@ export function PayrollStructureDemo() {
                         <Minus className="h-4 w-4" />
                       </Button>
                     </div>
-                    {allowance.type === "percentage" && basicSalary > 0 && allowance.value > 0 && (
+                    {allowance.type === 'percentage' && basicSalary > 0 && allowance.value > 0 && (
                       <div className="col-span-full text-sm text-muted-foreground">
-                        Preview: {allowance.name} = {allowance.value}% of ${basicSalary.toLocaleString()} = $
+                        Preview: {allowance.name} = {allowance.value}% of $
+                        {basicSalary.toLocaleString()} = $
                         {((allowance.value / 100) * basicSalary).toLocaleString()}
                       </div>
                     )}
@@ -271,28 +303,37 @@ export function PayrollStructureDemo() {
               {deductions.length === 0 ? (
                 <div className="rounded-md border border-dashed p-8 text-center">
                   <p className="text-sm text-muted-foreground">No deductions added yet</p>
-                  <Button type="button" variant="outline" size="sm" className="mt-4" onClick={addDeduction}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={addDeduction}
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     Add Deduction
                   </Button>
                 </div>
               ) : (
                 deductions.map((deduction) => (
-                  <div key={deduction.id} className="grid gap-4 rounded-md border p-4 md:grid-cols-5">
+                  <div
+                    key={deduction.id}
+                    className="grid gap-4 rounded-md border p-4 md:grid-cols-5"
+                  >
                     <div className="space-y-2">
                       <Label htmlFor={`deduction-name-${deduction.id}`}>Name</Label>
                       <Input
                         id={`deduction-name-${deduction.id}`}
                         placeholder="e.g., Tax"
                         value={deduction.name}
-                        onChange={(e) => updateDeduction(deduction.id, "name", e.target.value)}
+                        onChange={(e) => updateDeduction(deduction.id, 'name', e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor={`deduction-type-${deduction.id}`}>Type</Label>
                       <Select
                         value={deduction.type}
-                        onValueChange={(value) => updateDeduction(deduction.id, "type", value)}
+                        onValueChange={(value) => updateDeduction(deduction.id, 'type', value)}
                       >
                         <SelectTrigger id={`deduction-type-${deduction.id}`}>
                           <SelectValue placeholder="Select type" />
@@ -307,16 +348,20 @@ export function PayrollStructureDemo() {
                       <Label htmlFor={`deduction-value-${deduction.id}`}>Value</Label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-                          {deduction.type === "percentage" ? "%" : "$"}
+                          {deduction.type === 'percentage' ? '%' : '$'}
                         </span>
                         <Input
                           id={`deduction-value-${deduction.id}`}
                           type="number"
                           placeholder="0"
                           className="pl-8"
-                          value={deduction.value || ""}
+                          value={deduction.value || ''}
                           onChange={(e) =>
-                            updateDeduction(deduction.id, "value", Number.parseFloat(e.target.value) || 0)
+                            updateDeduction(
+                              deduction.id,
+                              'value',
+                              Number.parseFloat(e.target.value) || 0
+                            )
                           }
                         />
                       </div>
@@ -324,8 +369,10 @@ export function PayrollStructureDemo() {
                     <div className="space-y-2">
                       <Label htmlFor={`deduction-preTax-${deduction.id}`}>Tax Treatment</Label>
                       <Select
-                        value={deduction.preTax ? "pre-tax" : "post-tax"}
-                        onValueChange={(value) => updateDeduction(deduction.id, "preTax", value === "pre-tax")}
+                        value={deduction.preTax ? 'pre-tax' : 'post-tax'}
+                        onValueChange={(value) =>
+                          updateDeduction(deduction.id, 'preTax', value === 'pre-tax')
+                        }
                       >
                         <SelectTrigger id={`deduction-preTax-${deduction.id}`}>
                           <SelectValue placeholder="Select type" />
@@ -347,9 +394,10 @@ export function PayrollStructureDemo() {
                         <Minus className="h-4 w-4" />
                       </Button>
                     </div>
-                    {deduction.type === "percentage" && basicSalary > 0 && deduction.value > 0 && (
+                    {deduction.type === 'percentage' && basicSalary > 0 && deduction.value > 0 && (
                       <div className="col-span-full text-sm text-muted-foreground">
-                        Preview: {deduction.name} = {deduction.value}% of ${basicSalary.toLocaleString()} = $
+                        Preview: {deduction.name} = {deduction.value}% of $
+                        {basicSalary.toLocaleString()} = $
                         {((deduction.value / 100) * basicSalary).toLocaleString()}
                       </div>
                     )}

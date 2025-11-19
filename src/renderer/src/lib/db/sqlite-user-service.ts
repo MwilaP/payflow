@@ -12,7 +12,7 @@ export interface SQLiteUserService {
   update(id: string, updates: Partial<SQLiteUser>): Promise<SQLiteUser | null>
   delete(id: string): Promise<boolean>
   getAll(): Promise<SQLiteUser[]>
-  
+
   // Authentication helpers
   validateCredentials(usernameOrEmail: string, password: string): Promise<SQLiteUser | null>
   createTestUser(): Promise<SQLiteUser>
@@ -25,7 +25,7 @@ export const createSQLiteUserService = (): SQLiteUserService => {
         ...userData,
         id: `user_${uuidv4()}`,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
 
       const validated = sqliteUserSchema.parse(user)
@@ -59,9 +59,9 @@ export const createSQLiteUserService = (): SQLiteUserService => {
     async update(id: string, updates) {
       const updateData = {
         ...updates,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
-      
+
       return sqliteOperations.update<SQLiteUser>('users', id, updateData)
     },
 
@@ -87,7 +87,7 @@ export const createSQLiteUserService = (): SQLiteUserService => {
 
     async createTestUser() {
       console.log('Creating test user...')
-      
+
       // Check if test user already exists
       const existingUser = await this.getByUsername('testuser')
       if (existingUser) {
@@ -96,20 +96,20 @@ export const createSQLiteUserService = (): SQLiteUserService => {
       }
 
       console.log('Test user does not exist, creating new one...')
-      
+
       // Create test user
       const testUser = {
         username: 'testuser',
         email: 'testuser@example.com',
         password: 'securepass123', // In real app, this would be hashed
         role: 'admin' as const,
-        name: 'Test User',
+        name: 'Test User'
       }
 
       console.log('Creating user with data:', testUser)
       const createdUser = await this.create(testUser)
       console.log('User created successfully:', createdUser)
-      
+
       return createdUser
     }
   }
@@ -118,13 +118,13 @@ export const createSQLiteUserService = (): SQLiteUserService => {
 // Compatibility wrapper for existing auth service
 export const createUserServiceCompat = () => {
   const sqliteService = createSQLiteUserService()
-  
+
   return {
     async find(conditions: any) {
       // Handle PouchDB-style queries
       if (conditions.selector && conditions.selector.$or) {
         const orConditions = conditions.selector.$or
-        
+
         for (const condition of orConditions) {
           if (condition.username) {
             const user = await sqliteService.getByUsername(condition.username)
@@ -135,10 +135,10 @@ export const createUserServiceCompat = () => {
             if (user) return { docs: [user] }
           }
         }
-        
+
         return { docs: [] }
       }
-      
+
       return { docs: [] }
     },
 

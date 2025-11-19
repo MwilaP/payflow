@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Link } from "react-router-dom"
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Link } from 'react-router-dom'
 
 export default function HomePage() {
   return (
@@ -12,7 +12,8 @@ export default function HomePage() {
             Modern Payroll Made Simple
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Automate your payroll process with our intuitive platform that saves time and reduces errors.
+            Automate your payroll process with our intuitive platform that saves time and reduces
+            errors.
           </p>
           <div className="mt-10">
             <Button size="lg" asChild>

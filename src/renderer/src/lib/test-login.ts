@@ -5,14 +5,14 @@ import { initializeAuth, login, getSession, logout } from './auth-service'
 
 export const testLoginFunctionality = async () => {
   console.log('🔐 Testing login functionality with SQLite...')
-  
+
   try {
     // Test 1: Initialize database and auth system
     console.log('1. Initializing database and auth system...')
     await initializeSQLiteDatabase()
     const authInitialized = await initializeAuth()
     console.log('✅ Auth system initialized:', authInitialized)
-    
+
     // Test 2: Verify test user was created
     console.log('2. Checking test user creation...')
     const userService = createSQLiteUserService()
@@ -23,7 +23,7 @@ export const testLoginFunctionality = async () => {
       console.log('   Email:', testUser.email)
       console.log('   Role:', testUser.role)
     }
-    
+
     // Test 3: Test login with correct credentials
     console.log('3. Testing login with correct credentials...')
     const loginResult = await login('testuser', 'securepass123')
@@ -35,7 +35,7 @@ export const testLoginFunctionality = async () => {
     } else {
       console.log('   Error:', loginResult.error)
     }
-    
+
     // Test 4: Verify session is stored
     console.log('4. Checking stored session...')
     const storedSession = getSession()
@@ -44,29 +44,34 @@ export const testLoginFunctionality = async () => {
       console.log('   Is logged in:', storedSession.isLoggedIn)
       console.log('   Expires:', storedSession.expires)
     }
-    
+
     // Test 5: Test login with email
     console.log('5. Testing login with email...')
     logout() // Clear previous session
     const emailLoginResult = await login('testuser@example.com', 'securepass123')
     console.log('✅ Email login result:', emailLoginResult.success ? 'Success' : 'Failed')
-    
+
     // Test 6: Test login with wrong credentials
     console.log('6. Testing login with wrong credentials...')
     logout() // Clear previous session
     const wrongLoginResult = await login('testuser', 'wrongpassword')
-    console.log('✅ Wrong credentials result:', wrongLoginResult.success ? 'Unexpected Success' : 'Correctly Failed')
+    console.log(
+      '✅ Wrong credentials result:',
+      wrongLoginResult.success ? 'Unexpected Success' : 'Correctly Failed'
+    )
     console.log('   Error message:', wrongLoginResult.error)
-    
+
     // Test 7: Test logout
     console.log('7. Testing logout...')
     await login('testuser', 'securepass123') // Login first
     logout()
     const sessionAfterLogout = getSession()
-    console.log('✅ Session after logout:', sessionAfterLogout ? 'Still exists (ERROR)' : 'Cleared correctly')
-    
+    console.log(
+      '✅ Session after logout:',
+      sessionAfterLogout ? 'Still exists (ERROR)' : 'Cleared correctly'
+    )
+
     console.log('🎉 Login functionality test completed!')
-    
   } catch (error) {
     console.error('❌ Login test failed:', error)
     throw error

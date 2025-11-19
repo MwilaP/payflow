@@ -1,57 +1,99 @@
 import { sqliteOperations, getDatabase } from './indexeddb-sqlite-service'
-import { 
-  SQLitePayrollStructure, 
-  SQLiteAllowance, 
+import {
+  SQLitePayrollStructure,
+  SQLiteAllowance,
   SQLiteDeduction,
   sqlitePayrollStructureSchema,
   sqliteAllowanceSchema,
   sqliteDeductionSchema,
-  convertSQLiteToPouchDB 
+  convertSQLiteToPouchDB
 } from './sqlite-models'
 import { v4 as uuidv4 } from 'uuid'
 
 export interface SQLitePayrollStructureService {
   // CRUD operations for payroll structures
-  create(structure: Omit<SQLitePayrollStructure, 'id' | 'created_at' | 'updated_at'>, allowances?: Omit<SQLiteAllowance, 'id' | 'payroll_structure_id'>[], deductions?: Omit<SQLiteDeduction, 'id' | 'payroll_structure_id'>[]): Promise<{ structure: SQLitePayrollStructure; allowances: SQLiteAllowance[]; deductions: SQLiteDeduction[] }>
-  getById(id: string): Promise<{ structure: SQLitePayrollStructure; allowances: SQLiteAllowance[]; deductions: SQLiteDeduction[] } | null>
-  update(id: string, updates: Partial<SQLitePayrollStructure>): Promise<SQLitePayrollStructure | null>
+  create(
+    structure: Omit<SQLitePayrollStructure, 'id' | 'created_at' | 'updated_at'>,
+    allowances?: Omit<SQLiteAllowance, 'id' | 'payroll_structure_id'>[],
+    deductions?: Omit<SQLiteDeduction, 'id' | 'payroll_structure_id'>[]
+  ): Promise<{
+    structure: SQLitePayrollStructure
+    allowances: SQLiteAllowance[]
+    deductions: SQLiteDeduction[]
+  }>
+  getById(id: string): Promise<{
+    structure: SQLitePayrollStructure
+    allowances: SQLiteAllowance[]
+    deductions: SQLiteDeduction[]
+  } | null>
+  update(
+    id: string,
+    updates: Partial<SQLitePayrollStructure>
+  ): Promise<SQLitePayrollStructure | null>
   delete(id: string): Promise<boolean>
-  getAll(): Promise<{ structure: SQLitePayrollStructure; allowances: SQLiteAllowance[]; deductions: SQLiteDeduction[] }[]>
-  
+  getAll(): Promise<
+    {
+      structure: SQLitePayrollStructure
+      allowances: SQLiteAllowance[]
+      deductions: SQLiteDeduction[]
+    }[]
+  >
+
   // Allowance operations
-  addAllowance(structureId: string, allowance: Omit<SQLiteAllowance, 'id' | 'payroll_structure_id'>): Promise<SQLiteAllowance>
-  updateAllowance(allowanceId: string, updates: Partial<SQLiteAllowance>): Promise<SQLiteAllowance | null>
+  addAllowance(
+    structureId: string,
+    allowance: Omit<SQLiteAllowance, 'id' | 'payroll_structure_id'>
+  ): Promise<SQLiteAllowance>
+  updateAllowance(
+    allowanceId: string,
+    updates: Partial<SQLiteAllowance>
+  ): Promise<SQLiteAllowance | null>
   deleteAllowance(allowanceId: string): Promise<boolean>
-  
+
   // Deduction operations
-  addDeduction(structureId: string, deduction: Omit<SQLiteDeduction, 'id' | 'payroll_structure_id'>): Promise<SQLiteDeduction>
-  updateDeduction(deductionId: string, updates: Partial<SQLiteDeduction>): Promise<SQLiteDeduction | null>
+  addDeduction(
+    structureId: string,
+    deduction: Omit<SQLiteDeduction, 'id' | 'payroll_structure_id'>
+  ): Promise<SQLiteDeduction>
+  updateDeduction(
+    deductionId: string,
+    updates: Partial<SQLiteDeduction>
+  ): Promise<SQLiteDeduction | null>
   deleteDeduction(deductionId: string): Promise<boolean>
-  
+
   // Calculations
-  calculateNetSalary(structureId: string): Promise<{ basicSalary: number; totalAllowances: number; totalDeductions: number; netSalary: number } | null>
+  calculateNetSalary(structureId: string): Promise<{
+    basicSalary: number
+    totalAllowances: number
+    totalDeductions: number
+    netSalary: number
+  } | null>
 }
 
 export const createSQLitePayrollStructureService = (): SQLitePayrollStructureService => {
   return {
     async create(structureData, allowancesData = [], deductionsData = []) {
-      console.log("Core SQLite service create called with:", { structureData, allowancesData, deductionsData });
-      
+      console.log('Core SQLite service create called with:', {
+        structureData,
+        allowancesData,
+        deductionsData
+      })
+
       return sqliteOperations.transaction(async (ops) => {
         // Create the main structure
         const structure: SQLitePayrollStructure = {
           ...structureData,
           id: `structure_${uuidv4()}`,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         }
 
-        console.log("Structure before validation:", structure);
+        console.log('Structure before validation:', structure)
         const validatedStructure = sqlitePayrollStructureSchema.parse(structure)
-        console.log("Validated structure:", validatedStructure);
-        
+        console.log('Validated structure:', validatedStructure)
+
         const createdStructure = await ops.create('payroll_structures', validatedStructure)
-        console.log("Created structure:", createdStructure);
+        console.log('Created structure:', createdStructure)
 
         // Create allowances
         const allowances: SQLiteAllowance[] = []
@@ -59,9 +101,9 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
           const allowance: SQLiteAllowance = {
             ...allowanceData,
             id: `allowance_${uuidv4()}`,
-            payroll_structure_id: createdStructure.id,
+            payroll_structure_id: createdStructure.id
           }
-          
+
           const validatedAllowance = sqliteAllowanceSchema.parse(allowance)
           const createdAllowance = await ops.create('allowances', validatedAllowance)
           allowances.push(createdAllowance)
@@ -73,9 +115,9 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
           const deduction: SQLiteDeduction = {
             ...deductionData,
             id: `deduction_${uuidv4()}`,
-            payroll_structure_id: createdStructure.id,
+            payroll_structure_id: createdStructure.id
           }
-          
+
           const validatedDeduction = sqliteDeductionSchema.parse(deduction)
           const createdDeduction = await ops.create('deductions', validatedDeduction)
           deductions.push(createdDeduction)
@@ -86,11 +128,18 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
     },
 
     async getById(id: string) {
-      const structure = await sqliteOperations.getById<SQLitePayrollStructure>('payroll_structures', id)
+      const structure = await sqliteOperations.getById<SQLitePayrollStructure>(
+        'payroll_structures',
+        id
+      )
       if (!structure) return null
 
-      const allowances = await sqliteOperations.find<SQLiteAllowance>('allowances', { payroll_structure_id: id })
-      const deductions = await sqliteOperations.find<SQLiteDeduction>('deductions', { payroll_structure_id: id })
+      const allowances = await sqliteOperations.find<SQLiteAllowance>('allowances', {
+        payroll_structure_id: id
+      })
+      const deductions = await sqliteOperations.find<SQLiteDeduction>('deductions', {
+        payroll_structure_id: id
+      })
 
       return { structure, allowances, deductions }
     },
@@ -98,17 +147,21 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
     async update(id: string, updates) {
       const updateData = {
         ...updates,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
-      
+
       return sqliteOperations.update<SQLitePayrollStructure>('payroll_structures', id, updateData)
     },
 
     async delete(id: string) {
       return sqliteOperations.transaction(async (ops) => {
         // Delete allowances and deductions first (cascade)
-        const allowances = await ops.find<SQLiteAllowance>('allowances', { payroll_structure_id: id })
-        const deductions = await ops.find<SQLiteDeduction>('deductions', { payroll_structure_id: id })
+        const allowances = await ops.find<SQLiteAllowance>('allowances', {
+          payroll_structure_id: id
+        })
+        const deductions = await ops.find<SQLiteDeduction>('deductions', {
+          payroll_structure_id: id
+        })
 
         for (const allowance of allowances) {
           await ops.delete('allowances', allowance.id)
@@ -128,8 +181,12 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
       const results = []
 
       for (const structure of structures) {
-        const allowances = await sqliteOperations.find<SQLiteAllowance>('allowances', { payroll_structure_id: structure.id })
-        const deductions = await sqliteOperations.find<SQLiteDeduction>('deductions', { payroll_structure_id: structure.id })
+        const allowances = await sqliteOperations.find<SQLiteAllowance>('allowances', {
+          payroll_structure_id: structure.id
+        })
+        const deductions = await sqliteOperations.find<SQLiteDeduction>('deductions', {
+          payroll_structure_id: structure.id
+        })
         results.push({ structure, allowances, deductions })
       }
 
@@ -140,9 +197,9 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
       const allowance: SQLiteAllowance = {
         ...allowanceData,
         id: `allowance_${uuidv4()}`,
-        payroll_structure_id: structureId,
+        payroll_structure_id: structureId
       }
-      
+
       const validated = sqliteAllowanceSchema.parse(allowance)
       return sqliteOperations.create('allowances', validated)
     },
@@ -159,9 +216,9 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
       const deduction: SQLiteDeduction = {
         ...deductionData,
         id: `deduction_${uuidv4()}`,
-        payroll_structure_id: structureId,
+        payroll_structure_id: structureId
       }
-      
+
       const validated = sqliteDeductionSchema.parse(deduction)
       return sqliteOperations.create('deductions', validated)
     },
@@ -183,7 +240,7 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
 
       // Calculate total allowances
       const totalAllowances = allowances.reduce((total, allowance) => {
-        if (allowance.type === "fixed") {
+        if (allowance.type === 'fixed') {
           return total + allowance.value
         } else {
           // Percentage allowance
@@ -198,7 +255,7 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
       const preTaxDeductions = deductions
         .filter((d) => d.pre_tax)
         .reduce((total, deduction) => {
-          if (deduction.type === "fixed") {
+          if (deduction.type === 'fixed') {
             return total + deduction.value
           } else {
             // Percentage deduction
@@ -213,7 +270,7 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
       const postTaxDeductions = deductions
         .filter((d) => !d.pre_tax)
         .reduce((total, deduction) => {
-          if (deduction.type === "fixed") {
+          if (deduction.type === 'fixed') {
             return total + deduction.value
           } else {
             // Percentage deduction
@@ -231,7 +288,7 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
         basicSalary,
         totalAllowances,
         totalDeductions,
-        netSalary,
+        netSalary
       }
     }
   }
@@ -240,60 +297,72 @@ export const createSQLitePayrollStructureService = (): SQLitePayrollStructureSer
 // Compatibility wrapper to maintain the same interface as PouchDB service
 export const createPayrollStructureServiceCompat = () => {
   const sqliteService = createSQLitePayrollStructureService()
-  
+
   return {
     async create(structureData: any) {
-      console.log("SQLite service create called with:", structureData);
-      
+      console.log('SQLite service create called with:', structureData)
+
       // Convert PouchDB format to SQLite format
       const sqliteStructureData = {
         name: structureData.name,
         description: structureData.description,
         frequency: structureData.frequency,
-        basic_salary: structureData.basicSalary || structureData.basic_salary,
+        basic_salary: structureData.basicSalary || structureData.basic_salary
       }
-      
-      console.log("Converted to SQLite format:", sqliteStructureData);
+
+      console.log('Converted to SQLite format:', sqliteStructureData)
 
       const allowancesData = (structureData.allowances || []).map((allowance: any) => ({
         name: allowance.name,
         type: allowance.type,
-        value: allowance.value,
+        value: allowance.value
       }))
 
       const deductionsData = (structureData.deductions || []).map((deduction: any) => ({
         name: deduction.name,
         type: deduction.type,
         value: deduction.value,
-        pre_tax: deduction.preTax,
+        pre_tax: deduction.preTax
       }))
 
-      console.log("Calling sqliteService.create with:", { sqliteStructureData, allowancesData, deductionsData });
-      
+      console.log('Calling sqliteService.create with:', {
+        sqliteStructureData,
+        allowancesData,
+        deductionsData
+      })
+
       const result = await sqliteService.create(sqliteStructureData, allowancesData, deductionsData)
-      console.log("SQLite service result:", result);
-      
-      const convertedResult = convertSQLiteToPouchDB.payrollStructure(result.structure, result.allowances, result.deductions)
-      console.log("Converted result:", convertedResult);
-      
+      console.log('SQLite service result:', result)
+
+      const convertedResult = convertSQLiteToPouchDB.payrollStructure(
+        result.structure,
+        result.allowances,
+        result.deductions
+      )
+      console.log('Converted result:', convertedResult)
+
       return convertedResult
     },
 
     async getById(id: string) {
       const result = await sqliteService.getById(id)
       if (!result) return null
-      
-      return convertSQLiteToPouchDB.payrollStructure(result.structure, result.allowances, result.deductions)
+
+      return convertSQLiteToPouchDB.payrollStructure(
+        result.structure,
+        result.allowances,
+        result.deductions
+      )
     },
 
     async update(id: string, updates: any) {
       const sqliteUpdates: Partial<SQLitePayrollStructure> = {}
-      
+
       if (updates.name) sqliteUpdates.name = updates.name
       if (updates.description) sqliteUpdates.description = updates.description
       if (updates.frequency) sqliteUpdates.frequency = updates.frequency
       if (updates.basicSalary) sqliteUpdates.basic_salary = updates.basicSalary
-      
+
       const result = await sqliteService.update(id, sqliteUpdates)
       if (!result) return null
 
@@ -301,7 +370,11 @@ export const createPayrollStructureServiceCompat = () => {
       const fullResult = await sqliteService.getById(id)
       if (!fullResult) return null
 
-      return convertSQLiteToPouchDB.payrollStructure(fullResult.structure, fullResult.allowances, fullResult.deductions)
+      return convertSQLiteToPouchDB.payrollStructure(
+        fullResult.structure,
+        fullResult.allowances,
+        fullResult.deductions
+      )
     },
 
     async delete(id: string) {
@@ -310,8 +383,12 @@ export const createPayrollStructureServiceCompat = () => {
 
     async getAll() {
       const results = await sqliteService.getAll()
-      return results.map(result => 
-        convertSQLiteToPouchDB.payrollStructure(result.structure, result.allowances, result.deductions)
+      return results.map((result) =>
+        convertSQLiteToPouchDB.payrollStructure(
+          result.structure,
+          result.allowances,
+          result.deductions
+        )
       )
     },
 
@@ -321,35 +398,42 @@ export const createPayrollStructureServiceCompat = () => {
 
     // Add calculateSalaryDetails method for compatibility with employee form
     calculateSalaryDetails(structure: any) {
-      if (!structure) return {
-        basicSalary: 0,
-        totalAllowances: 0,
-        totalDeductions: 0,
-        grossSalary: 0,
-        netSalary: 0
-      }
+      if (!structure)
+        return {
+          basicSalary: 0,
+          totalAllowances: 0,
+          totalDeductions: 0,
+          grossSalary: 0,
+          netSalary: 0
+        }
 
       const basicSalary = structure.basicSalary || 0
-      
+
       // Calculate total allowances
-      const totalAllowances = (structure.allowances || []).reduce((total: number, allowance: any) => {
-        if (allowance.type === "fixed") {
-          return total + (allowance.value || 0)
-        } else {
-          // Percentage allowance
-          return total + (basicSalary * (allowance.value || 0)) / 100
-        }
-      }, 0)
+      const totalAllowances = (structure.allowances || []).reduce(
+        (total: number, allowance: any) => {
+          if (allowance.type === 'fixed') {
+            return total + (allowance.value || 0)
+          } else {
+            // Percentage allowance
+            return total + (basicSalary * (allowance.value || 0)) / 100
+          }
+        },
+        0
+      )
 
       // Calculate total deductions
-      const totalDeductions = (structure.deductions || []).reduce((total: number, deduction: any) => {
-        if (deduction.type === "fixed") {
-          return total + (deduction.value || 0)
-        } else {
-          // Percentage deduction
-          return total + (basicSalary * (deduction.value || 0)) / 100
-        }
-      }, 0)
+      const totalDeductions = (structure.deductions || []).reduce(
+        (total: number, deduction: any) => {
+          if (deduction.type === 'fixed') {
+            return total + (deduction.value || 0)
+          } else {
+            // Percentage deduction
+            return total + (basicSalary * (deduction.value || 0)) / 100
+          }
+        },
+        0
+      )
 
       const grossSalary = basicSalary + totalAllowances
       const netSalary = grossSalary - totalDeductions

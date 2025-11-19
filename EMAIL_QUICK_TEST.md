@@ -3,6 +3,7 @@
 ## For Gmail Users (Most Common)
 
 ### 1. Get Your App Password (2 minutes)
+
 1. Go to: https://myaccount.google.com/apppasswords
 2. Sign in to your Google account
 3. Select "Mail" and your device name
@@ -10,6 +11,7 @@
 5. **Copy the 16-character password** (e.g., `abcd efgh ijkl mnop`)
 
 ### 2. Configure in App (1 minute)
+
 1. Open your payroll app
 2. Click **Settings** in sidebar → **Email** tab
 3. Fill in:
@@ -24,13 +26,16 @@
 4. Click **"Save Configuration"**
 
 ### 3. Test It (1 minute)
+
 1. In "Test Email Address" field, enter your email
 2. Click **"Send Test Email"**
 3. Check your inbox (and spam folder)
 4. You should receive a test email within 1-2 minutes
 
 ### 4. Watch the Terminal
+
 Look for these messages in your terminal:
+
 ```
 ✓ Email service initialized successfully
 ✓ Test email sent successfully
@@ -41,6 +46,7 @@ Look for these messages in your terminal:
 ## For Outlook Users
 
 ### Configuration:
+
 ```
 SMTP Host:     smtp.office365.com
 Port:          587
@@ -57,19 +63,23 @@ Then follow steps 2-4 above.
 ## Troubleshooting (If It Doesn't Work)
 
 ### Error: "Cannot resolve SMTP host"
+
 - **Fix:** Check for typos in SMTP host
 - Gmail: `smtp.gmail.com` (not `smtp.gmial.com`)
 
 ### Error: "Authentication failed"
+
 - **Gmail:** Make sure you're using App Password, not regular password
 - **Outlook:** Verify your password is correct
 
 ### Error: "Connection timeout"
+
 - **Fix:** Check your firewall/antivirus
 - Try from a different network
 - Contact IT if on corporate network
 
 ### No Error But No Email
+
 - Check spam/junk folder
 - Wait 5 minutes (email can be delayed)
 - Try sending to a different email address
@@ -92,11 +102,13 @@ Before clicking "Save Configuration":
 ## What Success Looks Like
 
 ### In the App:
+
 - Toast notification: "Email Configured"
 - Status badge turns green: "✓ Configured"
 - Toast notification: "Test Email Sent"
 
 ### In Terminal:
+
 ```
 Initializing email service with config: { host: 'smtp.gmail.com', ... }
 Verifying SMTP connection...
@@ -107,6 +119,7 @@ Message ID: <...@gmail.com>
 ```
 
 ### In Your Inbox:
+
 Subject: **Test Email - Payroll System**
 Content: Confirmation that email is working with your config details
 

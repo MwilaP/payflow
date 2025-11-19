@@ -1,4 +1,4 @@
-import { LeaveManagement } from "@/components/leave-management"
+import { LeaveManagement } from '@/components/leave-management'
 
 export default function LeavePage() {
   return (

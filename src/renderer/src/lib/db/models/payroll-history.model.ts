@@ -1,5 +1,5 @@
-import { z } from "zod"
-import { v4 as uuidv4 } from "uuid"
+import { z } from 'zod'
+import { v4 as uuidv4 } from 'uuid'
 
 // Payroll item schema for individual employee payroll entries
 const payrollItemSchema = z.object({
@@ -10,7 +10,7 @@ const payrollItemSchema = z.object({
   allowances: z.number(),
   deductions: z.number(),
   netSalary: z.number(),
-  payrollStructureId: z.string().optional(),
+  payrollStructureId: z.string().optional()
 })
 
 // Payroll history schema for validation
@@ -20,7 +20,7 @@ export const payrollHistorySchema = z.object({
   date: z.string(),
   paymentDate: z.string(),
   period: z.string(),
-  status: z.enum(["draft", "processing", "completed", "cancelled"]).default("draft"),
+  status: z.enum(['draft', 'processing', 'completed', 'cancelled']).default('draft'),
   totalAmount: z.number(),
   employeeCount: z.number(),
   items: z.array(payrollItemSchema),
@@ -29,7 +29,7 @@ export const payrollHistorySchema = z.object({
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
   processedBy: z.string().optional(),
-  notes: z.string().optional(),
+  notes: z.string().optional()
 })
 
 export type PayrollHistory = z.infer<typeof payrollHistorySchema>
@@ -39,15 +39,15 @@ export type PayrollItem = z.infer<typeof payrollItemSchema>
 export const createNewPayrollHistory = (data: Partial<PayrollHistory>): PayrollHistory => {
   const defaultPayrollHistory: Partial<PayrollHistory> = {
     _id: `payroll_${uuidv4()}`,
-    status: "draft",
+    status: 'draft',
     items: [],
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
 
   return payrollHistorySchema.parse({
     ...defaultPayrollHistory,
-    ...data,
+    ...data
   })
 }
 

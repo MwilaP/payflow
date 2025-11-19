@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { v4 as uuidv4 } from "uuid"
-import { dbOperations } from "../db-service"
+import { v4 as uuidv4 } from 'uuid'
+import { dbOperations } from '../db-service'
 
 // Payroll structure service factory
 export const payrollStructureService = (db: any) => ({
@@ -13,12 +13,12 @@ export const payrollStructureService = (db: any) => ({
       const id = structureData._id || `structure_${uuidv4()}`
       const structure = {
         _id: id,
-        ...structureData,
+        ...structureData
       }
 
       return await dbOperations.create(db, structure)
     } catch (error) {
-      console.error("Error creating payroll structure:", error)
+      console.error('Error creating payroll structure:', error)
       return null
     }
   },
@@ -66,7 +66,7 @@ export const payrollStructureService = (db: any) => ({
     try {
       return await dbOperations.getAll(db)
     } catch (error) {
-      console.error("Error getting all payroll structures:", error)
+      console.error('Error getting all payroll structures:', error)
       return []
     }
   },
@@ -86,7 +86,7 @@ export const payrollStructureService = (db: any) => ({
         )
       })
     } catch (error) {
-      console.error("Error searching payroll structures:", error)
+      console.error('Error searching payroll structures:', error)
       return []
     }
   },
@@ -99,7 +99,7 @@ export const payrollStructureService = (db: any) => ({
       totalAllowances: result.grossSalary - result.basicSalary,
       totalDeductions: result.totalDeductions,
       grossSalary: result.grossSalary,
-      netSalary: result.netSalary,
+      netSalary: result.netSalary
     }
   },
 
@@ -111,7 +111,7 @@ export const payrollStructureService = (db: any) => ({
         grossSalary: 0,
         taxableAmount: 0,
         totalDeductions: 0,
-        netSalary: 0,
+        netSalary: 0
       }
     }
 
@@ -123,9 +123,9 @@ export const payrollStructureService = (db: any) => ({
       // Add allowances
       if (structure.allowances && Array.isArray(structure.allowances)) {
         structure.allowances.forEach((allowance: any) => {
-          if (allowance.type === "percentage") {
+          if (allowance.type === 'percentage') {
             grossSalary += (baseSalary * allowance.value) / 100
-          } else if (allowance.type === "fixed") {
+          } else if (allowance.type === 'fixed') {
             grossSalary += allowance.value
           }
         })
@@ -140,9 +140,9 @@ export const payrollStructureService = (db: any) => ({
           if (deduction.preTax) {
             let deductionAmount = 0
 
-            if (deduction.type === "percentage") {
+            if (deduction.type === 'percentage') {
               deductionAmount = (taxableAmount * deduction.value) / 100
-            } else if (deduction.type === "fixed") {
+            } else if (deduction.type === 'fixed') {
               deductionAmount = deduction.value
             }
 
@@ -158,9 +158,9 @@ export const payrollStructureService = (db: any) => ({
           if (!deduction.preTax) {
             let deductionAmount = 0
 
-            if (deduction.type === "percentage") {
+            if (deduction.type === 'percentage') {
               deductionAmount = (grossSalary * deduction.value) / 100
-            } else if (deduction.type === "fixed") {
+            } else if (deduction.type === 'fixed') {
               deductionAmount = deduction.value
             }
 
@@ -176,17 +176,17 @@ export const payrollStructureService = (db: any) => ({
         grossSalary,
         taxableAmount,
         totalDeductions,
-        netSalary,
+        netSalary
       }
     } catch (error) {
-      console.error("Error calculating net salary:", error)
+      console.error('Error calculating net salary:', error)
       return {
         basicSalary: 0,
         grossSalary: 0,
         taxableAmount: 0,
         totalDeductions: 0,
-        netSalary: 0,
+        netSalary: 0
       }
     }
-  },
+  }
 })

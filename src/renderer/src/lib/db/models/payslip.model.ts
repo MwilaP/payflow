@@ -1,46 +1,46 @@
-import { Allowance, Deduction, PayrollStructure } from "./payroll-structure.model";
-import { PayrollHistory } from "../services/payroll-history.service";
+import { Allowance, Deduction, PayrollStructure } from './payroll-structure.model'
+import { PayrollHistory } from '../services/payroll-history.service'
 
 /**
  * Represents a salary breakdown with all components
  */
 export interface SalaryBreakdown {
   /** Basic salary amount */
-  basicSalary: number;
+  basicSalary: number
 
   /** List of allowances with calculated amounts */
   allowances: Array<{
-    id: string;
-    name: string;
-    type: 'fixed' | 'percentage';
-    value: number;
-    calculatedAmount: number;
-  }>;
+    id: string
+    name: string
+    type: 'fixed' | 'percentage'
+    value: number
+    calculatedAmount: number
+  }>
 
   /** List of deductions with calculated amounts */
   deductions: Array<{
-    id: string;
-    name: string;
-    type: 'fixed' | 'percentage';
-    value: number;
-    preTax: boolean;
-    calculatedAmount: number;
-  }>;
+    id: string
+    name: string
+    type: 'fixed' | 'percentage'
+    value: number
+    preTax: boolean
+    calculatedAmount: number
+  }>
 
   /** Total of all allowances */
-  totalAllowances: number;
+  totalAllowances: number
 
   /** Total of all deductions */
-  totalDeductions: number;
+  totalDeductions: number
 
   /** Gross salary (basic + allowances) */
-  grossSalary: number;
+  grossSalary: number
 
   /** Net salary (gross - deductions) */
-  netSalary: number;
+  netSalary: number
 
   /** Tax amount if applicable */
-  tax?: number;
+  tax?: number
 }
 
 /**
@@ -48,28 +48,28 @@ export interface SalaryBreakdown {
  */
 export interface PayslipEmployeeInfo {
   /** Employee ID */
-  id: string;
+  id: string
 
   /** Full name */
-  name: string;
+  name: string
 
   /** Employee position/title */
-  position: string;
+  position: string
 
   /** Department */
-  department: string;
+  department: string
 
   /** Employee number/ID */
-  employeeNumber: string;
-  nrc: string;
-  email: string;
+  employeeNumber: string
+  nrc: string
+  email: string
 
   /** Bank account details */
   bankDetails?: {
-    accountNumber: string;
-    bankName: string;
-    branchCode?: string;
-  };
+    accountNumber: string
+    bankName: string
+    branchCode?: string
+  }
 }
 
 /**
@@ -77,64 +77,64 @@ export interface PayslipEmployeeInfo {
  */
 export interface Payslip {
   /** Unique payslip ID */
-  _id: string;
+  _id: string
 
   /** Revision ID for database */
-  _rev?: string;
+  _rev?: string
 
   /** Reference to payroll history record */
-  payrollHistoryId: string;
+  payrollHistoryId: string
 
   /** Employee information */
-  employee: PayslipEmployeeInfo;
+  employee: PayslipEmployeeInfo
 
   /** Pay period information */
   payPeriod: {
-    startDate: string;
-    endDate: string;
-    paymentDate: string;
-  };
+    startDate: string
+    endDate: string
+    paymentDate: string
+  }
 
-  period: string;
+  period: string
 
   /** Salary breakdown */
-  salary: SalaryBreakdown;
+  salary: SalaryBreakdown
 
   /** Payroll structure used */
-  payrollStructure: Pick<PayrollStructure, '_id' | 'name' | 'frequency'>;
+  payrollStructure: Pick<PayrollStructure, '_id' | 'name' | 'frequency'>
 
   /** Status of the payslip */
-  status: 'generated' | 'approved' | 'paid' | 'cancelled';
+  status: 'generated' | 'approved' | 'paid' | 'cancelled'
 
   /** Metadata */
-  createdAt: string;
-  updatedAt?: string;
-  approvedAt?: string;
-  paidAt?: string;
-  cancelledAt?: string;
+  createdAt: string
+  updatedAt?: string
+  approvedAt?: string
+  paidAt?: string
+  cancelledAt?: string
 
   /** Additional notes */
-  notes?: string;
+  notes?: string
 }
 
 /**
  * Helper function to create a new payslip with default values
  */
 export const createNewPayslip = (data: Partial<Payslip>): Payslip => {
-  const now = new Date().toISOString();
+  const now = new Date().toISOString()
 
   const defaultPayslip: Partial<Payslip> = {
     _id: `payslip_${Date.now()}`,
     status: 'generated',
     createdAt: now,
-    updatedAt: now,
-  };
+    updatedAt: now
+  }
 
   return {
     ...defaultPayslip,
-    ...data,
-  } as Payslip;
-};
+    ...data
+  } as Payslip
+}
 
 /**
  * Validates a payslip object against required fields
@@ -149,10 +149,10 @@ export const validatePayslip = (payslip: Partial<Payslip>): boolean => {
     'payrollStructure',
     'status',
     'createdAt'
-  ];
+  ]
 
-  return requiredFields.every(field => payslip[field] !== undefined);
-};
+  return requiredFields.every((field) => payslip[field] !== undefined)
+}
 
 /**
  * Calculates salary breakdown from payroll structure and basic salary
@@ -163,37 +163,37 @@ export const calculateSalaryBreakdown = (
   deductions: Deduction[]
 ): SalaryBreakdown => {
   // Calculate allowances
-  const calculatedAllowances = allowances.map(allowance => ({
+  const calculatedAllowances = allowances.map((allowance) => ({
     id: allowance.id,
     name: allowance.name,
     type: allowance.type,
     value: allowance.value,
-    calculatedAmount: allowance.type === 'fixed'
-      ? allowance.value
-      : (basicSalary * allowance.value) / 100
-  }));
+    calculatedAmount:
+      allowance.type === 'fixed' ? allowance.value : (basicSalary * allowance.value) / 100
+  }))
 
   const totalAllowances = calculatedAllowances.reduce(
-    (sum, allowance) => sum + allowance.calculatedAmount, 0
-  );
+    (sum, allowance) => sum + allowance.calculatedAmount,
+    0
+  )
 
-  const grossSalary = basicSalary + totalAllowances;
+  const grossSalary = basicSalary + totalAllowances
 
   // Calculate deductions
-  const calculatedDeductions = deductions.map(deduction => ({
+  const calculatedDeductions = deductions.map((deduction) => ({
     id: deduction.id,
     name: deduction.name,
     type: deduction.type,
     value: deduction.value,
     preTax: deduction.preTax,
-    calculatedAmount: deduction.type === 'fixed'
-      ? deduction.value
-      : (grossSalary * deduction.value) / 100
-  }));
+    calculatedAmount:
+      deduction.type === 'fixed' ? deduction.value : (grossSalary * deduction.value) / 100
+  }))
 
   const totalDeductions = calculatedDeductions.reduce(
-    (sum, deduction) => sum + deduction.calculatedAmount, 0
-  );
+    (sum, deduction) => sum + deduction.calculatedAmount,
+    0
+  )
 
   return {
     basicSalary,
@@ -203,5 +203,5 @@ export const calculateSalaryBreakdown = (
     totalDeductions,
     grossSalary,
     netSalary: grossSalary - totalDeductions
-  };
-};
+  }
+}

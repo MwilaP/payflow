@@ -1,23 +1,29 @@
+import { useEffect, useState } from 'react'
+import { Check, ChevronsUpDown, Search } from 'lucide-react'
 
-import { useEffect, useState } from "react"
-import { Check, ChevronsUpDown, Search } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from '@/components/ui/command'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { cn } from "@/lib/utils"
-import { useToast } from "@/hooks/use-toast"
-import { createEmployeeServiceCompat } from "@/lib/db/sqlite-employee-service"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/use-toast'
+import { createEmployeeServiceCompat } from '@/lib/db/sqlite-employee-service'
 
 interface AssignStructureModalProps {
   open: boolean
@@ -32,36 +38,36 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
   const [employees, setEmployees] = useState<any[]>([])
   const [filteredEmployees, setFilteredEmployees] = useState<any[]>([])
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [servicesLoaded, setServicesLoaded] = useState(false)
 
   // Department filter
   const [departmentOpen, setDepartmentOpen] = useState(false)
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("")
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('')
 
   // Initialize services
   useEffect(() => {
     const initServices = async () => {
       try {
-        console.log("Initializing employee service for assign modal...");
-        const empService = createEmployeeServiceCompat();
-        setEmployeeService(empService);
-        setServicesLoaded(true);
-        console.log("Employee service initialized successfully");
+        console.log('Initializing employee service for assign modal...')
+        const empService = createEmployeeServiceCompat()
+        setEmployeeService(empService)
+        setServicesLoaded(true)
+        console.log('Employee service initialized successfully')
       } catch (error) {
-        console.error("Error initializing employee service:", error);
+        console.error('Error initializing employee service:', error)
         toast({
-          title: "Error",
-          description: "Failed to initialize employee service",
-          variant: "destructive",
-        });
+          title: 'Error',
+          description: 'Failed to initialize employee service',
+          variant: 'destructive'
+        })
       }
-    };
+    }
 
-    initServices();
-  }, [toast]);
+    initServices()
+  }, [toast])
 
   // Load employees when modal opens and service is ready
   useEffect(() => {
@@ -69,27 +75,27 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
       if (open && servicesLoaded && employeeService) {
         setIsLoading(true)
         try {
-          console.log("Loading employees for assign modal...");
-          const employeeData = await employeeService.getAllEmployees();
-          console.log("Loaded employees:", employeeData);
-          setEmployees(employeeData || []);
-          setFilteredEmployees(employeeData || []);
+          console.log('Loading employees for assign modal...')
+          const employeeData = await employeeService.getAllEmployees()
+          console.log('Loaded employees:', employeeData)
+          setEmployees(employeeData || [])
+          setFilteredEmployees(employeeData || [])
 
           // Get employees already assigned to this structure
           const assignedEmployees = (employeeData || [])
             .filter((employee) => employee.payrollStructureId === structure?._id)
-            .map((employee) => employee._id);
+            .map((employee) => employee._id)
 
-          setSelectedEmployees(assignedEmployees);
+          setSelectedEmployees(assignedEmployees)
         } catch (error) {
-          console.error("Error loading employees:", error);
+          console.error('Error loading employees:', error)
           toast({
-            title: "Error",
-            description: "Failed to load employees",
-            variant: "destructive",
-          });
+            title: 'Error',
+            description: 'Failed to load employees',
+            variant: 'destructive'
+          })
         } finally {
-          setIsLoading(false);
+          setIsLoading(false)
         }
       }
     }
@@ -109,7 +115,7 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
           (employee) =>
             `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(query) ||
             employee.email.toLowerCase().includes(query) ||
-            employee.designation.toLowerCase().includes(query),
+            employee.designation.toLowerCase().includes(query)
         )
       }
 
@@ -126,7 +132,9 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
   const departments = [...new Set(employees.map((employee) => employee.department))].sort()
 
   const handleSelectEmployee = (id: string) => {
-    setSelectedEmployees((prev) => (prev.includes(id) ? prev.filter((empId) => empId !== id) : [...prev, id]))
+    setSelectedEmployees((prev) =>
+      prev.includes(id) ? prev.filter((empId) => empId !== id) : [...prev, id]
+    )
   }
 
   const handleSelectAll = () => {
@@ -142,27 +150,27 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
 
     setIsSaving(true)
     try {
-      console.log("Assigning structure to employees:", selectedEmployees);
-      
+      console.log('Assigning structure to employees:', selectedEmployees)
+
       // Update each selected employee with the structure ID
       for (const employeeId of selectedEmployees) {
         await employeeService.updateEmployee(employeeId, {
           payrollStructureId: structure._id
-        });
+        })
       }
 
       toast({
-        title: "Success",
-        description: `Payroll structure assigned to ${selectedEmployees.length} employees.`,
+        title: 'Success',
+        description: `Payroll structure assigned to ${selectedEmployees.length} employees.`
       })
 
       onOpenChange(false)
     } catch (error) {
-      console.error("Error assigning structure:", error)
+      console.error('Error assigning structure:', error)
       toast({
-        title: "Error",
-        description: "Failed to assign payroll structure",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to assign payroll structure',
+        variant: 'destructive'
       })
     } finally {
       setIsSaving(false)
@@ -180,7 +188,7 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
                 Assign <span className="font-medium">{structure.name}</span> to employees
               </>
             ) : (
-              "Select employees to assign this payroll structure"
+              'Select employees to assign this payroll structure'
             )}
           </DialogDescription>
         </DialogHeader>
@@ -213,7 +221,7 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
                     >
                       {selectedDepartment
                         ? selectedDepartment.charAt(0).toUpperCase() + selectedDepartment.slice(1)
-                        : "All Departments"}
+                        : 'All Departments'}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
@@ -225,12 +233,17 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
                         <CommandGroup>
                           <CommandItem
                             onSelect={() => {
-                              setSelectedDepartment("")
+                              setSelectedDepartment('')
                               setDepartmentOpen(false)
                             }}
                             className="cursor-pointer"
                           >
-                            <Check className={cn("mr-2 h-4 w-4", !selectedDepartment ? "opacity-100" : "opacity-0")} />
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                !selectedDepartment ? 'opacity-100' : 'opacity-0'
+                              )}
+                            />
                             All Departments
                           </CommandItem>
                           {departments.map((department) => (
@@ -244,8 +257,8 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
                             >
                               <Check
                                 className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedDepartment === department ? "opacity-100" : "opacity-0",
+                                  'mr-2 h-4 w-4',
+                                  selectedDepartment === department ? 'opacity-100' : 'opacity-0'
                                 )}
                               />
                               {department.charAt(0).toUpperCase() + department.slice(1)}
@@ -264,7 +277,10 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300"
-                      checked={selectedEmployees.length === filteredEmployees.length && filteredEmployees.length > 0}
+                      checked={
+                        selectedEmployees.length === filteredEmployees.length &&
+                        filteredEmployees.length > 0
+                      }
                       onChange={handleSelectAll}
                     />
                     <span className="ml-2 text-sm font-medium">
@@ -276,15 +292,17 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
                 <ScrollArea className="h-[300px]">
                   <div className="p-2">
                     {filteredEmployees.length === 0 ? (
-                      <div className="py-6 text-center text-sm text-muted-foreground">No employees found</div>
+                      <div className="py-6 text-center text-sm text-muted-foreground">
+                        No employees found
+                      </div>
                     ) : (
                       <div className="space-y-1">
                         {filteredEmployees.map((employee) => (
                           <div
                             key={employee._id}
                             className={cn(
-                              "flex items-center rounded-md px-2 py-1.5 hover:bg-accent",
-                              selectedEmployees.includes(employee._id) && "bg-accent",
+                              'flex items-center rounded-md px-2 py-1.5 hover:bg-accent',
+                              selectedEmployees.includes(employee._id) && 'bg-accent'
                             )}
                           >
                             <input
@@ -301,9 +319,12 @@ export function AssignStructureModal({ open, onOpenChange, structure }: AssignSt
                                 {employee.designation} • {employee.department}
                               </div>
                             </div>
-                            {employee.payrollStructureId && employee.payrollStructureId !== structure?._id && (
-                              <div className="text-xs text-muted-foreground">Has another structure</div>
-                            )}
+                            {employee.payrollStructureId &&
+                              employee.payrollStructureId !== structure?._id && (
+                                <div className="text-xs text-muted-foreground">
+                                  Has another structure
+                                </div>
+                              )}
                             {employee.payrollStructureId === structure?._id && (
                               <div className="text-xs text-primary">Currently assigned</div>
                             )}

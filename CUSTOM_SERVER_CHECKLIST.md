@@ -64,6 +64,7 @@ Cannot resolve SMTP host "mail.yourdomain.com". Please check the hostname.
 **What it means:** Your computer can't find the server
 
 **Quick Fixes:**
+
 1. Check for typos in SMTP host
 2. Try using IP address instead: `192.168.1.100`
 3. Check if you need to be on VPN
@@ -82,6 +83,7 @@ Connection refused to mail.yourdomain.com:587. Check host and port.
 **What it means:** Server is found but not accepting connections on that port
 
 **Quick Fixes:**
+
 1. Try different port:
    - If using 587, try 465 (and toggle SSL/TLS ON)
    - If using 465, try 587 (and toggle SSL/TLS OFF)
@@ -102,6 +104,7 @@ Connection timeout to mail.yourdomain.com:587. Check firewall/network.
 **What it means:** Connection attempt is timing out
 
 **Quick Fixes:**
+
 1. Check your firewall settings
 2. Try from different network (mobile hotspot)
 3. Connect to VPN if required
@@ -123,6 +126,7 @@ Authentication failed. Check username and password.
 **What it means:** Server rejected your credentials
 
 **Quick Fixes:**
+
 1. Try different username formats:
    - `username@domain.com`
    - `username`
@@ -143,6 +147,7 @@ Authentication failed. Check username and password.
 **What it means:** Server has SSL certificate issue
 
 **Quick Fixes:**
+
 1. If using port 465, toggle SSL/TLS to OFF and try port 587
 2. If using port 587, toggle SSL/TLS to ON and try port 465
 3. Ask admin: "Does the server use self-signed certificates?"
@@ -177,6 +182,7 @@ Authentication failed. Check username and password.
 ## Common Server Types & Settings
 
 ### cPanel/WHM
+
 ```
 Host: mail.yourdomain.com
 Port: 587
@@ -185,6 +191,7 @@ Username: email@yourdomain.com
 ```
 
 ### Plesk
+
 ```
 Host: smtp.yourdomain.com
 Port: 587
@@ -193,6 +200,7 @@ Username: email@yourdomain.com
 ```
 
 ### Exchange Server
+
 ```
 Host: exchange.company.local
 Port: 587
@@ -201,6 +209,7 @@ Username: DOMAIN\username
 ```
 
 ### Postfix (Linux)
+
 ```
 Host: mail.server.local or IP
 Port: 25 or 587
@@ -213,11 +222,13 @@ Username: May not be required
 ## Quick Diagnostic Commands
 
 ### Test if server is reachable:
+
 ```bash
 ping mail.yourdomain.com
 ```
 
 ### Test if port is open:
+
 ```bash
 # Windows PowerShell
 Test-NetConnection -ComputerName mail.yourdomain.com -Port 587
@@ -229,6 +240,7 @@ nc -zv mail.yourdomain.com 587
 ```
 
 ### Check DNS resolution:
+
 ```bash
 nslookup mail.yourdomain.com
 ```

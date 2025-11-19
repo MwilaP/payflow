@@ -1,30 +1,36 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { CalendarIcon, Upload } from "lucide-react"
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { CalendarIcon, Upload } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import { useToast } from "@/hooks/use-toast"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { createEmployeeServiceCompat } from "@/lib/db/sqlite-employee-service"
-import { createPayrollStructureServiceCompat } from "@/lib/db/sqlite-payroll-service"
-import type { Employee } from "@/lib/db/models/employee.model"
-import type { PayrollStructure } from "@/lib/db/models/payroll-structure.model"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
-import { initializeSQLiteDatabase } from "@/lib/db/indexeddb-sqlite-service"
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
+import { format } from 'date-fns'
+import { useToast } from '@/hooks/use-toast'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { createEmployeeServiceCompat } from '@/lib/db/sqlite-employee-service'
+import { createPayrollStructureServiceCompat } from '@/lib/db/sqlite-payroll-service'
+import type { Employee } from '@/lib/db/models/employee.model'
+import type { PayrollStructure } from '@/lib/db/models/payroll-structure.model'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
+import { initializeSQLiteDatabase } from '@/lib/db/indexeddb-sqlite-service'
 
 interface EmployeeFormProps {
   employeeId?: string
@@ -32,7 +38,7 @@ interface EmployeeFormProps {
 }
 
 export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProps) {
-  const [activeTab, setActiveTab] = useState("personal")
+  const [activeTab, setActiveTab] = useState('personal')
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -48,27 +54,27 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
 
   // Form state
   const [formData, setFormData] = useState<Partial<Employee>>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    gender: "",
-    address: "",
-    department: "",
-    designation: "",
-    employmentType: "full-time",
-    reportingTo: "",
-    workLocation: "",
-    accountNumber: "",
-    bankName: "",
-    branchName: "",
-    ifscCode: "",
-    nationalId: "",
-    taxNumber: "",
-    pensionNumber: "",
-    taxStatus: "",
-    payrollStructureId: "",
-    status: "Active",
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    gender: '',
+    address: '',
+    department: '',
+    designation: '',
+    employmentType: 'full-time',
+    reportingTo: '',
+    workLocation: '',
+    accountNumber: '',
+    bankName: '',
+    branchName: '',
+    ifscCode: '',
+    nationalId: '',
+    taxNumber: '',
+    pensionNumber: '',
+    taxStatus: '',
+    payrollStructureId: '',
+    status: 'Active'
   })
 
   // SQLite initialization state
@@ -80,7 +86,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
       if (!dbInitialized) return
 
       try {
-        console.log("Initializing services...")
+        console.log('Initializing services...')
         setServiceError(null)
 
         const empService = createEmployeeServiceCompat()
@@ -89,10 +95,12 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
         setEmployeeService(empService)
         setPayrollStructureService(payrollService)
         setServicesLoaded(true)
-        console.log("Services initialized successfully")
+        console.log('Services initialized successfully')
       } catch (error) {
-        console.error("Error initializing services:", error)
-        setServiceError("Failed to initialize services. The application will run with limited functionality.")
+        console.error('Error initializing services:', error)
+        setServiceError(
+          'Failed to initialize services. The application will run with limited functionality.'
+        )
 
         // Set services to empty implementations to avoid null errors
         setEmployeeService({})
@@ -100,9 +108,10 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
         setServicesLoaded(true)
 
         toast({
-          title: "Warning",
-          description: "Running in limited functionality mode due to database initialization issues.",
-          variant: "destructive",
+          title: 'Warning',
+          description:
+            'Running in limited functionality mode due to database initialization issues.',
+          variant: 'destructive'
         })
       }
     }
@@ -117,7 +126,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
         const { success } = await initializeSQLiteDatabase()
         setDbInitialized(success)
       } catch (error) {
-        console.error("Error initializing database:", error)
+        console.error('Error initializing database:', error)
       }
     }
     initDb()
@@ -129,17 +138,17 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
 
     const loadPayrollStructures = async () => {
       try {
-        console.log("Loading payroll structures...")
+        console.log('Loading payroll structures...')
         const structures = await payrollStructureService.getAll()
         setPayrollStructures(structures || [])
         console.log(`Loaded ${structures?.length || 0} payroll structures`)
       } catch (error) {
-        console.error("Error loading payroll structures:", error)
+        console.error('Error loading payroll structures:', error)
         setPayrollStructures([])
         toast({
-          title: "Warning",
-          description: "Failed to load payroll structures. Some features may be limited.",
-          variant: "destructive",
+          title: 'Warning',
+          description: 'Failed to load payroll structures. Some features may be limited.',
+          variant: 'destructive'
         })
       }
     }
@@ -158,11 +167,11 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
           console.log(`Loading employee data for ID: ${employeeId}`)
           const employee = await employeeService.getById(employeeId)
           if (!employee) {
-            console.error("Employee not found")
+            console.error('Employee not found')
             toast({
-              title: "Error",
-              description: "Employee not found",
-              variant: "destructive",
+              title: 'Error',
+              description: 'Employee not found',
+              variant: 'destructive'
             })
             return
           }
@@ -171,11 +180,11 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
           const formattedEmployee = {
             ...employee,
             dob: employee.dob ? new Date(employee.dob) : undefined,
-            hireDate: employee.hireDate ? new Date(employee.hireDate) : undefined,
+            hireDate: employee.hireDate ? new Date(employee.hireDate) : undefined
           }
 
           setFormData(formattedEmployee)
-          console.log("Employee data loaded successfully")
+          console.log('Employee data loaded successfully')
 
           // Load the employee's payroll structure if they have one
           if (employee.payrollStructureId) {
@@ -183,17 +192,17 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
               console.log(`Loading payroll structure for ID: ${employee.payrollStructureId}`)
               const structure = await payrollStructureService.getById(employee.payrollStructureId)
               setSelectedStructure(structure)
-              console.log("Payroll structure loaded successfully")
+              console.log('Payroll structure loaded successfully')
             } catch (error) {
-              console.error("Error loading payroll structure:", error)
+              console.error('Error loading payroll structure:', error)
             }
           }
         } catch (error) {
-          console.error("Error loading employee data:", error)
+          console.error('Error loading employee data:', error)
           toast({
-            title: "Error",
-            description: "Failed to load employee data",
-            variant: "destructive",
+            title: 'Error',
+            description: 'Failed to load employee data',
+            variant: 'destructive'
           })
         } finally {
           setIsLoading(false)
@@ -214,9 +223,9 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
           console.log(`Loading selected payroll structure: ${formData.payrollStructureId}`)
           const structure = await payrollStructureService.getById(formData.payrollStructureId)
           setSelectedStructure(structure)
-          console.log("Selected payroll structure loaded successfully")
+          console.log('Selected payroll structure loaded successfully')
         } catch (error) {
-          console.error("Error loading selected payroll structure:", error)
+          console.error('Error loading selected payroll structure:', error)
           setSelectedStructure(null)
         }
       } else {
@@ -230,7 +239,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: value
     }))
   }
 
@@ -239,9 +248,9 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
 
     if (!servicesLoaded || !employeeService) {
       toast({
-        title: "Error",
-        description: "Services not initialized. Please refresh the page.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Services not initialized. Please refresh the page.',
+        variant: 'destructive'
       })
       return
     }
@@ -249,36 +258,36 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
     setIsLoading(true)
 
     try {
-      console.log("Saving employee data...")
+      console.log('Saving employee data...')
       // Format dates as ISO strings for storage
       const employeeData = {
         ...formData,
         dob: formData.dob ? (formData.dob as Date).toISOString() : undefined,
-        hireDate: formData.hireDate ? (formData.hireDate as Date).toISOString() : undefined,
+        hireDate: formData.hireDate ? (formData.hireDate as Date).toISOString() : undefined
       }
 
       if (isEditing && employeeId) {
         await employeeService.update(employeeId, employeeData)
         toast({
-          title: "Success",
-          description: "Employee updated successfully",
+          title: 'Success',
+          description: 'Employee updated successfully'
         })
       } else {
         await employeeService.create(employeeData as Employee)
         toast({
-          title: "Success",
-          description: "Employee created successfully",
+          title: 'Success',
+          description: 'Employee created successfully'
         })
       }
 
-      console.log("Employee data saved successfully")
-      navigate("/employees")
+      console.log('Employee data saved successfully')
+      navigate('/employees')
     } catch (error) {
-      console.error("Error saving employee:", error)
+      console.error('Error saving employee:', error)
       toast({
-        title: "Error",
-        description: "Failed to save employee data",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to save employee data',
+        variant: 'destructive'
       })
     } finally {
       setIsLoading(false)
@@ -313,7 +322,9 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Warning</AlertTitle>
-          <AlertDescription>{serviceError} Some features may be limited or unavailable.</AlertDescription>
+          <AlertDescription>
+            {serviceError} Some features may be limited or unavailable.
+          </AlertDescription>
         </Alert>
       )}
 
@@ -347,7 +358,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                     id="firstName"
                     placeholder="Enter first name"
                     value={formData.firstName}
-                    onChange={(e) => handleInputChange("firstName", e.target.value)}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
                   />
                 </div>
 
@@ -357,7 +368,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                     id="lastName"
                     placeholder="Enter last name"
                     value={formData.lastName}
-                    onChange={(e) => handleInputChange("lastName", e.target.value)}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
                   />
                 </div>
 
@@ -368,7 +379,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                     type="email"
                     placeholder="Enter email address"
                     value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
                   />
                 </div>
 
@@ -378,7 +389,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                     id="phone"
                     placeholder="Enter phone number"
                     value={formData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
                   />
                 </div>
 
@@ -388,10 +399,13 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                     <PopoverTrigger asChild>
                       <Button
                         id="dob"
-                        variant={"outline"}
-                        className={cn("w-full pl-3 text-left font-normal", !formData.dob && "text-muted-foreground")}
+                        variant={'outline'}
+                        className={cn(
+                          'w-full pl-3 text-left font-normal',
+                          !formData.dob && 'text-muted-foreground'
+                        )}
                       >
-                        {formData.dob ? format(formData.dob, "PPP") : <span>Pick a date</span>}
+                        {formData.dob ? format(formData.dob, 'PPP') : <span>Pick a date</span>}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </PopoverTrigger>
@@ -399,8 +413,8 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                       <Calendar
                         mode="single"
                         selected={formData.dob}
-                        onSelect={(date) => handleInputChange("dob", date)}
-                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                        onSelect={(date) => handleInputChange('dob', date)}
+                        disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                         initialFocus
                       />
                     </PopoverContent>
@@ -409,7 +423,10 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
 
                 <div className="space-y-2">
                   <Label htmlFor="gender">Gender</Label>
-                  <Select value={formData.gender} onValueChange={(value) => handleInputChange("gender", value)}>
+                  <Select
+                    value={formData.gender}
+                    onValueChange={(value) => handleInputChange('gender', value)}
+                  >
                     <SelectTrigger id="gender">
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
@@ -431,15 +448,15 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                 placeholder="Enter full address"
                 className="min-h-[80px]"
                 value={formData.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
+                onChange={(e) => handleInputChange('address', e.target.value)}
               />
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => navigate("/employees")}>
+              <Button type="button" variant="outline" onClick={() => navigate('/employees')}>
                 Cancel
               </Button>
-              <Button type="button" onClick={() => setActiveTab("job")}>
+              <Button type="button" onClick={() => setActiveTab('job')}>
                 Next
               </Button>
             </div>
@@ -450,7 +467,10 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="department">Department</Label>
-                <Select value={formData.department} onValueChange={(value) => handleInputChange("department", value)}>
+                <Select
+                  value={formData.department}
+                  onValueChange={(value) => handleInputChange('department', value)}
+                >
                   <SelectTrigger id="department">
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
@@ -473,7 +493,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   id="designation"
                   placeholder="Enter job title"
                   value={formData.designation}
-                  onChange={(e) => handleInputChange("designation", e.target.value)}
+                  onChange={(e) => handleInputChange('designation', e.target.value)}
                 />
               </div>
 
@@ -481,7 +501,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                 <Label htmlFor="employmentType">Employment Type</Label>
                 <Select
                   value={formData.employmentType}
-                  onValueChange={(value) => handleInputChange("employmentType", value)}
+                  onValueChange={(value) => handleInputChange('employmentType', value)}
                 >
                   <SelectTrigger id="employmentType">
                     <SelectValue placeholder="Select type" />
@@ -501,10 +521,17 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   <PopoverTrigger asChild>
                     <Button
                       id="hireDate"
-                      variant={"outline"}
-                      className={cn("w-full pl-3 text-left font-normal", !formData.hireDate && "text-muted-foreground")}
+                      variant={'outline'}
+                      className={cn(
+                        'w-full pl-3 text-left font-normal',
+                        !formData.hireDate && 'text-muted-foreground'
+                      )}
                     >
-                      {formData.hireDate ? format(formData.hireDate, "PPP") : <span>Pick a date</span>}
+                      {formData.hireDate ? (
+                        format(formData.hireDate, 'PPP')
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
@@ -512,7 +539,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                     <Calendar
                       mode="single"
                       selected={formData.hireDate}
-                      onSelect={(date) => handleInputChange("hireDate", date)}
+                      onSelect={(date) => handleInputChange('hireDate', date)}
                       disabled={(date) => date > new Date()}
                       initialFocus
                     />
@@ -521,27 +548,27 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
               </div>
 
               {
-              //   <div className="space-y-2">
-              //   <Label htmlFor="reportingTo">Reporting To</Label>
-              //   <Select value={formData.reportingTo} onValueChange={(value) => handleInputChange("reportingTo", value)}>
-              //     <SelectTrigger id="reportingTo">
-              //       <SelectValue placeholder="Select manager" />
-              //     </SelectTrigger>
-              //     <SelectContent>
-              //       <SelectItem value="john-doe">John Doe (CEO)</SelectItem>
-              //       <SelectItem value="jane-smith">Jane Smith (CTO)</SelectItem>
-              //       <SelectItem value="robert-johnson">Robert Johnson (CFO)</SelectItem>
-              //       <SelectItem value="emily-davis">Emily Davis (HR Director)</SelectItem>
-              //     </SelectContent>
-              //   </Select>
-              // </div>
+                //   <div className="space-y-2">
+                //   <Label htmlFor="reportingTo">Reporting To</Label>
+                //   <Select value={formData.reportingTo} onValueChange={(value) => handleInputChange("reportingTo", value)}>
+                //     <SelectTrigger id="reportingTo">
+                //       <SelectValue placeholder="Select manager" />
+                //     </SelectTrigger>
+                //     <SelectContent>
+                //       <SelectItem value="john-doe">John Doe (CEO)</SelectItem>
+                //       <SelectItem value="jane-smith">Jane Smith (CTO)</SelectItem>
+                //       <SelectItem value="robert-johnson">Robert Johnson (CFO)</SelectItem>
+                //       <SelectItem value="emily-davis">Emily Davis (HR Director)</SelectItem>
+                //     </SelectContent>
+                //   </Select>
+                // </div>
               }
 
               <div className="space-y-2">
                 <Label htmlFor="workLocation">Work Location</Label>
                 <Select
                   value={formData.workLocation}
-                  onValueChange={(value) => handleInputChange("workLocation", value)}
+                  onValueChange={(value) => handleInputChange('workLocation', value)}
                 >
                   <SelectTrigger id="workLocation">
                     <SelectValue placeholder="Select location" />
@@ -557,10 +584,10 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setActiveTab("personal")}>
+              <Button type="button" variant="outline" onClick={() => setActiveTab('personal')}>
                 Previous
               </Button>
-              <Button type="button" onClick={() => setActiveTab("banking")}>
+              <Button type="button" onClick={() => setActiveTab('banking')}>
                 Next
               </Button>
             </div>
@@ -575,7 +602,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   id="accountNumber"
                   placeholder="Enter account number"
                   value={formData.accountNumber}
-                  onChange={(e) => handleInputChange("accountNumber", e.target.value)}
+                  onChange={(e) => handleInputChange('accountNumber', e.target.value)}
                 />
               </div>
 
@@ -585,7 +612,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   id="bankName"
                   placeholder="Enter bank name"
                   value={formData.bankName}
-                  onChange={(e) => handleInputChange("bankName", e.target.value)}
+                  onChange={(e) => handleInputChange('bankName', e.target.value)}
                 />
               </div>
 
@@ -595,7 +622,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   id="branchName"
                   placeholder="Enter branch name"
                   value={formData.branchName}
-                  onChange={(e) => handleInputChange("branchName", e.target.value)}
+                  onChange={(e) => handleInputChange('branchName', e.target.value)}
                 />
               </div>
 
@@ -605,16 +632,16 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   id="ifscCode"
                   placeholder="Enter IFSC/SWIFT code"
                   value={formData.ifscCode}
-                  onChange={(e) => handleInputChange("ifscCode", e.target.value)}
+                  onChange={(e) => handleInputChange('ifscCode', e.target.value)}
                 />
               </div>
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setActiveTab("job")}>
+              <Button type="button" variant="outline" onClick={() => setActiveTab('job')}>
                 Previous
               </Button>
-              <Button type="button" onClick={() => setActiveTab("tax")}>
+              <Button type="button" onClick={() => setActiveTab('tax')}>
                 Next
               </Button>
             </div>
@@ -629,7 +656,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   id="nationalId"
                   placeholder="Enter national ID number"
                   value={formData.nationalId}
-                  onChange={(e) => handleInputChange("nationalId", e.target.value)}
+                  onChange={(e) => handleInputChange('nationalId', e.target.value)}
                 />
               </div>
 
@@ -639,7 +666,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   id="taxNumber"
                   placeholder="Enter tax identification number"
                   value={formData.taxNumber}
-                  onChange={(e) => handleInputChange("taxNumber", e.target.value)}
+                  onChange={(e) => handleInputChange('taxNumber', e.target.value)}
                 />
               </div>
 
@@ -649,13 +676,16 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   id="pensionNumber"
                   placeholder="Enter pension number"
                   value={formData.pensionNumber}
-                  onChange={(e) => handleInputChange("pensionNumber", e.target.value)}
+                  onChange={(e) => handleInputChange('pensionNumber', e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="taxStatus">Tax Status</Label>
-                <Select value={formData.taxStatus} onValueChange={(value) => handleInputChange("taxStatus", value)}>
+                <Select
+                  value={formData.taxStatus}
+                  onValueChange={(value) => handleInputChange('taxStatus', value)}
+                >
                   <SelectTrigger id="taxStatus">
                     <SelectValue placeholder="Select tax status" />
                   </SelectTrigger>
@@ -669,10 +699,10 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setActiveTab("banking")}>
+              <Button type="button" variant="outline" onClick={() => setActiveTab('banking')}>
                 Previous
               </Button>
-              <Button type="button" onClick={() => setActiveTab("payroll")}>
+              <Button type="button" onClick={() => setActiveTab('payroll')}>
                 Next
               </Button>
             </div>
@@ -684,8 +714,8 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
               <CardHeader>
                 <CardTitle>Payroll Structure Assignment</CardTitle>
                 <CardDescription>
-                  Assign a payroll structure to this employee. This will determine their salary components, allowances,
-                  and deductions.
+                  Assign a payroll structure to this employee. This will determine their salary
+                  components, allowances, and deductions.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -693,7 +723,7 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                   <Label htmlFor="payrollStructure">Payroll Structure</Label>
                   <Select
                     value={formData.payrollStructureId}
-                    onValueChange={(value) => handleInputChange("payrollStructureId", value)}
+                    onValueChange={(value) => handleInputChange('payrollStructureId', value)}
                   >
                     <SelectTrigger id="payrollStructure">
                       <SelectValue placeholder="Select payroll structure" />
@@ -718,7 +748,9 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
 
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Basic Salary:</span>
-                        <span className="text-sm font-medium">K{selectedStructure.basicSalary.toLocaleString()}</span>
+                        <span className="text-sm font-medium">
+                          K{selectedStructure.basicSalary.toLocaleString()}
+                        </span>
                       </div>
 
                       {selectedStructure.allowances.length > 0 && (
@@ -729,9 +761,9 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                               <li key={allowance.id} className="text-sm flex justify-between">
                                 <span>{allowance.name}</span>
                                 <span>
-                                  {allowance.type === "fixed"
+                                  {allowance.type === 'fixed'
                                     ? `K${allowance.value.toLocaleString()}`
-                                    : `K${ (selectedStructure.basicSalary * ( allowance.value / 100))}`}
+                                    : `K${selectedStructure.basicSalary * (allowance.value / 100)}`}
                                 </span>
                               </li>
                             ))}
@@ -747,9 +779,9 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                               <li key={deduction.id} className="text-sm flex justify-between">
                                 <span>{deduction.name}</span>
                                 <span>
-                                  {deduction.type === "fixed"
+                                  {deduction.type === 'fixed'
                                     ? `K${deduction.value.toLocaleString()}`
-                                    : `K${ (selectedStructure.basicSalary * ( deduction.value / 100))}`}
+                                    : `K${selectedStructure.basicSalary * (deduction.value / 100)}`}
                                 </span>
                               </li>
                             ))}
@@ -761,7 +793,8 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                       {(() => {
                         if (!payrollStructureService) return null
 
-                        const salaryDetails = payrollStructureService.calculateSalaryDetails(selectedStructure)
+                        const salaryDetails =
+                          payrollStructureService.calculateSalaryDetails(selectedStructure)
                         return (
                           <>
                             <div className="flex justify-between border-t pt-2 mt-2">
@@ -778,7 +811,9 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                             </div>
                             <div className="flex justify-between border-t pt-2 mt-2">
                               <span className="text-sm font-medium">Net Salary:</span>
-                              <span className="text-sm font-medium">K{salaryDetails.netSalary.toLocaleString()}</span>
+                              <span className="text-sm font-medium">
+                                K{salaryDetails.netSalary.toLocaleString()}
+                              </span>
                             </div>
                           </>
                         )
@@ -790,7 +825,9 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate(`/payroll/structures/${formData.payrollStructureId}/edit`)}
+                        onClick={() =>
+                          navigate(`/payroll/structures/${formData.payrollStructureId}/edit`)
+                        }
                         disabled={!formData.payrollStructureId}
                       >
                         View Full Structure Details
@@ -802,17 +839,17 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
             </Card>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setActiveTab("tax")}>
+              <Button type="button" variant="outline" onClick={() => setActiveTab('tax')}>
                 Previous
               </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <span className="animate-spin mr-2">⟳</span>
-                    {isEditing ? "Updating..." : "Creating..."}
+                    {isEditing ? 'Updating...' : 'Creating...'}
                   </>
                 ) : (
-                  <>{isEditing ? "Update Employee" : "Create Employee"}</>
+                  <>{isEditing ? 'Update Employee' : 'Create Employee'}</>
                 )}
               </Button>
             </div>

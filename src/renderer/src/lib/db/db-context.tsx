@@ -1,16 +1,16 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
+import type React from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 // DEPRECATED: This file is replaced by sqlite-db-context.tsx
 // This is a compatibility wrapper that redirects to SQLite implementation
-import { 
-  SQLiteDatabaseProvider, 
+import {
+  SQLiteDatabaseProvider,
   useDatabase as useSQLiteDatabase,
   useDatabases as useSQLiteDatabases,
   useSyncService as useSQLiteSyncService,
   useSync as useSQLiteSync
-} from "./sqlite-db-context"
+} from './sqlite-db-context'
 
 // Re-export SQLite implementations for compatibility
 export const DatabaseProvider = SQLiteDatabaseProvider

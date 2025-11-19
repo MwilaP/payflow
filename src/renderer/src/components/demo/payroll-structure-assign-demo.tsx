@@ -1,127 +1,133 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Search, Users } from "lucide-react"
+import { useState } from 'react'
+import { Search, Users } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { useToast } from '@/hooks/use-toast'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 
 export function PayrollStructureAssignDemo() {
   const { toast } = useToast()
-  const [department, setDepartment] = useState<string>("all")
-  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [department, setDepartment] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
-  const [selectedStructure, setSelectedStructure] = useState<string>("1")
+  const [selectedStructure, setSelectedStructure] = useState<string>('1')
   const [assignedEmployees, setAssignedEmployees] = useState<Record<string, string[]>>({
-    "1": ["1", "2"],
-    "2": ["5"],
-    "3": ["3", "4"],
-    "4": ["7", "8"],
-    "5": ["6"],
+    '1': ['1', '2'],
+    '2': ['5'],
+    '3': ['3', '4'],
+    '4': ['7', '8'],
+    '5': ['6']
   })
 
   // Mock data for structures
   const structures = [
     {
-      id: "1",
-      name: "Standard Staff Payroll",
-      description: "Default structure for regular staff members",
+      id: '1',
+      name: 'Standard Staff Payroll',
+      description: 'Default structure for regular staff members'
     },
     {
-      id: "2",
-      name: "Executive Package",
-      description: "Structure for executive team members",
+      id: '2',
+      name: 'Executive Package',
+      description: 'Structure for executive team members'
     },
     {
-      id: "3",
-      name: "Part-time Staff",
-      description: "Structure for part-time employees",
+      id: '3',
+      name: 'Part-time Staff',
+      description: 'Structure for part-time employees'
     },
     {
-      id: "4",
-      name: "Contract Workers",
-      description: "Structure for contract-based workers",
+      id: '4',
+      name: 'Contract Workers',
+      description: 'Structure for contract-based workers'
     },
     {
-      id: "5",
-      name: "Internship Program",
-      description: "Structure for interns",
-    },
+      id: '5',
+      name: 'Internship Program',
+      description: 'Structure for interns'
+    }
   ]
 
   // Mock data for employees
   const employees = [
     {
-      id: "1",
-      name: "Robert Johnson",
-      email: "robert.johnson@example.com",
-      department: "Engineering",
-      position: "Software Engineer",
+      id: '1',
+      name: 'Robert Johnson',
+      email: 'robert.johnson@example.com',
+      department: 'Engineering',
+      position: 'Software Engineer'
     },
     {
-      id: "2",
-      name: "Sarah Williams",
-      email: "sarah.williams@example.com",
-      department: "Marketing",
-      position: "Marketing Specialist",
+      id: '2',
+      name: 'Sarah Williams',
+      email: 'sarah.williams@example.com',
+      department: 'Marketing',
+      position: 'Marketing Specialist'
     },
     {
-      id: "3",
-      name: "Michael Brown",
-      email: "michael.brown@example.com",
-      department: "Finance",
-      position: "Financial Analyst",
+      id: '3',
+      name: 'Michael Brown',
+      email: 'michael.brown@example.com',
+      department: 'Finance',
+      position: 'Financial Analyst'
     },
     {
-      id: "4",
-      name: "Emily Davis",
-      email: "emily.davis@example.com",
-      department: "Human Resources",
-      position: "HR Coordinator",
+      id: '4',
+      name: 'Emily Davis',
+      email: 'emily.davis@example.com',
+      department: 'Human Resources',
+      position: 'HR Coordinator'
     },
     {
-      id: "5",
-      name: "David Wilson",
-      email: "david.wilson@example.com",
-      department: "Product",
-      position: "Product Manager",
+      id: '5',
+      name: 'David Wilson',
+      email: 'david.wilson@example.com',
+      department: 'Product',
+      position: 'Product Manager'
     },
     {
-      id: "6",
-      name: "Jennifer Lee",
-      email: "jennifer.lee@example.com",
-      department: "Engineering",
-      position: "QA Engineer",
+      id: '6',
+      name: 'Jennifer Lee',
+      email: 'jennifer.lee@example.com',
+      department: 'Engineering',
+      position: 'QA Engineer'
     },
     {
-      id: "7",
-      name: "James Miller",
-      email: "james.miller@example.com",
-      department: "Sales",
-      position: "Sales Representative",
+      id: '7',
+      name: 'James Miller',
+      email: 'james.miller@example.com',
+      department: 'Sales',
+      position: 'Sales Representative'
     },
     {
-      id: "8",
-      name: "Lisa Anderson",
-      email: "lisa.anderson@example.com",
-      department: "Marketing",
-      position: "Content Writer",
-    },
+      id: '8',
+      name: 'Lisa Anderson',
+      email: 'lisa.anderson@example.com',
+      department: 'Marketing',
+      position: 'Content Writer'
+    }
   ]
 
   const filteredEmployees = employees.filter(
     (employee) =>
-      (department === "all" || employee.department === department) &&
+      (department === 'all' || employee.department === department) &&
       (employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         employee.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        employee.position.toLowerCase().includes(searchQuery.toLowerCase())),
+        employee.position.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   const handleSelectAll = () => {
@@ -144,12 +150,12 @@ export function PayrollStructureAssignDemo() {
     // Update the assigned employees
     setAssignedEmployees({
       ...assignedEmployees,
-      [selectedStructure]: [...selectedEmployees],
+      [selectedStructure]: [...selectedEmployees]
     })
 
     toast({
-      title: "Structure assigned (Demo)",
-      description: `Payroll structure has been assigned to ${selectedEmployees.length} employees in demo mode.`,
+      title: 'Structure assigned (Demo)',
+      description: `Payroll structure has been assigned to ${selectedEmployees.length} employees in demo mode.`
     })
     setSelectedEmployees([])
   }
@@ -157,10 +163,10 @@ export function PayrollStructureAssignDemo() {
   const getEmployeeStructure = (employeeId: string) => {
     for (const [structureId, employeeIds] of Object.entries(assignedEmployees)) {
       if (employeeIds.includes(employeeId)) {
-        return structures.find((s) => s.id === structureId)?.name || "None"
+        return structures.find((s) => s.id === structureId)?.name || 'None'
       }
     }
-    return "None"
+    return 'None'
   }
 
   return (
@@ -229,7 +235,10 @@ export function PayrollStructureAssignDemo() {
           <div className="rounded-md border">
             <div className="flex items-center border-b p-2">
               <Checkbox
-                checked={selectedEmployees.length === filteredEmployees.length && filteredEmployees.length > 0}
+                checked={
+                  selectedEmployees.length === filteredEmployees.length &&
+                  filteredEmployees.length > 0
+                }
                 onCheckedChange={handleSelectAll}
                 className="ml-2"
               />
@@ -263,9 +272,9 @@ export function PayrollStructureAssignDemo() {
                         />
                         <AvatarFallback>
                           {employee.name
-                            .split(" ")
+                            .split(' ')
                             .map((n) => n[0])
-                            .join("")}
+                            .join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
@@ -321,9 +330,9 @@ export function PayrollStructureAssignDemo() {
                               />
                               <AvatarFallback className="text-xs">
                                 {employee.name
-                                  .split(" ")
+                                  .split(' ')
                                   .map((n) => n[0])
-                                  .join("")}
+                                  .join('')}
                               </AvatarFallback>
                             </Avatar>
                             <div className="text-sm">{employee.name}</div>

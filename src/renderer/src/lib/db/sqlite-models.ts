@@ -1,5 +1,5 @@
-import { z } from "zod"
-import { v4 as uuidv4 } from "uuid"
+import { z } from 'zod'
+import { v4 as uuidv4 } from 'uuid'
 
 // SQLite Employee model (converted from PouchDB structure)
 export const sqliteEmployeeSchema = z.object({
@@ -7,38 +7,38 @@ export const sqliteEmployeeSchema = z.object({
   rev: z.string().optional(),
   first_name: z.string().optional(),
   last_name: z.string().optional(),
-  email: z.string().email("Invalid email address").optional(),
+  email: z.string().email('Invalid email address').optional(),
   phone: z.string().optional(),
   dob: z.string().optional(),
-  gender: z.enum(["male", "female", "other", "prefer-not-to-say"]).optional(),
+  gender: z.enum(['male', 'female', 'other', 'prefer-not-to-say']).optional(),
   address: z.string().optional(),
 
   // Job information
   department: z.string().optional(),
   designation: z.string().optional(),
-  employment_type: z.enum(["full-time", "part-time", "contract", "intern"]),
+  employment_type: z.enum(['full-time', 'part-time', 'contract', 'intern']),
   hire_date: z.string().optional(),
   reporting_to: z.string().optional(),
   work_location: z.string().optional(),
-  status: z.enum(["Active", "Pending", "On Leave", "Terminated"]).default("Active"),
+  status: z.enum(['Active', 'Pending', 'On Leave', 'Terminated']).default('Active'),
 
   // Banking information
   account_number: z.string().optional(),
   bank_name: z.string().optional(),
   branch_name: z.string().optional(),
-  ifsc_code: z.string().optional(), 
+  ifsc_code: z.string().optional(),
 
   // Tax information
   national_id: z.string().optional(),
   tax_number: z.string().optional(),
   pension_number: z.string().optional(),
-  tax_status: z.enum(["resident", "non-resident", "foreign"]).or(z.literal("")).optional(),
+  tax_status: z.enum(['resident', 'non-resident', 'foreign']).or(z.literal('')).optional(),
 
   // Payroll information
   payroll_structure_id: z.string().optional(),
   // Metadata
   created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+  updated_at: z.string().optional()
 })
 
 export type SQLiteEmployee = z.infer<typeof sqliteEmployeeSchema>
@@ -47,14 +47,14 @@ export type SQLiteEmployee = z.infer<typeof sqliteEmployeeSchema>
 export const sqlitePayrollStructureSchema = z.object({
   id: z.string().default(() => `structure_${uuidv4()}`),
   rev: z.string().optional(),
-  name: z.string().min(1, "Structure name is required"),
+  name: z.string().min(1, 'Structure name is required'),
   description: z.string().optional(),
-  frequency: z.enum(["monthly", "biweekly", "weekly"]),
-  basic_salary: z.number().min(0, "Basic salary must be a positive number"),
+  frequency: z.enum(['monthly', 'biweekly', 'weekly']),
+  basic_salary: z.number().min(0, 'Basic salary must be a positive number'),
 
   // Metadata
   created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+  updated_at: z.string().optional()
 })
 
 export type SQLitePayrollStructure = z.infer<typeof sqlitePayrollStructureSchema>
@@ -63,9 +63,9 @@ export type SQLitePayrollStructure = z.infer<typeof sqlitePayrollStructureSchema
 export const sqliteAllowanceSchema = z.object({
   id: z.string().default(() => `allowance_${uuidv4()}`),
   payroll_structure_id: z.string(),
-  name: z.string().min(1, "Allowance name is required"),
-  type: z.enum(["fixed", "percentage"]),
-  value: z.number().min(0, "Value must be a positive number"),
+  name: z.string().min(1, 'Allowance name is required'),
+  type: z.enum(['fixed', 'percentage']),
+  value: z.number().min(0, 'Value must be a positive number')
 })
 
 export type SQLiteAllowance = z.infer<typeof sqliteAllowanceSchema>
@@ -74,10 +74,10 @@ export type SQLiteAllowance = z.infer<typeof sqliteAllowanceSchema>
 export const sqliteDeductionSchema = z.object({
   id: z.string().default(() => `deduction_${uuidv4()}`),
   payroll_structure_id: z.string(),
-  name: z.string().min(1, "Deduction name is required"),
-  type: z.enum(["fixed", "percentage"]),
-  value: z.number().min(0, "Value must be a positive number"),
-  pre_tax: z.boolean().default(true),
+  name: z.string().min(1, 'Deduction name is required'),
+  type: z.enum(['fixed', 'percentage']),
+  value: z.number().min(0, 'Value must be a positive number'),
+  pre_tax: z.boolean().default(true)
 })
 
 export type SQLiteDeduction = z.infer<typeof sqliteDeductionSchema>
@@ -96,7 +96,7 @@ export const sqlitePayrollHistorySchema = z.object({
 
   // Metadata
   created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+  updated_at: z.string().optional()
 })
 
 export type SQLitePayrollHistory = z.infer<typeof sqlitePayrollHistorySchema>
@@ -105,13 +105,13 @@ export type SQLitePayrollHistory = z.infer<typeof sqlitePayrollHistorySchema>
 export const sqliteSettingsSchema = z.object({
   id: z.string().default(() => `setting_${uuidv4()}`),
   rev: z.string().optional(),
-  key: z.string().min(1, "Setting key is required"),
-  value: z.string().min(1, "Setting value is required"),
-  type: z.enum(["string", "number", "boolean", "json"]).default("string"),
+  key: z.string().min(1, 'Setting key is required'),
+  value: z.string().min(1, 'Setting value is required'),
+  type: z.enum(['string', 'number', 'boolean', 'json']).default('string'),
 
   // Metadata
   created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+  updated_at: z.string().optional()
 })
 
 export type SQLiteSettings = z.infer<typeof sqliteSettingsSchema>
@@ -120,15 +120,15 @@ export type SQLiteSettings = z.infer<typeof sqliteSettingsSchema>
 export const sqliteUserSchema = z.object({
   id: z.string().default(() => `user_${uuidv4()}`),
   rev: z.string().optional(),
-  username: z.string().min(1, "Username is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-  role: z.enum(["admin", "user", "manager"]).default("user"),
-  name: z.string().min(1, "Name is required"),
+  username: z.string().min(1, 'Username is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+  role: z.enum(['admin', 'user', 'manager']).default('user'),
+  name: z.string().min(1, 'Name is required'),
 
   // Metadata
   created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+  updated_at: z.string().optional()
 })
 
 export type SQLiteUser = z.infer<typeof sqliteUserSchema>
@@ -142,11 +142,11 @@ export const sqliteLeaveRequestSchema = z.object({
   end_date: z.string(),
   leave_type: z.string(),
   reason: z.string().optional(),
-  status: z.enum(["pending", "approved", "rejected"]).default("pending"),
+  status: z.enum(['pending', 'approved', 'rejected']).default('pending'),
 
   // Metadata
   created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+  updated_at: z.string().optional()
 })
 
 export type SQLiteLeaveRequest = z.infer<typeof sqliteLeaveRequestSchema>
@@ -181,11 +181,17 @@ export const convertPouchDBToSQLite = {
       tax_status: pouchEmployee.taxStatus,
       payroll_structure_id: pouchEmployee.payrollStructureId,
       created_at: pouchEmployee.createdAt,
-      updated_at: pouchEmployee.updatedAt,
+      updated_at: pouchEmployee.updatedAt
     }
   },
 
-  payrollStructure: (pouchStructure: any): { structure: SQLitePayrollStructure; allowances: SQLiteAllowance[]; deductions: SQLiteDeduction[] } => {
+  payrollStructure: (
+    pouchStructure: any
+  ): {
+    structure: SQLitePayrollStructure
+    allowances: SQLiteAllowance[]
+    deductions: SQLiteDeduction[]
+  } => {
     const structure: SQLitePayrollStructure = {
       id: pouchStructure._id,
       rev: pouchStructure._rev,
@@ -194,25 +200,29 @@ export const convertPouchDBToSQLite = {
       frequency: pouchStructure.frequency,
       basic_salary: pouchStructure.basicSalary,
       created_at: pouchStructure.createdAt,
-      updated_at: pouchStructure.updatedAt,
+      updated_at: pouchStructure.updatedAt
     }
 
-    const allowances: SQLiteAllowance[] = (pouchStructure.allowances || []).map((allowance: any) => ({
-      id: allowance.id,
-      payroll_structure_id: pouchStructure._id,
-      name: allowance.name,
-      type: allowance.type,
-      value: allowance.value,
-    }))
+    const allowances: SQLiteAllowance[] = (pouchStructure.allowances || []).map(
+      (allowance: any) => ({
+        id: allowance.id,
+        payroll_structure_id: pouchStructure._id,
+        name: allowance.name,
+        type: allowance.type,
+        value: allowance.value
+      })
+    )
 
-    const deductions: SQLiteDeduction[] = (pouchStructure.deductions || []).map((deduction: any) => ({
-      id: deduction.id,
-      payroll_structure_id: pouchStructure._id,
-      name: deduction.name,
-      type: deduction.type,
-      value: deduction.value,
-      pre_tax: deduction.preTax,
-    }))
+    const deductions: SQLiteDeduction[] = (pouchStructure.deductions || []).map(
+      (deduction: any) => ({
+        id: deduction.id,
+        payroll_structure_id: pouchStructure._id,
+        name: deduction.name,
+        type: deduction.type,
+        value: deduction.value,
+        pre_tax: deduction.preTax
+      })
+    )
 
     return { structure, allowances, deductions }
   }
@@ -248,11 +258,15 @@ export const convertSQLiteToPouchDB = {
       taxStatus: sqliteEmployee.tax_status,
       payrollStructureId: sqliteEmployee.payroll_structure_id,
       createdAt: sqliteEmployee.created_at,
-      updatedAt: sqliteEmployee.updated_at,
+      updatedAt: sqliteEmployee.updated_at
     }
   },
 
-  payrollStructure: (structure: SQLitePayrollStructure, allowances: SQLiteAllowance[], deductions: SQLiteDeduction[]): any => {
+  payrollStructure: (
+    structure: SQLitePayrollStructure,
+    allowances: SQLiteAllowance[],
+    deductions: SQLiteDeduction[]
+  ): any => {
     return {
       _id: structure.id,
       _rev: structure.rev,
@@ -260,21 +274,21 @@ export const convertSQLiteToPouchDB = {
       description: structure.description,
       frequency: structure.frequency,
       basicSalary: structure.basic_salary,
-      allowances: allowances.map(allowance => ({
+      allowances: allowances.map((allowance) => ({
         id: allowance.id,
         name: allowance.name,
         type: allowance.type,
-        value: allowance.value,
+        value: allowance.value
       })),
-      deductions: deductions.map(deduction => ({
+      deductions: deductions.map((deduction) => ({
         id: deduction.id,
         name: deduction.name,
         type: deduction.type,
         value: deduction.value,
-        preTax: deduction.pre_tax,
+        preTax: deduction.pre_tax
       })),
       createdAt: structure.created_at,
-      updatedAt: structure.updated_at,
+      updatedAt: structure.updated_at
     }
   }
 }

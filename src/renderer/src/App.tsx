@@ -24,12 +24,7 @@ import SettingsPage from './pages/SettingsPage'
 function App() {
   return (
     <div className="font-sans">
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <SQLiteDatabaseProvider>
           <AuthProvider>
             <SidebarProvider>

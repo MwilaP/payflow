@@ -1,8 +1,8 @@
-import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
-import { initializeSQLiteDatabase, checkDatabaseHealth } from "./indexeddb-sqlite-service"
-import { createEmployeeServiceCompat } from "./sqlite-employee-service"
-import { createPayrollStructureServiceCompat } from "./sqlite-payroll-service"
+import type React from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import { initializeSQLiteDatabase, checkDatabaseHealth } from './indexeddb-sqlite-service'
+import { createEmployeeServiceCompat } from './sqlite-employee-service'
+import { createPayrollStructureServiceCompat } from './sqlite-payroll-service'
 
 // Define the context type
 interface SQLiteDatabaseContextType {
@@ -21,7 +21,7 @@ const SQLiteDatabaseContext = createContext<SQLiteDatabaseContextType>({
   error: null,
   employeeService: null,
   payrollStructureService: null,
-  healthStatus: false,
+  healthStatus: false
 })
 
 // Provider component
@@ -32,7 +32,7 @@ export function SQLiteDatabaseProvider({ children }: { children: React.ReactNode
     error: null,
     employeeService: null,
     payrollStructureService: null,
-    healthStatus: false,
+    healthStatus: false
   })
 
   // Initialize database and services
@@ -42,19 +42,19 @@ export function SQLiteDatabaseProvider({ children }: { children: React.ReactNode
 
     const initialize = async () => {
       try {
-        console.log("Initializing SQLite database...")
+        console.log('Initializing SQLite database...')
         const { success, error } = await initializeSQLiteDatabase()
 
         if (!success) {
           if (isMounted) {
-            setState(prev => ({
+            setState((prev) => ({
               ...prev,
               isInitialized: false,
               isLoading: false,
-              error: error || "Failed to initialize SQLite database",
+              error: error || 'Failed to initialize SQLite database',
               employeeService: null,
               payrollStructureService: null,
-              healthStatus: false,
+              healthStatus: false
             }))
           }
           return
@@ -68,9 +68,9 @@ export function SQLiteDatabaseProvider({ children }: { children: React.ReactNode
         const performHealthCheck = () => {
           const isHealthy = checkDatabaseHealth()
           if (isMounted) {
-            setState(prev => ({
+            setState((prev) => ({
               ...prev,
-              healthStatus: isHealthy,
+              healthStatus: isHealthy
             }))
           }
           return isHealthy
@@ -83,35 +83,35 @@ export function SQLiteDatabaseProvider({ children }: { children: React.ReactNode
         healthCheckInterval = setInterval(() => {
           const isHealthy = performHealthCheck()
           if (!isHealthy) {
-            console.warn("SQLite database health check failed")
+            console.warn('SQLite database health check failed')
           }
         }, 30000) // Check every 30 seconds
 
         if (isMounted) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             isInitialized: true,
             isLoading: false,
             error: null,
             employeeService,
             payrollStructureService,
-            healthStatus: initialHealth,
+            healthStatus: initialHealth
           }))
 
-          console.log("SQLite database initialized successfully")
+          console.log('SQLite database initialized successfully')
         }
       } catch (err) {
-        console.error("Error initializing SQLite database:", err)
+        console.error('Error initializing SQLite database:', err)
 
         if (isMounted) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             isInitialized: false,
             isLoading: false,
-            error: err instanceof Error ? err.message : "Unknown database error",
+            error: err instanceof Error ? err.message : 'Unknown database error',
             employeeService: null,
             payrollStructureService: null,
-            healthStatus: false,
+            healthStatus: false
           }))
         }
       }
@@ -143,40 +143,44 @@ export function useDatabase() {
     isInitialized: context.isInitialized,
     isLoading: context.isLoading,
     error: context.error,
-    databases: context.isInitialized ? {
-      employees: {}, // Mock object for compatibility
-      payrollStructures: {},
-      payrollHistory: {},
-      settings: {},
-      users: {},
-    } : null,
+    databases: context.isInitialized
+      ? {
+          employees: {}, // Mock object for compatibility
+          payrollStructures: {},
+          payrollHistory: {},
+          settings: {},
+          users: {}
+        }
+      : null,
     employeeService: context.employeeService,
     syncService: null, // No sync service needed for SQLite
     syncConfig: {},
     setSyncConfig: () => {},
-    syncStatus: {},
+    syncStatus: {}
   }
 }
 
 // Hook to get database instances (compatibility)
 export function useDatabases() {
   const { databases } = useDatabase()
-  return databases || {
-    employees: null,
-    payrollStructures: null,
-    payrollHistory: null,
-    settings: null,
-    users: null,
-  }
+  return (
+    databases || {
+      employees: null,
+      payrollStructures: null,
+      payrollHistory: null,
+      settings: null,
+      users: null
+    }
+  )
 }
 
 // Hook to get sync service (compatibility - returns null for SQLite)
 export function useSyncService() {
-  return { 
-    syncService: null, 
-    syncConfig: {}, 
-    setSyncConfig: () => {}, 
-    syncStatus: {} 
+  return {
+    syncService: null,
+    syncConfig: {},
+    setSyncConfig: () => {},
+    syncStatus: {}
   }
 }
 

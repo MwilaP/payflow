@@ -1,7 +1,14 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus } from "lucide-react"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Plus } from 'lucide-react'
 // Removed incorrect import: import { calculateNetSalary } from "@/lib/db/services/payroll-structure.service"
 
 // Define props interface
@@ -20,14 +27,14 @@ export function EmployeeSalary({ salaryData }: EmployeeSalaryProps) {
         deductions: [],
         grossSalary: 0,
         totalDeductions: 0,
-        netSalary: 0,
+        netSalary: 0
       }
     }
 
     const baseSalary = structure.basicSalary || 0
     let grossSalary = baseSalary
     const calculatedAllowances = (structure.allowances || []).map((a: any) => {
-      const amount = a.type === "percentage" ? (baseSalary * a.value) / 100 : a.value
+      const amount = a.type === 'percentage' ? (baseSalary * a.value) / 100 : a.value
       grossSalary += amount
       return { ...a, amount }
     })
@@ -37,7 +44,7 @@ export function EmployeeSalary({ salaryData }: EmployeeSalaryProps) {
     const calculatedDeductions = (structure.deductions || []).map((d: any) => {
       let deductionAmount = 0
       const baseForPercentage = d.preTax ? taxableAmount : grossSalary // Adjust base for percentage calc if needed
-      if (d.type === "percentage") {
+      if (d.type === 'percentage') {
         deductionAmount = (baseForPercentage * d.value) / 100
       } else {
         deductionAmount = d.value
@@ -57,7 +64,7 @@ export function EmployeeSalary({ salaryData }: EmployeeSalaryProps) {
       deductions: calculatedDeductions,
       grossSalary,
       totalDeductions,
-      netSalary,
+      netSalary
     }
   }
 
@@ -92,21 +99,33 @@ export function EmployeeSalary({ salaryData }: EmployeeSalaryProps) {
                   <TableRow>
                     <TableCell>Base Salary</TableCell>
                     <TableCell className="text-right">
-                      K{details.basicSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      K
+                      {details.basicSalary.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
                     </TableCell>
                   </TableRow>
                   {details.allowances.map((allowance: any) => (
                     <TableRow key={allowance._id || allowance.name}>
                       <TableCell>{allowance.name}</TableCell>
                       <TableCell className="text-right">
-                        K{allowance.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        K
+                        {allowance.amount.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
                       </TableCell>
                     </TableRow>
                   ))}
                   <TableRow className="font-medium">
                     <TableCell>Total Earnings</TableCell>
                     <TableCell className="text-right">
-                      K{details.grossSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      K
+                      {details.grossSalary.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -123,17 +142,25 @@ export function EmployeeSalary({ salaryData }: EmployeeSalaryProps) {
                 </TableHeader>
                 <TableBody>
                   {details.deductions.map((deduction: any) => (
-                     <TableRow key={deduction._id || deduction.name}>
-                       <TableCell>{deduction.name}</TableCell>
-                       <TableCell className="text-right">
-                         K{deduction.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                       </TableCell>
-                     </TableRow>
+                    <TableRow key={deduction._id || deduction.name}>
+                      <TableCell>{deduction.name}</TableCell>
+                      <TableCell className="text-right">
+                        K
+                        {deduction.amount.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      </TableCell>
+                    </TableRow>
                   ))}
                   <TableRow className="font-medium">
                     <TableCell>Total Deductions</TableCell>
                     <TableCell className="text-right">
-                      K{details.totalDeductions.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      K
+                      {details.totalDeductions.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -144,13 +171,21 @@ export function EmployeeSalary({ salaryData }: EmployeeSalaryProps) {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Net Annual Salary</h3>
               <p className="text-2xl font-bold">
-                K{annualSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                K
+                {annualSalary.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
               </p>
             </div>
             <div className="mt-2 flex items-center justify-between">
               <h3 className="text-sm font-medium">Monthly Salary</h3>
               <p className="text-lg font-medium">
-                K{monthlySalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                K
+                {monthlySalary.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
               </p>
             </div>
           </div>
@@ -175,9 +210,9 @@ export function EmployeeSalary({ salaryData }: EmployeeSalaryProps) {
             <TableBody>
               {/* TODO: Replace with actual salary history data */}
               <TableRow>
-                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                   Salary history data not yet implemented.
-                 </TableCell>
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                  Salary history data not yet implemented.
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -208,9 +243,9 @@ export function EmployeeSalary({ salaryData }: EmployeeSalaryProps) {
             <TableBody>
               {/* TODO: Replace with actual bonus data */}
               <TableRow>
-                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                   Bonus data not yet implemented.
-                 </TableCell>
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                  Bonus data not yet implemented.
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>

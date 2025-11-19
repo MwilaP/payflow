@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { v4 as uuidv4 } from "uuid"
-import { dbOperations } from "../db-service"
+import { v4 as uuidv4 } from 'uuid'
+import { dbOperations } from '../db-service'
 
 // Employee service factory
 export const employeeService = (db: any) => ({
@@ -13,12 +13,12 @@ export const employeeService = (db: any) => ({
       const id = employeeData._id || `employee_${uuidv4()}`
       const employee = {
         _id: id,
-        ...employeeData,
+        ...employeeData
       }
 
       return await dbOperations.create(db, employee)
     } catch (error) {
-      console.error("Error creating employee:", error)
+      console.error('Error creating employee:', error)
       return null
     }
   },
@@ -66,7 +66,7 @@ export const employeeService = (db: any) => ({
     try {
       return await dbOperations.getAll(db)
     } catch (error) {
-      console.error("Error getting all employees:", error)
+      console.error('Error getting all employees:', error)
       return []
     }
   },
@@ -88,7 +88,7 @@ export const employeeService = (db: any) => ({
         )
       })
     } catch (error) {
-      console.error("Error searching employees:", error)
+      console.error('Error searching employees:', error)
       return []
     }
   },
@@ -100,8 +100,8 @@ export const employeeService = (db: any) => ({
     try {
       const result = await dbOperations.find(db, {
         selector: {
-          department: department,
-        },
+          department: department
+        }
       })
 
       return result.docs
@@ -118,8 +118,8 @@ export const employeeService = (db: any) => ({
     try {
       const result = await dbOperations.find(db, {
         selector: {
-          status: status,
-        },
+          status: status
+        }
       })
 
       return result.docs
@@ -136,8 +136,8 @@ export const employeeService = (db: any) => ({
     try {
       const result = await dbOperations.find(db, {
         selector: {
-          payrollStructureId: structureId,
-        },
+          payrollStructureId: structureId
+        }
       })
 
       return result.docs
@@ -153,10 +153,13 @@ export const employeeService = (db: any) => ({
 
     try {
       return await this.updateEmployee(employeeId, {
-        payrollStructureId: structureId,
+        payrollStructureId: structureId
       })
     } catch (error) {
-      console.error(`Error assigning payroll structure ${structureId} to employee ${employeeId}:`, error)
+      console.error(
+        `Error assigning payroll structure ${structureId} to employee ${employeeId}:`,
+        error
+      )
       return null
     }
   },
@@ -173,7 +176,7 @@ export const employeeService = (db: any) => ({
         .map((employee) => ({
           ...employee,
           payrollStructureId: structureId,
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         }))
 
       return await dbOperations.bulkDocs(db, updatedEmployees)
@@ -181,5 +184,5 @@ export const employeeService = (db: any) => ({
       console.error(`Error bulk assigning payroll structure ${structureId}:`, error)
       return []
     }
-  },
+  }
 })

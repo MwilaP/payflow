@@ -1,27 +1,35 @@
-"use client"
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
-import { getEmployeeService } from "@/lib/db/services/service-factory"
-import { leaveRequestService } from "@/lib/db/services/leave-request.service"
+'use client'
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/hooks/use-toast'
+import { getEmployeeService } from '@/lib/db/services/service-factory'
+import { leaveRequestService } from '@/lib/db/services/leave-request.service'
 import {
   calculateLeaveBalance,
   calculateLeaveTaken,
   calculateAvailableLeave
-} from "@/lib/utils/leave-calculations"
-import { Download, Mail, Printer, ArrowLeft, FileText, CheckCircle, AlertCircle } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+} from '@/lib/utils/leave-calculations'
+import {
+  Download,
+  Mail,
+  Printer,
+  ArrowLeft,
+  FileText,
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { LeaveRequestForm } from "@/components/leave-request-form"
+  TableRow
+} from '@/components/ui/table'
+import { LeaveRequestForm } from '@/components/leave-request-form'
 
 interface LeaveHistory {
   _id: string
@@ -46,8 +54,8 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
     setLeaveHistory([newLeave, ...leaveHistory])
     setShowRequestForm(false)
     toast({
-      title: "Success",
-      description: "Leave request submitted",
+      title: 'Success',
+      description: 'Leave request submitted'
     })
   }
 
@@ -55,18 +63,20 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
     try {
       const service = await leaveRequestService
       await service.update(leaveId, { status: 'rejected' })
-      setLeaveHistory(leaveHistory.map(leave =>
-        leave._id === leaveId ? { ...leave, status: 'rejected' } : leave
-      ))
+      setLeaveHistory(
+        leaveHistory.map((leave) =>
+          leave._id === leaveId ? { ...leave, status: 'rejected' } : leave
+        )
+      )
       toast({
-        title: "Success",
-        description: "Leave request cancelled",
+        title: 'Success',
+        description: 'Leave request cancelled'
       })
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to cancel leave request",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to cancel leave request',
+        variant: 'destructive'
       })
     }
   }
@@ -102,9 +112,9 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
       } catch (error) {
         console.log('error', error)
         toast({
-          title: "Error",
-          description: "Failed to load leave data",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load leave data',
+          variant: 'destructive'
         })
       } finally {
         setIsLoading(false)
@@ -126,7 +136,9 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
       </Button>
       <Card>
         <CardHeader>
-          <CardTitle>Leave Management: {employee?.firstName} {employee.lastName}</CardTitle>
+          <CardTitle>
+            Leave Management: {employee?.firstName} {employee.lastName}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
@@ -134,7 +146,6 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
               <div className="border rounded-lg p-4">
                 <h3 className="font-medium">Remaining Leave</h3>
                 <p className="text-2xl font-bold">{remainingLeave} days</p>
-
               </div>
               <div className="border rounded-lg p-4">
                 <h3 className="font-medium">Start Date</h3>
@@ -144,9 +155,7 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="font-medium">Leave History</h3>
-                <Button onClick={() => setShowRequestForm(true)}>
-                  Request Leave
-                </Button>
+                <Button onClick={() => setShowRequestForm(true)}>Request Leave</Button>
               </div>
 
               <div className="border rounded-lg overflow-hidden">
@@ -164,7 +173,10 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
                     {leaveHistory.map((leave) => {
                       const startDate = new Date(leave.startDate)
                       const endDate = new Date(leave.endDate)
-                      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+                      const days =
+                        Math.ceil(
+                          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+                        ) + 1
 
                       return (
                         <TableRow key={leave._id}>
@@ -180,7 +192,11 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
                           </TableCell>
                           <TableCell>
                             {leave.status === 'pending' && (
-                              <Button variant="ghost" size="sm" onClick={() => handleCancelLeave(leave._id)}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleCancelLeave(leave._id)}
+                              >
                                 Cancel
                               </Button>
                             )}
@@ -203,7 +219,6 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
                 }}
                 onSubmit={async (formData) => {
                   try {
-                    
                     const service = await leaveRequestService
                     const newRequest = await service.create({
                       employeeId: employee._id,
@@ -224,13 +239,9 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
                       status: newRequest.status,
                       reason: newRequest.reason
                     }
-
-                  }
-                  catch (error) {
+                  } catch (error) {
                     console.log(error)
-
                   }
-
                 }}
                 onSuccess={(newLeave) => {
                   handleLeaveRequestSuccess({

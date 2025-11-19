@@ -111,7 +111,7 @@ class EmailService {
    * Convert multiple payslips to email data format
    */
   payslipsToEmailData(payslips: Payslip[], pdfMap?: Map<string, string>): EmailPayslipData[] {
-    return payslips.map(payslip => ({
+    return payslips.map((payslip) => ({
       employeeName: payslip.employee.name,
       employeeEmail: payslip.employee.email,
       period: payslip.period,

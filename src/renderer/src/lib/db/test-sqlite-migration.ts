@@ -5,12 +5,12 @@ import { createPayrollStructureServiceCompat } from './sqlite-payroll-service'
 
 export const testSQLiteMigration = async () => {
   console.log('🧪 Testing SQLite migration...')
-  
+
   try {
     // Test 1: Initialize database
     console.log('1. Initializing database...')
     const { success, error } = await initializeSQLiteDatabase()
-    
+
     if (!success) {
       throw new Error(`Database initialization failed: ${error}`)
     }
@@ -28,7 +28,7 @@ export const testSQLiteMigration = async () => {
 
     // Test 4: Test basic CRUD operations
     console.log('4. Testing basic CRUD operations...')
-    
+
     // Create a test employee
     const testEmployee = {
       firstName: 'John',
@@ -43,7 +43,7 @@ export const testSQLiteMigration = async () => {
       accountNumber: '1234567890',
       bankName: 'Test Bank',
       nationalId: 'ID123456789',
-      taxNumber: 'TAX123456789',
+      taxNumber: 'TAX123456789'
     }
 
     const createdEmployee = await employeeService.create(testEmployee)
@@ -67,7 +67,7 @@ export const testSQLiteMigration = async () => {
 
     // Test 5: Create a payroll structure
     console.log('5. Testing payroll structure operations...')
-    
+
     const testStructure = {
       name: 'Standard Developer Package',
       description: 'Standard payroll structure for developers',
@@ -117,12 +117,11 @@ export const testSQLiteMigration = async () => {
 
     console.log('🎉 All tests passed! SQLite migration is working correctly.')
     return { success: true, message: 'All tests passed' }
-
   } catch (error) {
     console.error('❌ Test failed:', error)
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
     }
   }
 }
@@ -130,5 +129,5 @@ export const testSQLiteMigration = async () => {
 testSQLiteMigration()
 // Export for use in browser console or testing
 if (typeof window !== 'undefined') {
-  (window as any).testSQLiteMigration = testSQLiteMigration
+  ;(window as any).testSQLiteMigration = testSQLiteMigration
 }

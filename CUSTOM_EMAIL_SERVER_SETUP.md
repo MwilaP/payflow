@@ -41,6 +41,7 @@ You'll need the following information from your email server administrator or ho
 ## Step 2: Common Custom Server Configurations
 
 ### cPanel/WHM Servers
+
 ```
 SMTP Host:     mail.yourdomain.com
 Port:          587
@@ -51,6 +52,7 @@ From Email:    your-email@yourdomain.com
 ```
 
 ### Plesk Servers
+
 ```
 SMTP Host:     smtp.yourdomain.com
 Port:          587 or 465
@@ -61,6 +63,7 @@ From Email:    your-email@yourdomain.com
 ```
 
 ### Microsoft Exchange Server
+
 ```
 SMTP Host:     mail.yourdomain.com
 Port:          587
@@ -71,6 +74,7 @@ From Email:    your-email@yourdomain.com
 ```
 
 ### Postfix/Sendmail (Linux Servers)
+
 ```
 SMTP Host:     localhost or mail.yourdomain.com
 Port:          587 or 25
@@ -81,6 +85,7 @@ From Email:    noreply@yourdomain.com
 ```
 
 ### Amazon SES
+
 ```
 SMTP Host:     email-smtp.us-east-1.amazonaws.com
 Port:          587
@@ -91,6 +96,7 @@ From Email:    verified-email@yourdomain.com
 ```
 
 ### SendGrid
+
 ```
 SMTP Host:     smtp.sendgrid.net
 Port:          587
@@ -101,6 +107,7 @@ From Email:    verified-email@yourdomain.com
 ```
 
 ### Mailgun
+
 ```
 SMTP Host:     smtp.mailgun.org
 Port:          587
@@ -118,6 +125,7 @@ From Email:    noreply@yourdomain.com
    - Navigate to **Settings** → **Email** tab
 
 2. **Enter Your Server Details**
+
    ```
    SMTP Host:     [Your server address]
    Port:          [Your server port]
@@ -140,6 +148,7 @@ From Email:    noreply@yourdomain.com
 When you click "Save Configuration", watch the terminal for detailed logs:
 
 #### ✅ Successful Connection:
+
 ```
 Initializing email service with config: {
   host: 'mail.yourdomain.com',
@@ -155,33 +164,42 @@ Verifying SMTP connection...
 #### ❌ Common Errors:
 
 **1. Cannot Resolve Host**
+
 ```
 ✗ Failed to initialize email service: Error: getaddrinfo ENOTFOUND mail.yourdomain.com
 Cannot resolve SMTP host "mail.yourdomain.com". Please check the hostname.
 ```
+
 **Solutions:**
+
 - Verify the SMTP host address is correct
 - Try using IP address instead of hostname
 - Check DNS settings
 - Ensure you're on the correct network (VPN if required)
 
 **2. Connection Refused**
+
 ```
 ✗ Failed to initialize email service: Error: connect ECONNREFUSED 192.168.1.100:587
 Connection refused to mail.yourdomain.com:587. Check host and port.
 ```
+
 **Solutions:**
+
 - Verify the port number is correct
 - Check if SMTP service is running on the server
 - Try alternative port (465 instead of 587)
 - Check firewall rules on the email server
 
 **3. Connection Timeout**
+
 ```
 ✗ Failed to initialize email service: Error: Connection timeout
 Connection timeout to mail.yourdomain.com:587. Check firewall/network.
 ```
+
 **Solutions:**
+
 - Check your local firewall settings
 - Verify network connectivity to the server
 - Check if VPN is required
@@ -189,11 +207,14 @@ Connection timeout to mail.yourdomain.com:587. Check firewall/network.
 - Try from a different network
 
 **4. Authentication Failed**
+
 ```
 ✗ Failed to initialize email service: Error: Invalid login: 535 Authentication failed
 Authentication failed. Check username and password.
 ```
+
 **Solutions:**
+
 - Verify username is correct (try with and without @domain.com)
 - Check password for typos
 - Verify account is not locked
@@ -201,10 +222,13 @@ Authentication failed. Check username and password.
 - Try different authentication method
 
 **5. TLS/SSL Error**
+
 ```
 ✗ Failed to initialize email service: Error: self signed certificate
 ```
+
 **Solutions:**
+
 - If using self-signed certificate, you may need to disable certificate validation
 - Contact server administrator to install proper SSL certificate
 - Try with SSL/TLS toggle in different position
@@ -219,6 +243,7 @@ Authentication failed. Check username and password.
 2. **Click "Send Test Email"**
 
 3. **Watch Terminal**:
+
    ```
    Sending test email to test@example.com...
    ✓ Test email sent successfully
@@ -237,12 +262,15 @@ Authentication failed. Check username and password.
 ### Issue: "Cannot resolve SMTP host"
 
 **Diagnostic Steps:**
+
 1. Ping the server:
+
    ```bash
    ping mail.yourdomain.com
    ```
 
 2. Check DNS resolution:
+
    ```bash
    nslookup mail.yourdomain.com
    ```
@@ -250,6 +278,7 @@ Authentication failed. Check username and password.
 3. Try using IP address instead of hostname
 
 **Common Causes:**
+
 - Typo in hostname
 - DNS not configured
 - Need to be on VPN
@@ -260,11 +289,15 @@ Authentication failed. Check username and password.
 ### Issue: "Connection refused"
 
 **Diagnostic Steps:**
+
 1. Check if port is open:
+
    ```bash
    telnet mail.yourdomain.com 587
    ```
+
    Or:
+
    ```bash
    nc -zv mail.yourdomain.com 587
    ```
@@ -272,6 +305,7 @@ Authentication failed. Check username and password.
 2. Try different ports (587, 465, 25, 2525)
 
 **Common Causes:**
+
 - SMTP service not running
 - Firewall blocking the port
 - Wrong port number
@@ -282,6 +316,7 @@ Authentication failed. Check username and password.
 ### Issue: "Authentication failed"
 
 **Diagnostic Steps:**
+
 1. Try username variations:
    - `username@domain.com`
    - `username`
@@ -292,6 +327,7 @@ Authentication failed. Check username and password.
 3. Check if account requires special authentication
 
 **Common Causes:**
+
 - Wrong username format
 - Incorrect password
 - Account locked or disabled
@@ -303,11 +339,13 @@ Authentication failed. Check username and password.
 ### Issue: "Connection timeout"
 
 **Diagnostic Steps:**
+
 1. Check firewall on your computer:
+
    ```bash
    # Windows
    netsh advfirewall show allprofiles
-   
+
    # Check if port is blocked
    Test-NetConnection -ComputerName mail.yourdomain.com -Port 587
    ```
@@ -317,6 +355,7 @@ Authentication failed. Check username and password.
 3. Check if VPN is required
 
 **Common Causes:**
+
 - Local firewall blocking SMTP
 - Corporate network blocking SMTP
 - Need to be on VPN
@@ -352,6 +391,7 @@ Some internal servers don't require authentication. If your server doesn't need 
 ### Custom Ports
 
 If your server uses non-standard ports:
+
 - Enter the exact port number in the Port field
 - Adjust SSL/TLS toggle based on server configuration
 - Common custom ports: 2525, 8025, 8587
@@ -361,6 +401,7 @@ If your server uses non-standard ports:
 ## Testing Checklist for Custom Servers
 
 Before configuring:
+
 - [ ] I have the correct SMTP host address
 - [ ] I know which port to use (587, 465, or other)
 - [ ] I know if SSL/TLS is required
@@ -370,6 +411,7 @@ Before configuring:
 - [ ] Firewall allows SMTP connections
 
 During configuration:
+
 - [ ] Terminal is open and visible
 - [ ] SMTP host is entered correctly (no typos)
 - [ ] Port number is correct
@@ -378,6 +420,7 @@ During configuration:
 - [ ] Password is correct
 
 After configuration:
+
 - [ ] Terminal shows "✓ Email service initialized successfully"
 - [ ] Test email sends without errors
 - [ ] Test email is received in inbox
@@ -413,6 +456,7 @@ If you're having trouble, ask your email administrator for:
 ## Example Configurations That Work
 
 ### Example 1: cPanel Server
+
 ```
 SMTP Host:     mail.example.com
 Port:          587
@@ -425,6 +469,7 @@ Result: ✓ Works perfectly
 ```
 
 ### Example 2: Internal Exchange Server
+
 ```
 SMTP Host:     exchange.company.local
 Port:          587
@@ -437,6 +482,7 @@ Result: ✓ Works on company network/VPN
 ```
 
 ### Example 3: VPS with Postfix
+
 ```
 SMTP Host:     192.168.1.50
 Port:          25
@@ -452,13 +498,13 @@ Result: ✓ Works from same network
 
 ## Quick Reference
 
-| Setting | Common Values |
-|---------|---------------|
-| **SMTP Host** | mail.domain.com, smtp.domain.com, or IP address |
-| **Port** | 587 (STARTTLS), 465 (SSL), 25 (plain) |
-| **SSL/TLS** | OFF for 587, ON for 465 |
-| **Username** | email@domain.com or just username |
-| **From Email** | Any valid email on your domain |
+| Setting        | Common Values                                   |
+| -------------- | ----------------------------------------------- |
+| **SMTP Host**  | mail.domain.com, smtp.domain.com, or IP address |
+| **Port**       | 587 (STARTTLS), 465 (SSL), 25 (plain)           |
+| **SSL/TLS**    | OFF for 587, ON for 465                         |
+| **Username**   | email@domain.com or just username               |
+| **From Email** | Any valid email on your domain                  |
 
 ---
 

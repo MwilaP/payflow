@@ -17,6 +17,7 @@ Follow these steps in order to diagnose the issue:
 ### Common Error Patterns:
 
 #### ❌ Error 1: "Email service not configured"
+
 ```
 ✗ Failed to send test email: Error: Email service not configured
 ```
@@ -24,6 +25,7 @@ Follow these steps in order to diagnose the issue:
 **Cause:** You haven't saved the configuration yet, or it failed to save.
 
 **Fix:**
+
 1. Fill in ALL fields in Settings → Email
 2. Click "Save Configuration" FIRST
 3. Wait for "Email Configured" toast
@@ -32,6 +34,7 @@ Follow these steps in order to diagnose the issue:
 ---
 
 #### ❌ Error 2: "getaddrinfo ENOTFOUND"
+
 ```
 ✗ Failed to initialize email service: Error: getaddrinfo ENOTFOUND mail.yourdomain.com
 Cannot resolve SMTP host "mail.yourdomain.com". Please check the hostname.
@@ -40,6 +43,7 @@ Cannot resolve SMTP host "mail.yourdomain.com". Please check the hostname.
 **Cause:** Can't find your SMTP server
 
 **Fix:**
+
 1. Check SMTP host spelling
 2. Try using IP address instead: `192.168.1.100`
 3. Check if you need VPN
@@ -48,6 +52,7 @@ Cannot resolve SMTP host "mail.yourdomain.com". Please check the hostname.
 ---
 
 #### ❌ Error 3: "Connection refused"
+
 ```
 ✗ Failed to initialize email service: Error: connect ECONNREFUSED 192.168.1.100:587
 Connection refused to mail.yourdomain.com:587. Check host and port.
@@ -56,6 +61,7 @@ Connection refused to mail.yourdomain.com:587. Check host and port.
 **Cause:** Wrong port or server not accepting connections
 
 **Fix:**
+
 1. Try port 465 with SSL/TLS ON
 2. Try port 587 with SSL/TLS OFF
 3. Try port 25 with SSL/TLS OFF
@@ -64,6 +70,7 @@ Connection refused to mail.yourdomain.com:587. Check host and port.
 ---
 
 #### ❌ Error 4: "Authentication failed"
+
 ```
 ✗ Failed to send test email: Error: Invalid login: 535 Authentication failed
 Authentication failed. Check username and password.
@@ -72,6 +79,7 @@ Authentication failed. Check username and password.
 **Cause:** Wrong username or password
 
 **Fix:**
+
 1. Verify username format:
    - Try `email@domain.com`
    - Try `username`
@@ -83,6 +91,7 @@ Authentication failed. Check username and password.
 ---
 
 #### ❌ Error 5: "Connection timeout"
+
 ```
 ✗ Failed to initialize email service: Error: Connection timeout
 Connection timeout to mail.yourdomain.com:587. Check firewall/network.
@@ -91,6 +100,7 @@ Connection timeout to mail.yourdomain.com:587. Check firewall/network.
 **Cause:** Firewall blocking or network issue
 
 **Fix:**
+
 1. Check Windows Firewall
 2. Try different network (mobile hotspot)
 3. Connect to VPN if required
@@ -123,12 +133,14 @@ Connection timeout to mail.yourdomain.com:587. Check firewall/network.
 ### ⚠️ Common Mistake:
 
 **DON'T DO THIS:**
+
 ```
 1. Fill in settings
 2. Click "Send Test Email" immediately ← WRONG! Config not saved yet
 ```
 
 **DO THIS:**
+
 ```
 1. Fill in settings
 2. Click "Save Configuration" ← FIRST!
@@ -143,6 +155,7 @@ Connection timeout to mail.yourdomain.com:587. Check firewall/network.
 ### What to Look For:
 
 #### ✅ Successful Configuration:
+
 ```
 ========================================
 📧 EMAIL CONFIGURATION REQUEST
@@ -166,6 +179,7 @@ DEBUG [connection] < 235 Authentication successful
 **If you see this** → Configuration worked! Proceed to test email.
 
 #### ❌ Failed Configuration:
+
 ```
 ========================================
 📧 EMAIL CONFIGURATION REQUEST
@@ -209,11 +223,13 @@ Run through this checklist:
 ### Issue: "Nothing happens when I click Send Test Email"
 
 **Possible Causes:**
+
 1. Email not configured yet
 2. JavaScript error in console
 3. IPC communication broken
 
 **Debug Steps:**
+
 1. Open DevTools (F12)
 2. Check Console tab for errors
 3. Try saving configuration again
@@ -224,11 +240,13 @@ Run through this checklist:
 ### Issue: "Configuration saves but test email fails"
 
 **Possible Causes:**
+
 1. Server accepts connection but rejects email sending
 2. Different authentication for sending vs connecting
 3. Rate limiting or spam protection
 
 **Debug Steps:**
+
 1. Check terminal for specific error
 2. Look for "Authentication successful" during config
 3. Look for error during test email send
@@ -239,11 +257,13 @@ Run through this checklist:
 ### Issue: "Works in Outlook/Thunderbird but not in app"
 
 **Possible Causes:**
+
 1. Different authentication method
 2. App-specific passwords required
 3. OAuth vs basic auth
 
 **Debug Steps:**
+
 1. Check if server requires app-specific password
 2. Verify you're using same settings as Outlook
 3. Check if OAuth is required (not supported yet)
@@ -255,6 +275,7 @@ Run through this checklist:
 The app already has debug mode enabled. Here's what you should see:
 
 ### During Configuration:
+
 ```
 ========================================
 📧 EMAIL CONFIGURATION REQUEST
@@ -279,6 +300,7 @@ DEBUG [connection] < 235 2.7.0 Authentication successful
 ```
 
 ### During Test Email:
+
 ```
 ========================================
 📧 SENDING TEST EMAIL
@@ -317,6 +339,7 @@ Response: 250 2.0.0 Ok: queued as ABC123DEF456
 **What it means:** The transporter wasn't initialized
 
 **Steps:**
+
 1. Go to Settings → Email
 2. Fill in ALL fields
 3. Click "Save Configuration"
@@ -330,6 +353,7 @@ Response: 250 2.0.0 Ok: queued as ABC123DEF456
 **What it means:** DNS can't find your server
 
 **Steps:**
+
 1. Open Command Prompt
 2. Run: `ping mail.yourdomain.com`
 3. If it fails, try IP address instead
@@ -343,6 +367,7 @@ Response: 250 2.0.0 Ok: queued as ABC123DEF456
 **What it means:** Server found but port closed
 
 **Steps:**
+
 1. Test port connectivity:
    ```powershell
    Test-NetConnection -ComputerName mail.yourdomain.com -Port 587
@@ -359,6 +384,7 @@ Response: 250 2.0.0 Ok: queued as ABC123DEF456
 **What it means:** Server rejected your credentials
 
 **Steps:**
+
 1. Verify username format with admin
 2. Try different formats:
    - `email@domain.com`
@@ -375,6 +401,7 @@ Response: 250 2.0.0 Ok: queued as ABC123DEF456
 **What it means:** Can't reach server (firewall/network)
 
 **Steps:**
+
 1. Check Windows Firewall
 2. Try from different network
 3. Connect to VPN if internal server
@@ -387,7 +414,9 @@ Response: 250 2.0.0 Ok: queued as ABC123DEF456
 If you need help, provide:
 
 ### 1. Terminal Output
+
 Copy everything between the `========` lines:
+
 ```
 ========================================
 📧 EMAIL CONFIGURATION REQUEST
@@ -397,6 +426,7 @@ Copy everything between the `========` lines:
 ```
 
 ### 2. Configuration (Hide Password!)
+
 ```json
 {
   "host": "mail.yourdomain.com",
@@ -408,9 +438,11 @@ Copy everything between the `========` lines:
 ```
 
 ### 3. Error Message
+
 The exact error from terminal or toast notification
 
 ### 4. What You Tried
+
 - Steps you followed
 - What worked / didn't work
 
@@ -419,16 +451,19 @@ The exact error from terminal or toast notification
 ## Quick Diagnostic Commands
 
 ### Test DNS Resolution:
+
 ```bash
 nslookup mail.yourdomain.com
 ```
 
 ### Test Port Connectivity:
+
 ```powershell
 Test-NetConnection -ComputerName mail.yourdomain.com -Port 587
 ```
 
 ### Test with Telnet (if available):
+
 ```bash
 telnet mail.yourdomain.com 587
 ```

@@ -1,9 +1,14 @@
-
-import type React from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import type React from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 
 interface PaySummaryModalProps {
   open: boolean
@@ -16,7 +21,7 @@ export function PaySummaryModal({ open, onOpenChange, structure }: PaySummaryMod
 
   // Calculate totals
   const basicSalary = structure.basicSalary || 0
-  
+
   const totalAllowances = (structure.allowances || []).reduce((total: number, allowance: any) => {
     if (allowance.type === 'fixed') {
       return total + (allowance.value || 0)
@@ -31,7 +36,9 @@ export function PaySummaryModal({ open, onOpenChange, structure }: PaySummaryMod
       return total + (deduction.value || 0)
     } else {
       // Percentage deduction
-      const baseAmount = deduction.preTax ? basicSalary + totalAllowances : basicSalary + totalAllowances
+      const baseAmount = deduction.preTax
+        ? basicSalary + totalAllowances
+        : basicSalary + totalAllowances
       return total + (baseAmount * (deduction.value || 0)) / 100
     }
   }, 0)
@@ -69,7 +76,7 @@ export function PaySummaryModal({ open, onOpenChange, structure }: PaySummaryMod
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Frequency:</span>
                 <Badge variant="outline" className="capitalize">
-                  {structure.frequency || "Monthly"}
+                  {structure.frequency || 'Monthly'}
                 </Badge>
               </div>
             </CardContent>
@@ -92,13 +99,14 @@ export function PaySummaryModal({ open, onOpenChange, structure }: PaySummaryMod
                 <div className="space-y-2">
                   <div className="font-medium text-green-600">Allowances</div>
                   {structure.allowances.map((allowance: any, index: number) => {
-                    const amount = allowance.type === 'fixed' 
-                      ? allowance.value 
-                      : (basicSalary * allowance.value) / 100
+                    const amount =
+                      allowance.type === 'fixed'
+                        ? allowance.value
+                        : (basicSalary * allowance.value) / 100
                     return (
                       <div key={index} className="flex justify-between items-center pl-4 text-sm">
                         <span className="text-muted-foreground">
-                          {allowance.name} 
+                          {allowance.name}
                           {allowance.type === 'percentage' && ` (${allowance.value}%)`}
                         </span>
                         <span className="text-green-600">+ZMW {amount.toLocaleString()}</span>
@@ -107,7 +115,9 @@ export function PaySummaryModal({ open, onOpenChange, structure }: PaySummaryMod
                   })}
                   <div className="flex justify-between items-center pl-4 border-t pt-2">
                     <span className="font-medium text-green-600">Total Allowances</span>
-                    <span className="font-semibold text-green-600">+ZMW {totalAllowances.toLocaleString()}</span>
+                    <span className="font-semibold text-green-600">
+                      +ZMW {totalAllowances.toLocaleString()}
+                    </span>
                   </div>
                 </div>
               )}
@@ -126,16 +136,19 @@ export function PaySummaryModal({ open, onOpenChange, structure }: PaySummaryMod
                   <div className="font-medium text-red-600">Deductions</div>
                   {structure.deductions.map((deduction: any, index: number) => {
                     const baseAmount = deduction.preTax ? grossSalary : grossSalary
-                    const amount = deduction.type === 'fixed' 
-                      ? deduction.value 
-                      : (baseAmount * deduction.value) / 100
+                    const amount =
+                      deduction.type === 'fixed'
+                        ? deduction.value
+                        : (baseAmount * deduction.value) / 100
                     return (
                       <div key={index} className="flex justify-between items-center pl-4 text-sm">
                         <span className="text-muted-foreground">
-                          {deduction.name} 
+                          {deduction.name}
                           {deduction.type === 'percentage' && ` (${deduction.value}%)`}
                           {deduction.preTax && (
-                            <Badge variant="secondary" className="ml-2 text-xs">Pre-tax</Badge>
+                            <Badge variant="secondary" className="ml-2 text-xs">
+                              Pre-tax
+                            </Badge>
                           )}
                         </span>
                         <span className="text-red-600">-ZMW {amount.toLocaleString()}</span>
@@ -144,7 +157,9 @@ export function PaySummaryModal({ open, onOpenChange, structure }: PaySummaryMod
                   })}
                   <div className="flex justify-between items-center pl-4 border-t pt-2">
                     <span className="font-medium text-red-600">Total Deductions</span>
-                    <span className="font-semibold text-red-600">-ZMW {totalDeductions.toLocaleString()}</span>
+                    <span className="font-semibold text-red-600">
+                      -ZMW {totalDeductions.toLocaleString()}
+                    </span>
                   </div>
                 </div>
               )}
@@ -154,7 +169,9 @@ export function PaySummaryModal({ open, onOpenChange, structure }: PaySummaryMod
               {/* Net Salary */}
               <div className="flex justify-between items-center bg-primary/5 p-4 rounded-lg">
                 <span className="font-semibold text-lg">Net Salary</span>
-                <span className="font-bold text-xl text-primary">ZMW {netSalary.toLocaleString()}</span>
+                <span className="font-bold text-xl text-primary">
+                  ZMW {netSalary.toLocaleString()}
+                </span>
               </div>
             </CardContent>
           </Card>

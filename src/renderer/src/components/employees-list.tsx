@@ -1,23 +1,40 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MoreHorizontal, Plus, UserPlus } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useDatabase } from "@/lib/db/db-context"
-import { Employee } from "@/lib/db/employee-service"
-import { EmployeeFilters } from "./employee-filters"
-import { createEmployeeServiceCompat } from "@/lib/db/sqlite-employee-service"
-import { createPayrollStructureServiceCompat } from "@/lib/db/sqlite-payroll-service"
-import { useToast } from "@/hooks/use-toast"
-
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { MoreHorizontal, Plus, UserPlus } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { useDatabase } from '@/lib/db/db-context'
+import { Employee } from '@/lib/db/employee-service'
+import { EmployeeFilters } from './employee-filters'
+import { createEmployeeServiceCompat } from '@/lib/db/sqlite-employee-service'
+import { createPayrollStructureServiceCompat } from '@/lib/db/sqlite-payroll-service'
+import { useToast } from '@/hooks/use-toast'
 
 export function EmployeesList() {
   const navigate = useNavigate()
@@ -30,9 +47,9 @@ export function EmployeesList() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filters, setFilters] = useState({
-    department: "all",
-    status: "all",
-    search: "",
+    department: 'all',
+    status: 'all',
+    search: ''
   })
   const { toast } = useToast()
 
@@ -40,36 +57,38 @@ export function EmployeesList() {
   // Initialize services
   useEffect(() => {
     try {
-      console.log("Initializing services...")
+      console.log('Initializing services...')
       setServiceError(null)
 
       const empService = createEmployeeServiceCompat()
-      
+
       setEmployeeService(empService)
-      console.log(" employee services ", empService)
+      console.log(' employee services ', empService)
       setServicesLoaded(true)
-      console.log("Services initialized successfully")
+      console.log('Services initialized successfully')
     } catch (error) {
-      console.error("Error initializing services:", error)
-      setServiceError("Failed to initialize services. The application will run with limited functionality.")
+      console.error('Error initializing services:', error)
+      setServiceError(
+        'Failed to initialize services. The application will run with limited functionality.'
+      )
 
       // Set services to empty implementations to avoid null errors
       setEmployeeService({})
       setServicesLoaded(true)
 
       toast({
-        title: "Warning",
-        description: "Running in limited functionality mode due to database initialization issues.",
-        variant: "destructive",
+        title: 'Warning',
+        description: 'Running in limited functionality mode due to database initialization issues.',
+        variant: 'destructive'
       })
     }
   }, [toast])
   const loadEmployees = async () => {
-    console.log("fetching employees")
+    console.log('fetching employees')
     if (!employeeService) {
       setIsLoading(false)
-      console.log("Employee service not available")
-      setError("Employee service not available")
+      console.log('Employee service not available')
+      setError('Employee service not available')
       return
     }
 
@@ -93,29 +112,25 @@ export function EmployeesList() {
           // Exponential backoff
           const delay = Math.pow(2, retryCount) * 1000
           console.log(`Retry ${retryCount}/${maxRetries} after ${delay}ms`)
-          await new Promise(resolve => setTimeout(resolve, delay))
+          await new Promise((resolve) => setTimeout(resolve, delay))
         }
       }
 
       setEmployees(data)
-      console.log("employees", data)
+      console.log('employees', data)
       setFilteredEmployees(data)
       setIsLoading(false)
     } catch (error) {
-      console.error("Error loading employees:", error)
-      setError("Failed to load employees. Please try again.")
+      console.error('Error loading employees:', error)
+      setError('Failed to load employees. Please try again.')
       setEmployees([])
       setFilteredEmployees([])
       setIsLoading(false)
     }
   }
 
-
-
   // Load employees on component mount or when employeeService changes
   useEffect(() => {
-
-
     loadEmployees()
   }, [employeeService])
 
@@ -129,12 +144,12 @@ export function EmployeesList() {
     let result = [...employees]
 
     // Apply department filter
-    if (filters.department !== "all") {
+    if (filters.department !== 'all') {
       result = result.filter((employee) => employee.department === filters.department)
     }
 
     // Apply status filter
-    if (filters.status !== "all") {
+    if (filters.status !== 'all') {
       result = result.filter((employee) => employee.status === filters.status)
     }
 
@@ -143,9 +158,11 @@ export function EmployeesList() {
       const searchLower = filters.search.toLowerCase()
       result = result.filter(
         (employee) =>
-          `${employee.firstName || ""} ${employee.lastName || ""}`.toLowerCase().includes(searchLower) ||
+          `${employee.firstName || ''} ${employee.lastName || ''}`
+            .toLowerCase()
+            .includes(searchLower) ||
           employee.email?.toLowerCase().includes(searchLower) ||
-          employee.designation?.toLowerCase().includes(searchLower),
+          employee.designation?.toLowerCase().includes(searchLower)
       )
     }
 
@@ -170,7 +187,7 @@ export function EmployeesList() {
   }
 
   const handleAddEmployee = () => {
-    navigate("/employees/new")
+    navigate('/employees/new')
   }
 
   // Empty state component
@@ -181,8 +198,8 @@ export function EmployeesList() {
       </div>
       <h3 className="text-lg font-medium">No employees found</h3>
       <p className="text-muted-foreground mt-2 mb-6 max-w-md">
-        Get started by creating your first employee record. You can add details like personal information, job details,
-        and salary structure.
+        Get started by creating your first employee record. You can add details like personal
+        information, job details, and salary structure.
       </p>
       <Button onClick={handleAddEmployee}>
         <Plus className="mr-2 h-4 w-4" />
@@ -223,10 +240,7 @@ export function EmployeesList() {
             <div className="flex items-center text-red-500">
               <span className="font-medium">{error}</span>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => loadEmployees()}
-            >
+            <Button variant="outline" onClick={() => loadEmployees()}>
               Try Again
             </Button>
           </div>
@@ -255,24 +269,24 @@ export function EmployeesList() {
                       <div className="flex items-center gap-3">
                         <Avatar>
                           <AvatarImage
-                            src={`/placeholder.svg?height=40&width=40&text=${employee.firstName?.charAt(0) || "?"}`}
+                            src={`/placeholder.svg?height=40&width=40&text=${employee.firstName?.charAt(0) || '?'}`}
                           />
                           <AvatarFallback>
-                            {employee.firstName?.charAt(0) || "?"}
-                            {employee.lastName?.charAt(0) || ""}
+                            {employee.firstName?.charAt(0) || '?'}
+                            {employee.lastName?.charAt(0) || ''}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium">{`${employee.firstName || ""} ${employee.lastName || ""}`}</div>
+                          <div className="font-medium">{`${employee.firstName || ''} ${employee.lastName || ''}`}</div>
                           <div className="text-sm text-muted-foreground">{employee.email}</div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{employee.department || "—"}</TableCell>
-                    <TableCell>{employee.designation || "—"}</TableCell>
+                    <TableCell>{employee.department || '—'}</TableCell>
+                    <TableCell>{employee.designation || '—'}</TableCell>
                     <TableCell>
-                      <Badge variant={employee.status === "Active" ? "default" : "secondary"}>
-                        {employee.status || "Unknown"}
+                      <Badge variant={employee.status === 'Active' ? 'default' : 'secondary'}>
+                        {employee.status || 'Unknown'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -287,7 +301,9 @@ export function EmployeesList() {
                           <DropdownMenuItem onClick={() => handleViewEmployee(employee._id)}>
                             View Profile
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditEmployee(employee._id)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditEmployee(employee._id)}>
+                            Edit
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleManageLeave(employee._id)}>
                             Manage Leave
                           </DropdownMenuItem>
@@ -304,4 +320,3 @@ export function EmployeesList() {
     </Card>
   )
 }
-

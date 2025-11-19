@@ -32,17 +32,20 @@ You'll need to provide the following information:
 ### 3. Common SMTP Configurations
 
 #### Gmail
+
 - **Host**: `smtp.gmail.com`
 - **Port**: `587`
 - **Secure**: `false` (uses STARTTLS)
 - **Note**: You'll need to use an [App Password](https://support.google.com/accounts/answer/185833) instead of your regular password
 
 #### Outlook/Office 365
+
 - **Host**: `smtp.office365.com`
 - **Port**: `587`
 - **Secure**: `false` (uses STARTTLS)
 
 #### Custom SMTP Server
+
 - Contact your IT department or email provider for the correct settings
 
 ### 4. Test Your Configuration
@@ -68,7 +71,7 @@ Once configured:
 Employees will receive an email with:
 
 - **Subject**: "Payslip for [Period]"
-- **Content**: 
+- **Content**:
   - Personalized greeting
   - Pay period information
   - Net salary amount
@@ -78,21 +81,25 @@ Employees will receive an email with:
 ## Troubleshooting
 
 ### Authentication Failed
+
 - Verify your username and password are correct
 - For Gmail, ensure you're using an App Password
 - Check if "Less secure app access" needs to be enabled (not recommended)
 
 ### Connection Timeout
+
 - Verify the SMTP host and port are correct
 - Check your firewall settings
 - Ensure your network allows SMTP connections
 
 ### Emails Not Received
+
 - Check spam/junk folders
 - Verify employee email addresses are correct in the system
 - Test with a known working email address first
 
 ### Partial Failures
+
 - The system will report which emails failed
 - Check the console for detailed error messages
 - Failed emails can be resent individually

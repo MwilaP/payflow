@@ -1,151 +1,151 @@
-"use client"
+'use client'
 
-import { getDatabases } from "../db-service"
-import { PayrollStructure } from "../models/payroll-structure.model"
-import { PayrollHistory } from "../models/payroll-history.model"
-import { Employee } from "../models/employee.model" // Assuming Employee model exists
+import { getDatabases } from '../db-service'
+import { PayrollStructure } from '../models/payroll-structure.model'
+import { PayrollHistory } from '../models/payroll-history.model'
+import { Employee } from '../models/employee.model' // Assuming Employee model exists
 
 // Mock services for when database is not available
 const mockEmployeeService = {
   createEmployee: async () => {
-    console.warn("Using mock employee service: createEmployee")
+    console.warn('Using mock employee service: createEmployee')
     return null
   },
   getEmployeeById: async () => {
-    console.warn("Using mock employee service: getEmployeeById")
+    console.warn('Using mock employee service: getEmployeeById')
     return null
   },
   updateEmployee: async () => {
-    console.warn("Using mock employee service: updateEmployee")
+    console.warn('Using mock employee service: updateEmployee')
     return null
   },
   deleteEmployee: async () => {
-    console.warn("Using mock employee service: deleteEmployee")
+    console.warn('Using mock employee service: deleteEmployee')
     return null
   },
   getAll: async () => {
-    console.warn("Using mock employee service: getAll")
+    console.warn('Using mock employee service: getAll')
     return []
   },
   searchEmployees: async () => {
-    console.warn("Using mock employee service: searchEmployees")
+    console.warn('Using mock employee service: searchEmployees')
     return []
   },
   filterEmployeesByDepartment: async () => {
-    console.warn("Using mock employee service: filterEmployeesByDepartment")
+    console.warn('Using mock employee service: filterEmployeesByDepartment')
     return []
   },
   filterEmployeesByStatus: async () => {
-    console.warn("Using mock employee service: filterEmployeesByStatus")
+    console.warn('Using mock employee service: filterEmployeesByStatus')
     return []
   },
   getEmployeesByPayrollStructure: async () => {
-    console.warn("Using mock employee service: getEmployeesByPayrollStructure")
+    console.warn('Using mock employee service: getEmployeesByPayrollStructure')
     return []
   },
   assignPayrollStructure: async () => {
-    console.warn("Using mock employee service: assignPayrollStructure")
+    console.warn('Using mock employee service: assignPayrollStructure')
     return null
   },
   bulkAssignPayrollStructure: async () => {
-    console.warn("Using mock employee service: bulkAssignPayrollStructure")
+    console.warn('Using mock employee service: bulkAssignPayrollStructure')
     return []
-  },
+  }
 }
 
 const mockPayrollStructureService = {
   createPayrollStructure: async () => {
-    console.warn("Using mock payroll structure service: createPayrollStructure")
+    console.warn('Using mock payroll structure service: createPayrollStructure')
     return null
   },
   getPayrollStructureById: async () => {
-    console.warn("Using mock payroll structure service: getPayrollStructureById")
+    console.warn('Using mock payroll structure service: getPayrollStructureById')
     return null
   },
   updatePayrollStructure: async () => {
-    console.warn("Using mock payroll structure service: updatePayrollStructure")
+    console.warn('Using mock payroll structure service: updatePayrollStructure')
     return null
   },
   deletePayrollStructure: async () => {
-    console.warn("Using mock payroll structure service: deletePayrollStructure")
+    console.warn('Using mock payroll structure service: deletePayrollStructure')
     return null
   },
   getAll: async () => {
-    console.warn("Using mock payroll structure service: getAll")
+    console.warn('Using mock payroll structure service: getAll')
     return []
   },
   searchPayrollStructures: async () => {
-    console.warn("Using mock payroll structure service: searchPayrollStructures")
+    console.warn('Using mock payroll structure service: searchPayrollStructures')
     return []
   },
   calculateSalaryDetails: (structure: PayrollStructure) => {
-    console.warn("Using mock payroll structure service: calculateSalaryDetails")
+    console.warn('Using mock payroll structure service: calculateSalaryDetails')
     return {
       basicSalary: structure?.basicSalary || 0,
       totalAllowances: 0,
       totalDeductions: 0,
       grossSalary: structure?.basicSalary || 0,
-      netSalary: structure?.basicSalary || 0,
+      netSalary: structure?.basicSalary || 0
     }
-  },
+  }
 }
 
 const mockPayslipService = {
   getCurrentPayslip: async () => {
-    console.warn("Using mock payslip service: getCurrentPayslip")
+    console.warn('Using mock payslip service: getCurrentPayslip')
     return null
   },
   generatePayslipPDF: async () => {
-    console.warn("Using mock payslip service: generatePayslipPDF")
+    console.warn('Using mock payslip service: generatePayslipPDF')
     return null
   },
   getPayslipHistory: async () => {
-    console.warn("Using mock payslip service: getPayslipHistory")
+    console.warn('Using mock payslip service: getPayslipHistory')
     return []
-  },
+  }
 }
 
 const mockPayrollHistoryService = {
   createPayrollRecord: async () => {
-    console.warn("Using mock payroll history service: createPayrollRecord")
+    console.warn('Using mock payroll history service: createPayrollRecord')
     return null
   },
   getPayrollRecordById: async () => {
-    console.warn("Using mock payroll history service: getPayrollRecordById")
+    console.warn('Using mock payroll history service: getPayrollRecordById')
     return null
   },
   updatePayrollRecord: async () => {
-    console.warn("Using mock payroll history service: updatePayrollRecord")
+    console.warn('Using mock payroll history service: updatePayrollRecord')
     return null
   },
   deletePayrollRecord: async () => {
-    console.warn("Using mock payroll history service: deletePayrollRecord")
+    console.warn('Using mock payroll history service: deletePayrollRecord')
     return null
   },
   getAllPayrollRecords: async () => {
-    console.warn("Using mock payroll history service: getAllPayrollRecords")
+    console.warn('Using mock payroll history service: getAllPayrollRecords')
     return []
   },
   getPayrollRecordsByEmployee: async () => {
-    console.warn("Using mock payroll history service: getPayrollRecordsByEmployee")
+    console.warn('Using mock payroll history service: getPayrollRecordsByEmployee')
     return []
   },
   getPayrollRecordsByDateRange: async () => {
-    console.warn("Using mock payroll history service: getPayrollRecordsByDateRange")
+    console.warn('Using mock payroll history service: getPayrollRecordsByDateRange')
     return []
   },
   getPayrollRecordsByStatus: async () => {
-    console.warn("Using mock payroll history service: getPayrollRecordsByStatus")
+    console.warn('Using mock payroll history service: getPayrollRecordsByStatus')
     return []
   },
   processPayroll: async () => {
-    console.warn("Using mock payroll history service: processPayroll")
+    console.warn('Using mock payroll history service: processPayroll')
     return null
   },
   bulkProcessPayroll: async () => {
-    console.warn("Using mock payroll history service: bulkProcessPayroll")
+    console.warn('Using mock payroll history service: bulkProcessPayroll')
     return []
-  },
+  }
 }
 
 // Lazy-loaded services
@@ -154,14 +154,14 @@ let _payrollStructureService: any = null
 let _payrollHistoryService: any = null
 
 // Import SQLite service factories
-import { createEmployeeServiceCompat } from "../sqlite-employee-service"
-import { createPayrollStructureServiceCompat } from "../sqlite-payroll-service"
-import { createPayrollHistoryServiceCompat } from "../sqlite-payroll-history-service"
+import { createEmployeeServiceCompat } from '../sqlite-employee-service'
+import { createPayrollStructureServiceCompat } from '../sqlite-payroll-service'
+import { createPayrollHistoryServiceCompat } from '../sqlite-payroll-history-service'
 
 // Safe getter for employee service
 export const getEmployeeService = async () => {
   // Skip if we're not in a browser environment
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return mockEmployeeService
   }
 
@@ -175,7 +175,7 @@ export const getEmployeeService = async () => {
     _employeeService = createEmployeeServiceCompat()
     return _employeeService
   } catch (error) {
-    console.error("Error getting employee service:", error)
+    console.error('Error getting employee service:', error)
     return mockEmployeeService
   }
 }
@@ -183,7 +183,7 @@ export const getEmployeeService = async () => {
 // Safe getter for payroll structure service
 export const getPayrollStructureService = async () => {
   // Skip if we're not in a browser environment
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return mockPayrollStructureService
   }
 
@@ -197,7 +197,7 @@ export const getPayrollStructureService = async () => {
     _payrollStructureService = createPayrollStructureServiceCompat()
     return _payrollStructureService
   } catch (error) {
-    console.error("Error getting payroll structure service:", error)
+    console.error('Error getting payroll structure service:', error)
     return mockPayrollStructureService
   }
 }
@@ -205,7 +205,7 @@ export const getPayrollStructureService = async () => {
 // Safe getter for payroll history service
 export const getPayrollHistoryService = async () => {
   // Skip if we're not in a browser environment
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return mockPayrollHistoryService
   }
 
@@ -219,7 +219,7 @@ export const getPayrollHistoryService = async () => {
     _payrollHistoryService = createPayrollHistoryServiceCompat()
     return _payrollHistoryService
   } catch (error) {
-    console.error("Error getting payroll history service:", error)
+    console.error('Error getting payroll history service:', error)
     return mockPayrollHistoryService
   }
 }
@@ -228,7 +228,7 @@ export const getPayrollHistoryService = async () => {
 export const savePayrollHistory = async (records: PayrollHistory[]): Promise<PayrollHistory[]> => {
   try {
     const payrollHistoryServiceInstance = await getPayrollHistoryService()
-    
+
     // Process records sequentially to maintain order
     const savedRecords: PayrollHistory[] = []
     for (const record of records) {
@@ -237,10 +237,10 @@ export const savePayrollHistory = async (records: PayrollHistory[]): Promise<Pay
         savedRecords.push(savedRecord)
       }
     }
-    
+
     return Promise.resolve(savedRecords)
   } catch (error) {
-    console.error("Error saving payroll history:", error)
+    console.error('Error saving payroll history:', error)
     throw error // Re-throw to allow component to handle
   }
 }
@@ -252,7 +252,7 @@ export const fetchPayrollStructures = async (): Promise<PayrollStructure[]> => {
     const structures = await payrollStructureServiceInstance.getAll()
     return structures || [] // Return empty array if null/undefined
   } catch (error) {
-    console.error("Error fetching payroll structures:", error)
+    console.error('Error fetching payroll structures:', error)
     return [] // Return empty array on error
   }
 }
@@ -264,7 +264,7 @@ export const fetchAllEmployees = async (): Promise<Employee[]> => {
     const employees = await employeeServiceInstance.getAll()
     return employees || [] // Return empty array if null/undefined
   } catch (error) {
-    console.error("Error fetching employees:", error)
+    console.error('Error fetching employees:', error)
     return [] // Return empty array on error
   }
 }

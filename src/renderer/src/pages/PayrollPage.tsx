@@ -1,37 +1,46 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { Link, Routes, Route, Navigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarDays, CreditCard, DollarSign, Users, FileText, BarChart, RefreshCw, Upload } from "lucide-react"
-import { PayrollGenerate } from "@/components/payroll-generate"
-import { PayrollStructures } from "@/components/payroll-structures"
-import { PayrollHistory } from "@/components/payroll-history"
-import { PayrollSettings } from "@/components/payroll-settings"
-import PayrollStructureNewPage from "./PayrollStructureNewPage"
-import PayrollStructureEditPage from "./PayrollStructureEditPage"
-import PayrollHistoryDetailPage from "./PayrollHistoryDetailPage"
-import PayrollImportPage from "./PayrollImportPage"
-import { format } from "date-fns"
-import { payrollHistoryService } from "@/lib/db/services/payroll-history.service"
-import { useDatabase } from "@/lib/db/db-context"
-import type { PayrollHistory as PayrollHistoryType } from "@/lib/db/services/payroll-history.service"
+import { useEffect, useState } from 'react'
+import { Link, Routes, Route, Navigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  CalendarDays,
+  CreditCard,
+  DollarSign,
+  Users,
+  FileText,
+  BarChart,
+  RefreshCw,
+  Upload
+} from 'lucide-react'
+import { PayrollGenerate } from '@/components/payroll-generate'
+import { PayrollStructures } from '@/components/payroll-structures'
+import { PayrollHistory } from '@/components/payroll-history'
+import { PayrollSettings } from '@/components/payroll-settings'
+import PayrollStructureNewPage from './PayrollStructureNewPage'
+import PayrollStructureEditPage from './PayrollStructureEditPage'
+import PayrollHistoryDetailPage from './PayrollHistoryDetailPage'
+import PayrollImportPage from './PayrollImportPage'
+import { format } from 'date-fns'
+import { payrollHistoryService } from '@/lib/db/services/payroll-history.service'
+import { useDatabase } from '@/lib/db/db-context'
+import type { PayrollHistory as PayrollHistoryType } from '@/lib/db/services/payroll-history.service'
 
 function PayrollDashboard() {
   // State for payroll data
   const [lastPayroll, setLastPayroll] = useState<PayrollHistoryType | null>(null)
   const [nextPayrollEstimate, setNextPayrollEstimate] = useState<number>(0)
   const [ytdTotal, setYtdTotal] = useState<number>(0)
-  const [ytdPeriod, setYtdPeriod] = useState<string>("")
-  
+  const [ytdPeriod, setYtdPeriod] = useState<string>('')
+
   // State for loading and error handling
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  
+
   const { db } = useDatabase()
-  
+
   // Fetch payroll data
   useEffect(() => {
     const fetchPayrollData = async () => {
@@ -39,73 +48,82 @@ function PayrollDashboard() {
         setIsLoading(false)
         return
       }
-      
+
       try {
         setIsLoading(true)
-        
+
         // Get payroll history service
         const payrollService = payrollHistoryService(db)
-        
+
         // Get all payroll records
         const records = await payrollService.getAllPayrollRecords()
-        
+
         if (records && records.length > 0) {
           // Sort by date (newest first)
           const sortedRecords = [...records].sort((a, b) => {
             return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
           })
-          
+
           // Get last completed payroll
-          const lastCompletedPayroll = sortedRecords.find(record => record.status === "completed")
+          const lastCompletedPayroll = sortedRecords.find((record) => record.status === 'completed')
           setLastPayroll(lastCompletedPayroll || null)
-          
+
           // Calculate next payroll estimate (5% increase from last payroll)
           if (lastCompletedPayroll && lastCompletedPayroll.totalAmount) {
             setNextPayrollEstimate(lastCompletedPayroll.totalAmount * 1.05)
           }
-          
+
           // Calculate YTD total
           const currentYear = new Date().getFullYear()
           const ytdRecords = records.filter((record: PayrollHistoryType) => {
             const recordDate = new Date(record.date || 0)
-            return recordDate.getFullYear() === currentYear && record.status === "completed"
+            return recordDate.getFullYear() === currentYear && record.status === 'completed'
           })
-          
-          const total = ytdRecords.reduce((sum: number, record: PayrollHistoryType) => sum + (record.totalAmount || 0), 0)
+
+          const total = ytdRecords.reduce(
+            (sum: number, record: PayrollHistoryType) => sum + (record.totalAmount || 0),
+            0
+          )
           setYtdTotal(total)
-          
+
           // Set YTD period
           if (ytdRecords.length > 0) {
             const firstMonth = new Date(
-              Math.min(...ytdRecords.map((r: PayrollHistoryType) => new Date(r.date || 0).getTime()))
+              Math.min(
+                ...ytdRecords.map((r: PayrollHistoryType) => new Date(r.date || 0).getTime())
+              )
             )
             const lastMonth = new Date(
-              Math.max(...ytdRecords.map((r: PayrollHistoryType) => new Date(r.date || 0).getTime()))
+              Math.max(
+                ...ytdRecords.map((r: PayrollHistoryType) => new Date(r.date || 0).getTime())
+              )
             )
-            
-            setYtdPeriod(`${format(firstMonth, "MMM")} - ${format(lastMonth, "MMM")} ${currentYear}`)
+
+            setYtdPeriod(
+              `${format(firstMonth, 'MMM')} - ${format(lastMonth, 'MMM')} ${currentYear}`
+            )
           } else {
             setYtdPeriod(`${currentYear}`)
           }
         }
-        
+
         setError(null)
       } catch (err: any) {
-        console.error("Error fetching payroll data:", err)
-        setError(err.message || "Failed to fetch payroll data")
+        console.error('Error fetching payroll data:', err)
+        setError(err.message || 'Failed to fetch payroll data')
       } finally {
         setIsLoading(false)
       }
     }
-    
+
     fetchPayrollData()
   }, [db])
-  
+
   // Function to refresh data
   const handleRefresh = () => {
     setIsLoading(true)
     // Re-trigger the useEffect by updating a dependency
-    setYtdPeriod(prev => prev + " ")
+    setYtdPeriod((prev) => prev + ' ')
   }
 
   return (
@@ -147,13 +165,8 @@ function PayrollDashboard() {
                   <CardTitle>Payroll Summary</CardTitle>
                   <CardDescription>Overview of recent payroll activity</CardDescription>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleRefresh} 
-                  disabled={isLoading}
-                >
-                  <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+                <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading}>
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
               </div>
@@ -168,9 +181,13 @@ function PayrollDashboard() {
                     <p className="mt-1 text-lg text-red-500">Error loading data</p>
                   ) : lastPayroll && lastPayroll.totalAmount ? (
                     <>
-                      <p className="mt-1 text-2xl font-bold">K{lastPayroll.totalAmount.toLocaleString()}</p>
+                      <p className="mt-1 text-2xl font-bold">
+                        K{lastPayroll.totalAmount.toLocaleString()}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {lastPayroll.date ? format(new Date(lastPayroll.date), "MMMM yyyy") : "Date unknown"}
+                        {lastPayroll.date
+                          ? format(new Date(lastPayroll.date), 'MMMM yyyy')
+                          : 'Date unknown'}
                       </p>
                     </>
                   ) : (
@@ -188,9 +205,14 @@ function PayrollDashboard() {
                     <p className="mt-1 text-lg text-red-500">Error loading data</p>
                   ) : nextPayrollEstimate > 0 ? (
                     <>
-                      <p className="mt-1 text-2xl font-bold">K{nextPayrollEstimate.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                      <p className="mt-1 text-2xl font-bold">
+                        K
+                        {nextPayrollEstimate.toLocaleString(undefined, {
+                          maximumFractionDigits: 0
+                        })}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(), "MMMM yyyy")} (Estimated)
+                        {format(new Date(), 'MMMM yyyy')} (Estimated)
                       </p>
                     </>
                   ) : (

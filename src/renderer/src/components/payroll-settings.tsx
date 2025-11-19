@@ -1,10 +1,16 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 
 export function PayrollSettings() {
   return (
@@ -62,7 +68,9 @@ export function PayrollSettings() {
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
                 <Label htmlFor="auto-process">Automatic Processing</Label>
-                <p className="text-sm text-muted-foreground">Automatically process payroll on scheduled dates</p>
+                <p className="text-sm text-muted-foreground">
+                  Automatically process payroll on scheduled dates
+                </p>
               </div>
               <Switch id="auto-process" />
             </div>

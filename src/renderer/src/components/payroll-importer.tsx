@@ -1,39 +1,53 @@
-"use client"
+'use client'
 
-import { useState, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import { v4 as uuidv4 } from "uuid"
-import { format } from "date-fns"
-import Papa from "papaparse"
-import { fetchAllEmployees, savePayrollHistory } from "@/lib/db/services/service-factory"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle, FileUp, Upload, Check, X } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
+import { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
+import { format } from 'date-fns'
+import Papa from 'papaparse'
+import { fetchAllEmployees, savePayrollHistory } from '@/lib/db/services/service-factory'
+import { useToast } from '@/hooks/use-toast'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle, FileUp, Upload, Check, X } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 
 // Define the expected CSV structure
 interface PayrollImportRow {
   'EMPLOYEE NAME'?: string
   'ACCOUNT NUMBER'?: string
-  'NRC': string // Required for employee matching
-  'TPIN'?: string
+  NRC: string // Required for employee matching
+  TPIN?: string
   'BASIC PAY': string | number
   'Housing Allow.'?: string | number
   'Transport Allow.'?: string | number
   'GROSS PAY'?: string | number
-  'Napsa'?: string | number
-  'Nhima'?: string | number
-  'PAYE'?: string | number
-  'Loan'?: string | number
+  Napsa?: string | number
+  Nhima?: string | number
+  PAYE?: string | number
+  Loan?: string | number
   'Other Deductions'?: string | number
-  'NET'?: string | number
+  NET?: string | number
   [key: string]: string | number | undefined // Allow for additional columns
 }
 
@@ -61,9 +75,9 @@ export default function PayrollImporter() {
     multipleMatches: 0,
     errors: 0
   })
-  const [activeTab, setActiveTab] = useState("upload")
+  const [activeTab, setActiveTab] = useState('upload')
   const [importProgress, setImportProgress] = useState(0)
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -92,7 +106,7 @@ export default function PayrollImporter() {
 
     setIsProcessing(true)
     setImportProgress(10)
-    
+
     try {
       // Parse CSV file
       const results = await new Promise<Papa.ParseResult<PayrollImportRow>>((resolve, reject) => {
@@ -103,42 +117,42 @@ export default function PayrollImporter() {
           error: (error) => reject(error)
         })
       })
-      
+
       setImportProgress(30)
-      
+
       // Validate required columns
       if (!results.meta.fields?.includes('NRC')) {
         setImportErrors(['CSV file must contain an NRC column for employee matching'])
         setIsProcessing(false)
         return
       }
-      
+
       if (!results.meta.fields?.includes('BASIC PAY')) {
         setImportErrors(['CSV file must contain a BASIC PAY column'])
         setIsProcessing(false)
         return
       }
-      
+
       // Fetch all employees for matching
       setImportProgress(50)
       const employees = await fetchAllEmployees()
-      
+
       // Process each row and match with employees by NRC
       const processed: ProcessedRow[] = []
       let matched = 0
       let notFound = 0
       let multipleMatches = 0
       let errors = 0
-      
+
       setImportProgress(70)
-      
+
       for (const row of results.data) {
         const processedRow: ProcessedRow = {
           ...row,
           matchStatus: 'not_found',
           errors: []
         }
-        
+
         // Skip rows without NRC
         if (!row.NRC) {
           processedRow.errors = ['Missing NRC']
@@ -147,12 +161,13 @@ export default function PayrollImporter() {
           processed.push(processedRow)
           continue
         }
-        
+
         // Find matching employees by NRC
         const matchingEmployees = employees.filter(
-          (emp: any) => (emp.nationalId || emp.national_id || '').toLowerCase() === row.NRC.toLowerCase()
+          (emp: any) =>
+            (emp.nationalId || emp.national_id || '').toLowerCase() === row.NRC.toLowerCase()
         )
-        
+
         if (matchingEmployees.length === 1) {
           // Exact match found
           const employee = matchingEmployees[0]
@@ -171,12 +186,12 @@ export default function PayrollImporter() {
           processedRow.errors = ['No employee found with this NRC']
           notFound++
         }
-        
+
         processed.push(processedRow)
       }
-      
+
       setImportProgress(90)
-      
+
       // Update state with processed data
       setProcessedData(processed)
       setImportStats({
@@ -186,16 +201,18 @@ export default function PayrollImporter() {
         multipleMatches,
         errors
       })
-      
+
       // Switch to review tab if there's data to review
       if (processed.length > 0) {
-        setActiveTab("review")
+        setActiveTab('review')
       }
-      
+
       setImportProgress(100)
     } catch (error) {
       console.error('Error processing CSV file:', error)
-      setImportErrors([`Error processing file: ${error instanceof Error ? error.message : 'Unknown error'}`])
+      setImportErrors([
+        `Error processing file: ${error instanceof Error ? error.message : 'Unknown error'}`
+      ])
     } finally {
       setIsProcessing(false)
     }
@@ -205,51 +222,74 @@ export default function PayrollImporter() {
   const handleImport = async () => {
     try {
       setIsUploading(true)
-      
+
       // Filter only matched employees
-      const matchedRows = processedData.filter(row => row.matchStatus === 'matched')
-      
+      const matchedRows = processedData.filter((row) => row.matchStatus === 'matched')
+
       if (matchedRows.length === 0) {
         toast({
-          title: "Import Failed",
-          description: "No matched employees to import",
-          variant: "destructive"
+          title: 'Import Failed',
+          description: 'No matched employees to import',
+          variant: 'destructive'
         })
         setIsUploading(false)
         return
       }
-      
+
       // Create payroll items from matched rows
-      const payrollItems = matchedRows.map(row => {
+      const payrollItems = matchedRows.map((row) => {
         const employee = row.matchedEmployee
-        
+
         // Convert string values to numbers
-        const basicSalary = typeof row['BASIC PAY'] === 'string' ? parseFloat(row['BASIC PAY']) : row['BASIC PAY'] || 0
-        const housingAllowance = typeof row['Housing Allow.'] === 'string' ? parseFloat(row['Housing Allow.'] as string) : (row['Housing Allow.'] || 0)
-        const transportAllowance = typeof row['Transport Allow.'] === 'string' ? parseFloat(row['Transport Allow.'] as string) : (row['Transport Allow.'] || 0)
-        const grossPay = typeof row['GROSS PAY'] === 'string' ? parseFloat(row['GROSS PAY'] as string) : (row['GROSS PAY'] || 0)
-        const napsa = typeof row['Napsa'] === 'string' ? parseFloat(row['Napsa'] as string) : (row['Napsa'] || 0)
-        const nhima = typeof row['Nhima'] === 'string' ? parseFloat(row['Nhima'] as string) : (row['Nhima'] || 0)
-        const paye = typeof row['PAYE'] === 'string' ? parseFloat(row['PAYE'] as string) : (row['PAYE'] || 0)
-        const loan = typeof row['Loan'] === 'string' ? parseFloat(row['Loan'] as string) : (row['Loan'] || 0)
-        const otherDeductions = typeof row['Other Deductions'] === 'string' ? parseFloat(row['Other Deductions'] as string) : (row['Other Deductions'] || 0)
-        const netSalary = typeof row['NET'] === 'string' ? parseFloat(row['NET'] as string) : (row['NET'] || 0)
-        
+        const basicSalary =
+          typeof row['BASIC PAY'] === 'string'
+            ? parseFloat(row['BASIC PAY'])
+            : row['BASIC PAY'] || 0
+        const housingAllowance =
+          typeof row['Housing Allow.'] === 'string'
+            ? parseFloat(row['Housing Allow.'] as string)
+            : row['Housing Allow.'] || 0
+        const transportAllowance =
+          typeof row['Transport Allow.'] === 'string'
+            ? parseFloat(row['Transport Allow.'] as string)
+            : row['Transport Allow.'] || 0
+        const grossPay =
+          typeof row['GROSS PAY'] === 'string'
+            ? parseFloat(row['GROSS PAY'] as string)
+            : row['GROSS PAY'] || 0
+        const napsa =
+          typeof row['Napsa'] === 'string' ? parseFloat(row['Napsa'] as string) : row['Napsa'] || 0
+        const nhima =
+          typeof row['Nhima'] === 'string' ? parseFloat(row['Nhima'] as string) : row['Nhima'] || 0
+        const paye =
+          typeof row['PAYE'] === 'string' ? parseFloat(row['PAYE'] as string) : row['PAYE'] || 0
+        const loan =
+          typeof row['Loan'] === 'string' ? parseFloat(row['Loan'] as string) : row['Loan'] || 0
+        const otherDeductions =
+          typeof row['Other Deductions'] === 'string'
+            ? parseFloat(row['Other Deductions'] as string)
+            : row['Other Deductions'] || 0
+        const netSalary =
+          typeof row['NET'] === 'string' ? parseFloat(row['NET'] as string) : row['NET'] || 0
+
         // Calculate total deductions and allowances if not provided
         const totalDeductions = napsa + nhima + paye + loan + otherDeductions
         const totalAllowances = housingAllowance + transportAllowance
-        
+
         return {
           employeeId: row.employeeId || employee._id,
-          employeeName: employee ? `${employee.firstName || ''} ${employee.lastName || ''}`.trim() : row['EMPLOYEE NAME'] || '',
-          accountNumber: employee?.accountNumber || employee?.account_number || row['ACCOUNT NUMBER'] || '',
+          employeeName: employee
+            ? `${employee.firstName || ''} ${employee.lastName || ''}`.trim()
+            : row['EMPLOYEE NAME'] || '',
+          accountNumber:
+            employee?.accountNumber || employee?.account_number || row['ACCOUNT NUMBER'] || '',
           nrc: employee?.nationalId || employee?.national_id || row.NRC || '',
           tpin: employee?.taxNumber || employee?.tax_number || row['TPIN'] || '',
           department: employee?.department || 'General',
           basicSalary,
           housingAllowance,
           transportAllowance,
-          grossPay: grossPay || (basicSalary + totalAllowances),
+          grossPay: grossPay || basicSalary + totalAllowances,
           napsa,
           nhima,
           paye,
@@ -267,15 +307,15 @@ export default function PayrollImporter() {
             { name: 'PAYE', value: paye, type: 'fixed' },
             { name: 'Loan', value: loan, type: 'fixed' },
             { name: 'Other Deductions', value: otherDeductions, type: 'fixed' }
-          ].filter(d => d.value > 0),
+          ].filter((d) => d.value > 0),
           // Create basic allowance breakdown
           allowanceBreakdown: [
             { name: 'Housing Allowance', value: housingAllowance, type: 'fixed' },
             { name: 'Transport Allowance', value: transportAllowance, type: 'fixed' }
-          ].filter(a => a.value > 0)
+          ].filter((a) => a.value > 0)
         }
       })
-      
+
       // Create a payroll record
       const currentDate = new Date()
       const payrollRecord = {
@@ -292,23 +332,23 @@ export default function PayrollImporter() {
         importedAt: currentDate.toISOString(),
         importSource: file?.name || 'CSV Import'
       }
-      
+
       // Save to database
       await savePayrollHistory([payrollRecord])
-      
+
       toast({
-        title: "Import Successful",
-        description: `Imported payroll data for ${payrollItems.length} employees.`,
+        title: 'Import Successful',
+        description: `Imported payroll data for ${payrollItems.length} employees.`
       })
-      
+
       // Navigate to payroll page
-      navigate("/payroll")
+      navigate('/payroll')
     } catch (error) {
       console.error('Error importing payroll data:', error)
       toast({
-        title: "Import Failed",
+        title: 'Import Failed',
         description: `Error importing payroll data: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive"
+        variant: 'destructive'
       })
     } finally {
       setIsUploading(false)
@@ -320,15 +360,18 @@ export default function PayrollImporter() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="upload">Upload CSV</TabsTrigger>
-          <TabsTrigger value="review" disabled={processedData.length === 0}>Review Data</TabsTrigger>
+          <TabsTrigger value="review" disabled={processedData.length === 0}>
+            Review Data
+          </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="upload" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Import Payroll Data</CardTitle>
               <CardDescription>
-                Upload a CSV file with payroll data. The file must contain an NRC column to match employees.
+                Upload a CSV file with payroll data. The file must contain an NRC column to match
+                employees.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -343,9 +386,9 @@ export default function PayrollImporter() {
                     File must include NRC column for employee matching
                   </p>
                 </div>
-                <Button 
-                  variant="outline" 
-                  onClick={handleUploadClick} 
+                <Button
+                  variant="outline"
+                  onClick={handleUploadClick}
                   className="mt-4"
                   disabled={isProcessing}
                 >
@@ -360,7 +403,7 @@ export default function PayrollImporter() {
                   className="hidden"
                 />
               </div>
-              
+
               {file && (
                 <div className="flex items-center justify-between p-3 bg-muted rounded-md">
                   <div className="flex items-center">
@@ -380,7 +423,7 @@ export default function PayrollImporter() {
                   </Button>
                 </div>
               )}
-              
+
               {importErrors.length > 0 && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
@@ -394,7 +437,7 @@ export default function PayrollImporter() {
                   </AlertDescription>
                 </Alert>
               )}
-              
+
               {isProcessing && (
                 <div className="space-y-2">
                   <Label>Processing file...</Label>
@@ -403,19 +446,16 @@ export default function PayrollImporter() {
               )}
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button variant="outline" onClick={() => navigate("/payroll")}>
+              <Button variant="outline" onClick={() => navigate('/payroll')}>
                 Cancel
               </Button>
-              <Button 
-                onClick={processFile} 
-                disabled={!file || isProcessing}
-              >
-                {isProcessing ? "Processing..." : "Process File"}
+              <Button onClick={processFile} disabled={!file || isProcessing}>
+                {isProcessing ? 'Processing...' : 'Process File'}
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="review">
           <Card>
             <CardHeader>
@@ -423,7 +463,7 @@ export default function PayrollImporter() {
               <CardDescription>
                 Review the data before importing. Only matched employees will be imported.
               </CardDescription>
-              
+
               <div className="flex flex-wrap gap-2 mt-2">
                 <Badge variant="outline" className="bg-muted">
                   Total: {importStats.total}
@@ -431,12 +471,8 @@ export default function PayrollImporter() {
                 <Badge variant="default" className="bg-green-600">
                   Matched: {importStats.matched}
                 </Badge>
-                <Badge variant="destructive">
-                  Not Found: {importStats.notFound}
-                </Badge>
-                <Badge variant="secondary">
-                  Multiple Matches: {importStats.multipleMatches}
-                </Badge>
+                <Badge variant="destructive">Not Found: {importStats.notFound}</Badge>
+                <Badge variant="secondary">Multiple Matches: {importStats.multipleMatches}</Badge>
                 <Badge variant="outline" className="border-red-300 text-red-600">
                   Errors: {importStats.errors}
                 </Badge>
@@ -457,10 +493,16 @@ export default function PayrollImporter() {
                   </TableHeader>
                   <TableBody>
                     {processedData.map((row, index) => (
-                      <TableRow key={index} className={
-                        row.matchStatus === 'matched' ? 'bg-green-50' :
-                        row.matchStatus === 'not_found' ? 'bg-red-50' : 'bg-yellow-50'
-                      }>
+                      <TableRow
+                        key={index}
+                        className={
+                          row.matchStatus === 'matched'
+                            ? 'bg-green-50'
+                            : row.matchStatus === 'not_found'
+                              ? 'bg-red-50'
+                              : 'bg-yellow-50'
+                        }
+                      >
                         <TableCell>
                           {row.matchStatus === 'matched' ? (
                             <Check className="h-5 w-5 text-green-600" />
@@ -472,18 +514,15 @@ export default function PayrollImporter() {
                         </TableCell>
                         <TableCell>{row.NRC}</TableCell>
                         <TableCell>
-                          {row.matchStatus === 'matched' && row.matchedEmployee ? 
-                            `${row.matchedEmployee.firstName || ''} ${row.matchedEmployee.lastName || ''}`.trim() : 
-                            row['EMPLOYEE NAME'] || 'Unknown'
-                          }
+                          {row.matchStatus === 'matched' && row.matchedEmployee
+                            ? `${row.matchedEmployee.firstName || ''} ${row.matchedEmployee.lastName || ''}`.trim()
+                            : row['EMPLOYEE NAME'] || 'Unknown'}
                         </TableCell>
                         <TableCell>{row['BASIC PAY']}</TableCell>
                         <TableCell>{row['NET']}</TableCell>
                         <TableCell>
                           {row.errors && row.errors.length > 0 ? (
-                            <span className="text-red-600 text-sm">
-                              {row.errors.join(', ')}
-                            </span>
+                            <span className="text-red-600 text-sm">{row.errors.join(', ')}</span>
                           ) : row.matchStatus === 'matched' ? (
                             <span className="text-green-600 text-sm">None</span>
                           ) : null}
@@ -495,14 +534,11 @@ export default function PayrollImporter() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button variant="outline" onClick={() => setActiveTab("upload")}>
+              <Button variant="outline" onClick={() => setActiveTab('upload')}>
                 Back
               </Button>
-              <Button 
-                onClick={handleImport} 
-                disabled={importStats.matched === 0 || isUploading}
-              >
-                {isUploading ? "Importing..." : `Import ${importStats.matched} Records`}
+              <Button onClick={handleImport} disabled={importStats.matched === 0 || isUploading}>
+                {isUploading ? 'Importing...' : `Import ${importStats.matched} Records`}
               </Button>
             </CardFooter>
           </Card>

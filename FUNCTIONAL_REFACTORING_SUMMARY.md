@@ -17,10 +17,10 @@ Extracted pure functions that don't have side effects and always return the same
 const getInitErrorMessage = (error: any, config: EmailConfig): string => {
   const errorMap: Record<string, () => string> = {
     ENOTFOUND: () => `Cannot resolve SMTP host "${config.host}"...`,
-    ECONNREFUSED: () => `Connection refused to ${config.host}:${config.port}...`,
+    ECONNREFUSED: () => `Connection refused to ${config.host}:${config.port}...`
     // ... more mappings
   }
-  
+
   return errorMap[error.code]?.() || `Email service initialization failed: ${error.message}`
 }
 
@@ -28,10 +28,10 @@ const getInitErrorMessage = (error: any, config: EmailConfig): string => {
 const getTestEmailErrorMessage = (error: any): string => {
   const errorMap: Record<string, string> = {
     EAUTH: 'Authentication failed...',
-    ESOCKET: 'Connection timeout...',
+    ESOCKET: 'Connection timeout...'
     // ... more mappings
   }
-  
+
   return errorMap[error.code] || `Failed to send test email: ${error.message}`
 }
 ```
@@ -94,26 +94,31 @@ async sendTestEmail(testEmail: string): Promise<void> {
 ## Benefits of This Approach
 
 ### ✅ **Testability**
+
 - Pure functions can be tested in isolation
 - No need to mock the entire email service
 - Easy to test error message generation
 
 ### ✅ **Maintainability**
+
 - Error messages centralized in one place
 - Template changes don't affect business logic
 - Easy to add new error types
 
 ### ✅ **Reusability**
+
 - Helper functions can be used across different methods
 - Templates can be shared or extended
 - Error handling logic is consistent
 
 ### ✅ **Readability**
+
 - Clear separation of concerns
 - Self-documenting function names
 - Less nested code
 
 ### ✅ **Immutability**
+
 - Pure functions don't mutate state
 - Predictable behavior
 - Easier to reason about
@@ -125,6 +130,7 @@ async sendTestEmail(testEmail: string): Promise<void> {
 The test email functionality is fully connected to the frontend through the IPC layer:
 
 ### **Main Process (Backend)**
+
 ```typescript
 // src/main/index.ts
 ipcMain.handle('email:sendTest', async (_, testEmail: string) => {
@@ -133,7 +139,7 @@ ipcMain.handle('email:sendTest', async (_, testEmail: string) => {
   console.log(`Recipient: ${testEmail}`)
   console.log('========================================')
   try {
-    await emailService.sendTestEmail(testEmail)  // Calls refactored method
+    await emailService.sendTestEmail(testEmail) // Calls refactored method
     console.log('========================================\n')
     return { success: true }
   } catch (error: any) {
@@ -144,6 +150,7 @@ ipcMain.handle('email:sendTest', async (_, testEmail: string) => {
 ```
 
 ### **Preload Script (Bridge)**
+
 ```typescript
 // src/preload/index.ts
 const api = {
@@ -154,6 +161,7 @@ const api = {
 ```
 
 ### **Renderer Process (Frontend)**
+
 ```typescript
 // src/renderer/src/lib/email-service.ts
 async sendTestEmail(testEmail: string): Promise<EmailResult> {
@@ -227,6 +235,7 @@ const handleTestEmail = async () => {
 ## Terminal Output Example
 
 ### Successful Test Email:
+
 ```
 ========================================
 📧 SENDING TEST EMAIL
@@ -245,6 +254,7 @@ Response: 250 2.0.0 Ok: queued as ABC123
 ```
 
 ### Failed Test Email:
+
 ```
 ========================================
 📧 SENDING TEST EMAIL
@@ -261,10 +271,11 @@ Authentication failed. For Gmail, use an App Password instead of your regular pa
 ## Code Quality Improvements
 
 ### Before (Imperative):
+
 ```typescript
 async sendTestEmail(testEmail: string): Promise<void> {
   // ... validation
-  
+
   try {
     const info = await this.transporter.sendMail({
       from: this.config.from,
@@ -273,7 +284,7 @@ async sendTestEmail(testEmail: string): Promise<void> {
       html: `<!DOCTYPE html>...${this.config.host}...`,  // Inline template
       text: `Test Email...${this.config.host}...`        // Inline template
     })
-    
+
     console.log('✓ Test email sent successfully')
   } catch (error: any) {
     // Long if-else chain for error messages
@@ -292,10 +303,11 @@ async sendTestEmail(testEmail: string): Promise<void> {
 ```
 
 ### After (Functional):
+
 ```typescript
 async sendTestEmail(testEmail: string): Promise<void> {
   // ... validation
-  
+
   try {
     const mailOptions = {
       from: this.config.from,
@@ -304,7 +316,7 @@ async sendTestEmail(testEmail: string): Promise<void> {
       html: generateTestEmailHtml(this.config),  // Pure function
       text: generateTestEmailText(this.config)   // Pure function
     }
-    
+
     const info = await this.transporter.sendMail(mailOptions)
     console.log('✓ Test email sent successfully')
   } catch (error: any) {
@@ -325,9 +337,11 @@ async sendTestEmail(testEmail: string): Promise<void> {
 describe('getTestEmailErrorMessage', () => {
   it('should return auth error for EAUTH code', () => {
     const error = { code: 'EAUTH' }
-    expect(getTestEmailErrorMessage(error)).toBe('Authentication failed. Check your username and password.')
+    expect(getTestEmailErrorMessage(error)).toBe(
+      'Authentication failed. Check your username and password.'
+    )
   })
-  
+
   it('should return Gmail-specific message for 535 response', () => {
     const error = { responseCode: 535 }
     expect(getTestEmailErrorMessage(error)).toContain('App Password')
@@ -357,6 +371,7 @@ describe('generateTestEmailHtml', () => {
    - `generatePayslipEmailText(data)`
 
 2. **Use Result type instead of throwing errors**:
+
    ```typescript
    async sendTestEmail(testEmail: string): Promise<EmailResult<{ messageId: string }>> {
      // Return { success: true, data: { messageId } } or { success: false, error: 'message' }
@@ -364,22 +379,24 @@ describe('generateTestEmailHtml', () => {
    ```
 
 3. **Compose with higher-order functions**:
+
    ```typescript
-   const withErrorHandling = (fn) => async (...args) => {
-     try {
-       return await fn(...args)
-     } catch (error) {
-       return { success: false, error: getErrorMessage(error) }
+   const withErrorHandling =
+     (fn) =>
+     async (...args) => {
+       try {
+         return await fn(...args)
+       } catch (error) {
+         return { success: false, error: getErrorMessage(error) }
+       }
      }
-   }
    ```
 
 4. **Use functional array methods for bulk operations**:
+
    ```typescript
-   const results = await Promise.allSettled(
-     payslips.map(payslip => sendPayslipEmail(payslip))
-   )
-   
+   const results = await Promise.allSettled(payslips.map((payslip) => sendPayslipEmail(payslip)))
+
    const summary = results.reduce((acc, result, index) => {
      // Functional reduce instead of for loop
    }, initialState)

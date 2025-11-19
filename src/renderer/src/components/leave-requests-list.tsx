@@ -1,5 +1,12 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { LeaveRequest } from "@/lib/db/models/leave-request.model"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { LeaveRequest } from '@/lib/db/models/leave-request.model'
 
 interface LeaveRequestsListProps {
   leaveRequests?: LeaveRequest[]
@@ -27,9 +34,7 @@ export function LeaveRequestsList({ leaveRequests = [] }: LeaveRequestsListProps
               <TableCell>{request.startDate}</TableCell>
               <TableCell>{request.endDate}</TableCell>
               <TableCell>{request.status}</TableCell>
-              <TableCell className="text-right">
-                {/* Action buttons will go here */}
-              </TableCell>
+              <TableCell className="text-right">{/* Action buttons will go here */}</TableCell>
             </TableRow>
           ))}
         </TableBody>

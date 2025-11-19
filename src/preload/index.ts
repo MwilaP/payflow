@@ -20,6 +20,28 @@ export interface EmailPayslipData {
   payslipPdfBase64?: string
 }
 
+export interface PayslipPDFData {
+  companyName: string
+  companyAddress?: string
+  employeeName: string
+  employeeNumber: string
+  department: string
+  designation: string
+  nrc: string
+  tpin: string
+  accountNumber: string
+  bankName: string
+  period: string
+  paymentDate: string
+  basicSalary: number
+  allowances: Array<{ name: string; amount: number }>
+  totalAllowances: number
+  grossPay: number
+  deductions: Array<{ name: string; amount: number }>
+  totalDeductions: number
+  netPay: number
+}
+
 // Custom APIs for renderer
 const api = {
   email: {
@@ -27,8 +49,14 @@ const api = {
     isConfigured: () => ipcRenderer.invoke('email:isConfigured'),
     getConfig: () => ipcRenderer.invoke('email:getConfig'),
     sendPayslip: (data: EmailPayslipData) => ipcRenderer.invoke('email:sendPayslip', data),
-    sendBulkPayslips: (payslips: EmailPayslipData[]) => ipcRenderer.invoke('email:sendBulkPayslips', payslips),
+    sendBulkPayslips: (payslips: EmailPayslipData[]) =>
+      ipcRenderer.invoke('email:sendBulkPayslips', payslips),
     sendTest: (testEmail: string) => ipcRenderer.invoke('email:sendTest', testEmail)
+  },
+  pdf: {
+    generatePayslip: (data: PayslipPDFData) => ipcRenderer.invoke('pdf:generatePayslip', data),
+    generateBulkPayslips: (payslipsData: PayslipPDFData[]) =>
+      ipcRenderer.invoke('pdf:generateBulkPayslips', payslipsData)
   }
 }
 

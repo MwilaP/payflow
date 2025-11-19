@@ -5,7 +5,7 @@ import { z } from 'zod'
 // SQLite Payroll History Schema
 export const sqlitePayrollHistorySchema = z.object({
   id: z.string().default(() => `payroll_${uuidv4()}`),
-  status: z.enum(["draft", "pending", "processing", "completed", "cancelled"]).default("draft"),
+  status: z.enum(['draft', 'pending', 'processing', 'completed', 'cancelled']).default('draft'),
   date: z.string(),
   period: z.string().optional(),
   totalAmount: z.number().optional(),
@@ -15,42 +15,48 @@ export const sqlitePayrollHistorySchema = z.object({
   cancelledAt: z.string().optional(),
   notes: z.string().optional(),
   processedBy: z.string().optional(),
-  items: z.array(z.object({
-    employeeId: z.string(),
-    employeeName: z.string(),
-    // Employee details
-    accountNumber: z.string().optional(),
-    nrc: z.string().optional(),
-    tpin: z.string().optional(),
-    department: z.string().optional(),
-    // Salary components
-    basicSalary: z.number(),
-    housingAllowance: z.number().optional(),
-    transportAllowance: z.number().optional(),
-    grossPay: z.number().optional(),
-    // Deduction components
-    napsa: z.number().optional(),
-    nhima: z.number().optional(),
-    paye: z.number().optional(),
-    // Totals
-    allowances: z.number(),
-    deductions: z.number(),
-    totalDeductions: z.number().optional(),
-    netSalary: z.number(),
-    // Structure reference
-    payrollStructureId: z.string().optional(),
-    // Detailed breakdowns
-    allowanceBreakdown: z.array(z.any()).optional(),
-    deductionBreakdown: z.array(z.any()).optional(),
-  })).optional(),
+  items: z
+    .array(
+      z.object({
+        employeeId: z.string(),
+        employeeName: z.string(),
+        // Employee details
+        accountNumber: z.string().optional(),
+        nrc: z.string().optional(),
+        tpin: z.string().optional(),
+        department: z.string().optional(),
+        // Salary components
+        basicSalary: z.number(),
+        housingAllowance: z.number().optional(),
+        transportAllowance: z.number().optional(),
+        grossPay: z.number().optional(),
+        // Deduction components
+        napsa: z.number().optional(),
+        nhima: z.number().optional(),
+        paye: z.number().optional(),
+        // Totals
+        allowances: z.number(),
+        deductions: z.number(),
+        totalDeductions: z.number().optional(),
+        netSalary: z.number(),
+        // Structure reference
+        payrollStructureId: z.string().optional(),
+        // Detailed breakdowns
+        allowanceBreakdown: z.array(z.any()).optional(),
+        deductionBreakdown: z.array(z.any()).optional()
+      })
+    )
+    .optional(),
   created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+  updated_at: z.string().optional()
 })
 
 export type SQLitePayrollHistory = z.infer<typeof sqlitePayrollHistorySchema>
 
 export interface SQLitePayrollHistoryService {
-  create(payrollData: Omit<SQLitePayrollHistory, 'id' | 'created_at' | 'updated_at'>): Promise<SQLitePayrollHistory>
+  create(
+    payrollData: Omit<SQLitePayrollHistory, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<SQLitePayrollHistory>
   getById(id: string): Promise<SQLitePayrollHistory | null>
   update(id: string, updates: Partial<SQLitePayrollHistory>): Promise<SQLitePayrollHistory | null>
   delete(id: string): Promise<boolean>
@@ -67,7 +73,7 @@ export const createSQLitePayrollHistoryService = (): SQLitePayrollHistoryService
         ...payrollData,
         id: `payroll_${uuidv4()}`,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
 
       const validated = sqlitePayrollHistorySchema.parse(payroll)
@@ -81,9 +87,9 @@ export const createSQLitePayrollHistoryService = (): SQLitePayrollHistoryService
     async update(id: string, updates) {
       const updateData = {
         ...updates,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
-      
+
       return sqliteOperations.update<SQLitePayrollHistory>('payroll_history', id, updateData)
     },
 
@@ -101,7 +107,7 @@ export const createSQLitePayrollHistoryService = (): SQLitePayrollHistoryService
 
     async getByDateRange(startDate: string, endDate: string) {
       const records = await sqliteOperations.getAll<SQLitePayrollHistory>('payroll_history')
-      return records.filter(record => {
+      return records.filter((record) => {
         const recordDate = new Date(record.date)
         return recordDate >= new Date(startDate) && recordDate <= new Date(endDate)
       })
@@ -109,8 +115,8 @@ export const createSQLitePayrollHistoryService = (): SQLitePayrollHistoryService
 
     async getByEmployeeId(employeeId: string) {
       const records = await sqliteOperations.getAll<SQLitePayrollHistory>('payroll_history')
-      return records.filter(record => 
-        record.items?.some(item => item.employeeId === employeeId)
+      return records.filter((record) =>
+        record.items?.some((item) => item.employeeId === employeeId)
       )
     }
   }
@@ -119,12 +125,12 @@ export const createSQLitePayrollHistoryService = (): SQLitePayrollHistoryService
 // Compatibility wrapper to maintain the same interface as PouchDB service
 export const createPayrollHistoryServiceCompat = () => {
   const sqliteService = createSQLitePayrollHistoryService()
-  
+
   return {
     async createPayrollRecord(payrollData: any) {
       // Convert PouchDB format to SQLite format
       const sqlitePayrollData = {
-        status: payrollData.status || "draft",
+        status: payrollData.status || 'draft',
         date: payrollData.date || new Date().toISOString(),
         period: payrollData.period,
         totalAmount: payrollData.totalAmount,
@@ -134,35 +140,35 @@ export const createPayrollHistoryServiceCompat = () => {
         cancelledAt: payrollData.cancelledAt,
         notes: payrollData.notes,
         processedBy: payrollData.processedBy,
-        items: payrollData.items || [],
+        items: payrollData.items || []
       }
-      
+
       const result = await sqliteService.create(sqlitePayrollData)
-      
+
       // Convert back to PouchDB format
       return {
         _id: result.id,
         ...result,
         createdAt: result.created_at,
-        updatedAt: result.updated_at,
+        updatedAt: result.updated_at
       }
     },
 
     async getPayrollRecordById(id: string) {
       const result = await sqliteService.getById(id)
       if (!result) return null
-      
+
       return {
         _id: result.id,
         ...result,
         createdAt: result.created_at,
-        updatedAt: result.updated_at,
+        updatedAt: result.updated_at
       }
     },
 
     async updatePayrollRecord(id: string, updates: any) {
       const sqliteUpdates: Partial<SQLitePayrollHistory> = {}
-      
+
       if (updates.status) sqliteUpdates.status = updates.status
       if (updates.date) sqliteUpdates.date = updates.date
       if (updates.period) sqliteUpdates.period = updates.period
@@ -174,7 +180,7 @@ export const createPayrollHistoryServiceCompat = () => {
       if (updates.notes) sqliteUpdates.notes = updates.notes
       if (updates.processedBy) sqliteUpdates.processedBy = updates.processedBy
       if (updates.items) sqliteUpdates.items = updates.items
-      
+
       const result = await sqliteService.update(id, sqliteUpdates)
       if (!result) return null
 
@@ -182,7 +188,7 @@ export const createPayrollHistoryServiceCompat = () => {
         _id: result.id,
         ...result,
         createdAt: result.created_at,
-        updatedAt: result.updated_at,
+        updatedAt: result.updated_at
       }
     },
 
@@ -192,65 +198,65 @@ export const createPayrollHistoryServiceCompat = () => {
 
     async getAllPayrollRecords() {
       const results = await sqliteService.getAll()
-      return results.map(result => ({
+      return results.map((result) => ({
         _id: result.id,
         ...result,
         createdAt: result.created_at,
-        updatedAt: result.updated_at,
+        updatedAt: result.updated_at
       }))
     },
 
     async getPayrollRecordsByEmployee(employeeId: string) {
       const results = await sqliteService.getByEmployeeId(employeeId)
-      return results.map(result => ({
+      return results.map((result) => ({
         _id: result.id,
         ...result,
         createdAt: result.created_at,
-        updatedAt: result.updated_at,
+        updatedAt: result.updated_at
       }))
     },
 
     async getPayrollRecordsByDateRange(startDate: string, endDate: string) {
       const results = await sqliteService.getByDateRange(startDate, endDate)
-      return results.map(result => ({
+      return results.map((result) => ({
         _id: result.id,
         ...result,
         createdAt: result.created_at,
-        updatedAt: result.updated_at,
+        updatedAt: result.updated_at
       }))
     },
 
     async getPayrollRecordsByStatus(status: string) {
       const results = await sqliteService.getByStatus(status)
-      return results.map(result => ({
+      return results.map((result) => ({
         _id: result.id,
         ...result,
         createdAt: result.created_at,
-        updatedAt: result.updated_at,
+        updatedAt: result.updated_at
       }))
     },
 
     // Additional methods for compatibility
     async processPayroll(id: string, processedBy?: string) {
       return await this.updatePayrollRecord(id, {
-        status: "processing",
+        status: 'processing',
         processedAt: new Date().toISOString(),
-        processedBy: processedBy || "System",
+        processedBy: processedBy || 'System'
       })
     },
 
     async completePayroll(id: string) {
       return await this.updatePayrollRecord(id, {
-        status: "completed",
-        completedAt: new Date().toISOString(),
+        status: 'completed',
+        completedAt: new Date().toISOString()
       })
     },
 
     async cancelPayroll(id: string, cancelNotes: string) {
       return await this.updatePayrollRecord(id, {
-        status: "cancelled",
+        status: 'cancelled',
         cancelledAt: new Date().toISOString(),
-        notes: cancelNotes,
+        notes: cancelNotes
       })
     }
   }

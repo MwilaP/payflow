@@ -1,7 +1,14 @@
-"use client"
+'use client'
 
-import React, { createContext, useContext, useEffect, useState } from "react"
-import { Session, User, getSession, login as authLogin, logout as authLogout, initializeAuth } from "@/lib/auth-service"
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import {
+  Session,
+  User,
+  getSession,
+  login as authLogin,
+  logout as authLogout,
+  initializeAuth
+} from '@/lib/auth-service'
 
 // Define the context type
 interface AuthContextType {
@@ -9,7 +16,10 @@ interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (usernameOrEmail: string, password: string) => Promise<{ success: boolean; error?: string }>
+  login: (
+    usernameOrEmail: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>
   logout: () => void
 }
 
@@ -20,7 +30,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   login: async () => ({ success: false }),
-  logout: () => {},
+  logout: () => {}
 })
 
 // Provider component
@@ -34,12 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         // Initialize auth system
         await initializeAuth()
-        
+
         // Load session from storage
         const currentSession = getSession()
         setSession(currentSession)
       } catch (error) {
-        console.error("Error initializing auth context:", error)
+        console.error('Error initializing auth context:', error)
       } finally {
         setIsLoading(false)
       }
@@ -74,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated,
     isLoading,
     login,
-    logout,
+    logout
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

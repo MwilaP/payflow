@@ -1,14 +1,17 @@
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 export function LeaveRequestFilters() {
   return (
     <div className="flex items-center gap-4">
-      <Input
-        placeholder="Filter by employee name..."
-        className="max-w-sm"
-      />
+      <Input placeholder="Filter by employee name..." className="max-w-sm" />
       <Select>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Filter by status" />

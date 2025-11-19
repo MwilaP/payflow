@@ -1,19 +1,32 @@
-"use client"
+'use client'
 
-import { Download, FileText } from "lucide-react"
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
+import { Download, FileText } from 'lucide-react'
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 
 const leaveTypeData = [
-  { name: "Annual Leave", value: 120, color: "#0ea5e9" },
-  { name: "Sick Leave", value: 45, color: "#f97316" },
-  { name: "Personal Leave", value: 30, color: "#8b5cf6" },
-  { name: "Maternity/Paternity", value: 15, color: "#10b981" },
-  { name: "Unpaid Leave", value: 10, color: "#f59e0b" },
+  { name: 'Annual Leave', value: 120, color: '#0ea5e9' },
+  { name: 'Sick Leave', value: 45, color: '#f97316' },
+  { name: 'Personal Leave', value: 30, color: '#8b5cf6' },
+  { name: 'Maternity/Paternity', value: 15, color: '#10b981' },
+  { name: 'Unpaid Leave', value: 10, color: '#f59e0b' }
 ]
 
 export function LeaveReports() {
@@ -43,7 +56,7 @@ export function LeaveReports() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value} days`, ""]} />
+                  <Tooltip formatter={(value) => [`${value} days`, '']} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -86,28 +99,28 @@ export function LeaveReports() {
                   <span className="text-sm font-medium">85 days (39%)</span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-muted">
-                  <div className="h-2 rounded-full bg-primary" style={{ width: "39%" }} />
+                  <div className="h-2 rounded-full bg-primary" style={{ width: '39%' }} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Marketing</span>
                   <span className="text-sm font-medium">45 days (20%)</span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-muted">
-                  <div className="h-2 rounded-full bg-primary" style={{ width: "20%" }} />
+                  <div className="h-2 rounded-full bg-primary" style={{ width: '20%' }} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Finance</span>
                   <span className="text-sm font-medium">35 days (16%)</span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-muted">
-                  <div className="h-2 rounded-full bg-primary" style={{ width: "16%" }} />
+                  <div className="h-2 rounded-full bg-primary" style={{ width: '16%' }} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Other Departments</span>
                   <span className="text-sm font-medium">55 days (25%)</span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-muted">
-                  <div className="h-2 rounded-full bg-primary" style={{ width: "25%" }} />
+                  <div className="h-2 rounded-full bg-primary" style={{ width: '25%' }} />
                 </div>
               </div>
             </div>
@@ -219,7 +232,9 @@ export function LeaveReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Leave Balance Report</h3>
-                  <p className="text-sm text-muted-foreground">Current leave balances for all employees</p>
+                  <p className="text-sm text-muted-foreground">
+                    Current leave balances for all employees
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download
@@ -249,7 +264,9 @@ export function LeaveReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Pending Leave Requests</h3>
-                  <p className="text-sm text-muted-foreground">List of all pending leave requests</p>
+                  <p className="text-sm text-muted-foreground">
+                    List of all pending leave requests
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download
@@ -264,7 +281,9 @@ export function LeaveReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Leave Calendar</h3>
-                  <p className="text-sm text-muted-foreground">Calendar view of all approved leave</p>
+                  <p className="text-sm text-muted-foreground">
+                    Calendar view of all approved leave
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download
@@ -294,7 +313,9 @@ export function LeaveReports() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">Department Coverage</h3>
-                  <p className="text-sm text-muted-foreground">Department coverage during leave periods</p>
+                  <p className="text-sm text-muted-foreground">
+                    Department coverage during leave periods
+                  </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Download className="mr-2 h-4 w-4" />
                     Download
