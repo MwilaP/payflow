@@ -1,0 +1,50 @@
+import { contextBridge, ipcRenderer } from 'electron'
+import { electronAPI } from '@electron-toolkit/preload'
+
+export interface EmailConfig {
+  host: string
+  port: number
+  secure: boolean
+  auth: {
+    user: string
+    pass: string
+  }
+  from: string
+}
+
+export interface EmailPayslipData {
+  employeeName: string
+  employeeEmail: string
+  period: string
+  netSalary: number
+  payslipPdfBase64?: string
+}
+
+// Custom APIs for renderer
+const api = {
+  email: {
+    configure: (config: EmailConfig) => ipcRenderer.invoke('email:configure', config),
+    isConfigured: () => ipcRenderer.invoke('email:isConfigured'),
+    getConfig: () => ipcRenderer.invoke('email:getConfig'),
+    sendPayslip: (data: EmailPayslipData) => ipcRenderer.invoke('email:sendPayslip', data),
+    sendBulkPayslips: (payslips: EmailPayslipData[]) => ipcRenderer.invoke('email:sendBulkPayslips', payslips),
+    sendTest: (testEmail: string) => ipcRenderer.invoke('email:sendTest', testEmail)
+  }
+}
+
+// Use `contextBridge` APIs to expose Electron APIs to
+// renderer only if context isolation is enabled, otherwise
+// just add to the DOM global.
+if (process.contextIsolated) {
+  try {
+    contextBridge.exposeInMainWorld('electron', electronAPI)
+    contextBridge.exposeInMainWorld('api', api)
+  } catch (error) {
+    console.error(error)
+  }
+} else {
+  // @ts-ignore (define in dts)
+  window.electron = electronAPI
+  // @ts-ignore (define in dts)
+  window.api = api
+}
