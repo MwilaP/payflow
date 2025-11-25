@@ -29,7 +29,10 @@ import {
   ChevronRight,
   Settings,
   Loader2,
-  Printer
+  Printer,
+  BarChart3,
+  CheckCircle,
+  Play
 } from 'lucide-react'
 import { getPayrollHistoryService, getEmployeeService } from '@/lib/db/services/service-factory'
 import { useToast } from '@/hooks/use-toast'
@@ -37,6 +40,7 @@ import { format } from 'date-fns'
 import { emailService } from '@/lib/email-service'
 import { pdfService } from '@/lib/pdf-service'
 import { EmailConfigDialog } from '@/components/email-config-dialog'
+import { getCompanySettings } from '@/components/company-settings'
 import type { PayslipPDFData } from '../../../preload'
 import type { EmailPayslipData } from '@/lib/email-service'
 import {
@@ -58,6 +62,8 @@ export default function PayrollHistoryDetailPage() {
   const [isSendingEmails, setIsSendingEmails] = useState(false)
   const [isEmailConfigured, setIsEmailConfigured] = useState(false)
   const [showEmailConfig, setShowEmailConfig] = useState(false)
+  const [isCompletingPayroll, setIsCompletingPayroll] = useState(false)
+  const [isProcessingPayroll, setIsProcessingPayroll] = useState(false)
 
   useEffect(() => {
     const loadPayrollRecord = async () => {
@@ -151,6 +157,7 @@ export default function PayrollHistoryDetailPage() {
         }
 
         return {
+          'EMPLOYEE NO': item.employeeNumber || 'N/A',
           'EMPLOYEE NAME': item.employeeName || 'Unknown Employee',
           'ACCOUNT NUMBER': item.accountNumber || '',
           NRC: item.nrc || '',
@@ -170,6 +177,7 @@ export default function PayrollHistoryDetailPage() {
 
       // Convert to CSV
       const headers = [
+        'EMPLOYEE NO',
         'EMPLOYEE NAME',
         'ACCOUNT NUMBER',
         'NRC',
@@ -253,6 +261,9 @@ export default function PayrollHistoryDetailPage() {
 
     setIsSendingEmails(true)
     try {
+      // Get company settings
+      const companySettings = getCompanySettings()
+      
       // Get employee service to fetch full employee details
       const employeeService = await getEmployeeService()
 
@@ -293,10 +304,10 @@ export default function PayrollHistoryDetailPage() {
 
           // Create PDF data
           const pdfData: PayslipPDFData = {
-            companyName: 'Your Company Name', // TODO: Get from settings
-            companyAddress: 'Company Address', // TODO: Get from settings
+            companyName: companySettings.companyName,
+            companyAddress: companySettings.companyAddress,
             employeeName: `${employee.firstName} ${employee.lastName}`,
-            employeeNumber: employee._id,
+            employeeNumber: employee.employeeNumber || item.employeeNumber || 'N/A',
             department: employee.department || 'N/A',
             designation: employee.designation || 'N/A',
             nrc: employee.nationalId || 'N/A',
@@ -413,6 +424,9 @@ export default function PayrollHistoryDetailPage() {
 
     setIsSendingEmails(true) // Reuse loading state
     try {
+      // Get company settings
+      const companySettings = getCompanySettings()
+      
       // Get employee service to fetch full employee details
       const employeeService = await getEmployeeService()
 
@@ -452,10 +466,10 @@ export default function PayrollHistoryDetailPage() {
 
           // Create PDF data
           const pdfData: PayslipPDFData = {
-            companyName: 'Your Company Name', // TODO: Get from settings
-            companyAddress: 'Company Address', // TODO: Get from settings
+            companyName: companySettings.companyName,
+            companyAddress: companySettings.companyAddress,
             employeeName: `${employee.firstName} ${employee.lastName}`,
-            employeeNumber: employee._id,
+            employeeNumber: employee.employeeNumber || item.employeeNumber || 'N/A',
             department: employee.department || 'N/A',
             designation: employee.designation || 'N/A',
             nrc: employee.nationalId || 'N/A',
@@ -574,6 +588,107 @@ export default function PayrollHistoryDetailPage() {
     }
   }
 
+  const handleProcessPayroll = async () => {
+    if (!id || !payrollRecord) return
+
+    // Check if payroll can be processed
+    if (payrollRecord.status === 'processing') {
+      toast({
+        title: 'Already Processing',
+        description: 'This payroll is already in processing status.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (payrollRecord.status === 'completed') {
+      toast({
+        title: 'Already Completed',
+        description: 'This payroll has already been completed.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (payrollRecord.status !== 'draft' && payrollRecord.status !== 'pending') {
+      toast({
+        title: 'Invalid Status',
+        description: 'Only draft or pending payrolls can be moved to processing.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    setIsProcessingPayroll(true)
+    try {
+      const payrollService = await getPayrollHistoryService()
+      const updatedRecord = await payrollService.processPayroll(id)
+
+      if (updatedRecord) {
+        setPayrollRecord(updatedRecord)
+        toast({
+          title: 'Payroll Processing Started',
+          description: 'The payroll has been moved to processing status.'
+        })
+      }
+    } catch (error: any) {
+      console.error('Error processing payroll:', error)
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to start processing payroll. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsProcessingPayroll(false)
+    }
+  }
+
+  const handleCompletePayroll = async () => {
+    if (!id || !payrollRecord) return
+
+    // Check if payroll can be completed
+    if (payrollRecord.status === 'completed') {
+      toast({
+        title: 'Already Completed',
+        description: 'This payroll has already been marked as completed.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (payrollRecord.status !== 'processing') {
+      toast({
+        title: 'Invalid Status',
+        description: 'Only payrolls with "Processing" status can be marked as complete.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    setIsCompletingPayroll(true)
+    try {
+      const payrollService = await getPayrollHistoryService()
+      const updatedRecord = await payrollService.completePayroll(id)
+
+      if (updatedRecord) {
+        setPayrollRecord(updatedRecord)
+        toast({
+          title: 'Payroll Completed',
+          description: 'The payroll has been successfully marked as completed.'
+        })
+      }
+    } catch (error: any) {
+      console.error('Error completing payroll:', error)
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to complete payroll. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsCompletingPayroll(false)
+    }
+  }
+
   const toggleRowExpansion = (employeeId: string) => {
     const newExpanded = new Set(expandedRows)
     if (newExpanded.has(employeeId)) {
@@ -662,6 +777,40 @@ export default function PayrollHistoryDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {(payrollRecord.status === 'draft' || payrollRecord.status === 'pending') && (
+            <Button onClick={handleProcessPayroll} disabled={isProcessingPayroll}>
+              {isProcessingPayroll ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Starting...
+                </>
+              ) : (
+                <>
+                  <Play className="mr-2 h-4 w-4" />
+                  Start Processing
+                </>
+              )}
+            </Button>
+          )}
+          {payrollRecord.status === 'processing' && (
+            <Button onClick={handleCompletePayroll} disabled={isCompletingPayroll}>
+              {isCompletingPayroll ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Completing...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Mark as Complete
+                </>
+              )}
+            </Button>
+          )}
+          <Button variant="outline" onClick={() => navigate(`/payroll/history/${id}/report`)}>
+            <BarChart3 className="mr-2 h-4 w-4" />
+            View Report
+          </Button>
           <Button variant="outline" onClick={handleExportPayroll}>
             <Download className="mr-2 h-4 w-4" />
             Export
@@ -752,6 +901,7 @@ export default function PayrollHistoryDetailPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-8"></TableHead>
+                    <TableHead>Employee No.</TableHead>
                     <TableHead>Employee</TableHead>
                     <TableHead>Basic Salary</TableHead>
                     <TableHead>Allowances</TableHead>
@@ -777,6 +927,9 @@ export default function PayrollHistoryDetailPage() {
                             ) : (
                               <ChevronRight className="h-4 w-4" />
                             )}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {item.employeeNumber || 'N/A'}
                           </TableCell>
                           <TableCell className="font-medium">
                             {item.employeeName || `Employee ${index + 1}`}
@@ -808,7 +961,7 @@ export default function PayrollHistoryDetailPage() {
                         </TableRow>
                         {isExpanded && (
                           <TableRow key={`${employeeId}_details`}>
-                            <TableCell colSpan={6} className="bg-muted/30 p-0">
+                            <TableCell colSpan={7} className="bg-muted/30 p-0">
                               <div className="p-4 space-y-4">
                                 <div className="grid md:grid-cols-2 gap-4">
                                   {/* Allowances Breakdown */}

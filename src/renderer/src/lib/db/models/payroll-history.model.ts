@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 // Payroll item schema for individual employee payroll entries
 const payrollItemSchema = z.object({
   employeeId: z.string(),
+  employeeNumber: z.string().optional(),
   employeeName: z.string(),
   department: z.string(),
   basicSalary: z.number(),

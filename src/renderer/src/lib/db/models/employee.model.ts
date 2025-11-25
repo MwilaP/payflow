@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 export const employeeSchema = z.object({
   _id: z.string().default(() => `employee_${uuidv4()}`),
   _rev: z.string().optional(),
+  employeeNumber: z.string().optional(),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Invalid email address'),

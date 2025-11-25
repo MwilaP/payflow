@@ -319,6 +319,7 @@ export function PayrollGenerator() {
 
             return {
               employeeId: employee._id,
+              employeeNumber: employee.employeeNumber || 'N/A',
               employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`.trim(),
               accountNumber: employee.accountNumber || employee.account_number || '',
               nrc: employee.nationalId || employee.national_id || '',
@@ -345,6 +346,7 @@ export function PayrollGenerator() {
           // Fallback for employees without payroll structure
           return {
             employeeId: employee._id,
+            employeeNumber: employee.employeeNumber || 'N/A',
             employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`.trim(),
             accountNumber: employee.accountNumber || employee.account_number || '',
             nrc: employee.nationalId || employee.national_id || '',

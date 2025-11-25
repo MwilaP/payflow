@@ -47,13 +47,16 @@ export function RecentEmployees() {
 
   // Empty state component
   const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-8 text-center">
-      <UserPlus className="h-10 w-10 text-muted-foreground mb-4" />
-      <h3 className="text-lg font-medium">No employees yet</h3>
-      <p className="text-sm text-muted-foreground mt-2 mb-4">
-        Add your first employee to get started
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="rounded-full bg-primary/10 p-6 mb-4">
+        <UserPlus className="h-10 w-10 text-primary" />
+      </div>
+      <h3 className="text-xl font-semibold">No employees yet</h3>
+      <p className="text-sm text-muted-foreground mt-2 mb-6 max-w-xs">
+        Add your first employee to get started with payroll management
       </p>
-      <Button onClick={handleAddEmployee} size="sm">
+      <Button onClick={handleAddEmployee} size="lg" className="shadow-md">
+        <UserPlus className="mr-2 h-4 w-4" />
         Add Employee
       </Button>
     </div>
@@ -62,19 +65,19 @@ export function RecentEmployees() {
   // Loading state component
   const LoadingState = () => (
     <div className="flex justify-center py-8">
-      <div className="animate-pulse space-y-4 w-full">
-        <div className="h-12 bg-gray-200 rounded"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
+      <div className="animate-pulse space-y-3 w-full">
+        <div className="h-16 bg-muted rounded-lg"></div>
+        <div className="h-16 bg-muted rounded-lg"></div>
+        <div className="h-16 bg-muted rounded-lg"></div>
       </div>
     </div>
   )
 
   return (
-    <Card>
+    <Card className="border-none shadow-lg">
       <CardHeader>
-        <CardTitle>Recent Employees</CardTitle>
-        <CardDescription>Recently added employees in your organization</CardDescription>
+        <CardTitle className="text-2xl">Recent Employees</CardTitle>
+        <CardDescription className="text-base mt-1">Recently added employees in your organization</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -82,36 +85,30 @@ export function RecentEmployees() {
         ) : employees.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {employees.map((employee) => (
               <div
                 key={employee._id}
-                className="flex items-center justify-between space-x-4 rounded-md border p-4"
+                className="flex items-center justify-between space-x-4 rounded-xl border p-4 hover:bg-muted/30 transition-colors cursor-pointer shadow-sm"
+                onClick={() => handleViewEmployee(employee._id)}
               >
                 <div className="flex items-center space-x-4">
-                  <Avatar>
+                  <Avatar className="h-12 w-12 border-2 border-primary/10">
                     <AvatarImage
-                      src={`/placeholder.svg?height=40&width=40&text=${employee.firstName?.charAt(0) || '?'}`}
+                      src={`/placeholder.svg?height=48&width=48&text=${employee.firstName?.charAt(0) || '?'}`}
                     />
-                    <AvatarFallback>
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                       {employee.firstName?.charAt(0) || '?'}
                       {employee.lastName?.charAt(0) || ''}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium leading-none">{`${employee.firstName || ''} ${employee.lastName || ''}`}</p>
+                    <p className="font-semibold">{`${employee.firstName || ''} ${employee.lastName || ''}`}</p>
                     <p className="text-sm text-muted-foreground">{employee.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline">{employee.department || 'No Department'}</Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleViewEmployee(employee._id)}
-                  >
-                    View
-                  </Button>
+                  <Badge variant="outline" className="shadow-sm">{employee.department || 'No Department'}</Badge>
                 </div>
               </div>
             ))}

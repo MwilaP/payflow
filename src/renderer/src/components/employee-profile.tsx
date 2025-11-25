@@ -302,6 +302,9 @@ export function EmployeeProfile({ id }: { id: string }) {
               </Avatar>
               <div className="text-center">
                 <h2 className="text-xl font-bold">{name}</h2>
+                {employee.employeeNumber && (
+                  <p className="text-xs text-muted-foreground">#{employee.employeeNumber}</p>
+                )}
                 <p className="text-sm text-muted-foreground">{employee.designation || 'N/A'}</p>
                 <Badge className="mt-2">{employee.status || 'Unknown'}</Badge>
               </div>
@@ -316,6 +319,10 @@ export function EmployeeProfile({ id }: { id: string }) {
             </div>
             <div className="flex-1 space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Employee Number</h3>
+                  <p className="font-semibold">{employee.employeeNumber || 'N/A'}</p>
+                </div>
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
                   <p>{employee.email || 'N/A'}</p>
@@ -346,11 +353,6 @@ export function EmployeeProfile({ id }: { id: string }) {
                   <h3 className="text-sm font-medium text-muted-foreground">Work Location</h3>
                   {/* Work Location - Assuming not directly in Employee model */}
                   <p>{'N/A' /* employee.workLocation */}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Employee ID</h3>
-                  <p>ZWM-{employee._id.substring(employee._id.length - 5).toUpperCase()}</p>{' '}
-                  {/* Use _id */}
                 </div>
               </div>
               <div>

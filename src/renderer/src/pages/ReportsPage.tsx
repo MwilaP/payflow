@@ -1,9 +1,12 @@
 import { ReportsOverview } from '@/components/reports-overview'
+import { AppLayout } from '@/components/app-layout'
 
 export default function ReportsPage() {
   return (
-    <div className="space-y-6">
-      <ReportsOverview />
-    </div>
+    <AppLayout>
+      <div className="space-y-6">
+        <ReportsOverview />
+      </div>
+    </AppLayout>
   )
 }

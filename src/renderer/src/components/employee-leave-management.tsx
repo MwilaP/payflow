@@ -138,11 +138,18 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
         <CardHeader>
           <CardTitle>
             Leave Management: {employee?.firstName} {employee.lastName}
+            {employee?.employeeNumber && (
+              <span className="text-sm text-muted-foreground ml-2">(#{employee.employeeNumber})</span>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="border rounded-lg p-4">
+                <h3 className="font-medium">Employee Number</h3>
+                <p className="text-2xl font-bold">{employee?.employeeNumber || 'N/A'}</p>
+              </div>
               <div className="border rounded-lg p-4">
                 <h3 className="font-medium">Remaining Leave</h3>
                 <p className="text-2xl font-bold">{remainingLeave} days</p>

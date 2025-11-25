@@ -43,13 +43,16 @@ export function UpcomingPayroll() {
 
   // Empty state component
   const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-8 text-center">
-      <CalendarDays className="h-10 w-10 text-muted-foreground mb-4" />
-      <h3 className="text-lg font-medium">No upcoming payrolls</h3>
-      <p className="text-sm text-muted-foreground mt-2 mb-4">
-        Generate your first payroll to get started
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="rounded-full bg-primary/10 p-6 mb-4">
+        <CalendarDays className="h-10 w-10 text-primary" />
+      </div>
+      <h3 className="text-xl font-semibold">No upcoming payrolls</h3>
+      <p className="text-sm text-muted-foreground mt-2 mb-6 max-w-xs">
+        Generate your first payroll to schedule payments
       </p>
-      <Button onClick={handleGeneratePayroll} size="sm">
+      <Button onClick={handleGeneratePayroll} size="lg" className="shadow-md">
+        <DollarSign className="mr-2 h-4 w-4" />
         Generate Payroll
       </Button>
     </div>
@@ -58,19 +61,19 @@ export function UpcomingPayroll() {
   // Loading state component
   const LoadingState = () => (
     <div className="flex justify-center py-8">
-      <div className="animate-pulse space-y-4 w-full">
-        <div className="h-12 bg-gray-200 rounded"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
+      <div className="animate-pulse space-y-3 w-full">
+        <div className="h-16 bg-muted rounded-lg"></div>
+        <div className="h-16 bg-muted rounded-lg"></div>
+        <div className="h-16 bg-muted rounded-lg"></div>
       </div>
     </div>
   )
 
   return (
-    <Card>
+    <Card className="border-none shadow-lg">
       <CardHeader>
-        <CardTitle>Upcoming Payroll</CardTitle>
-        <CardDescription>Scheduled payroll runs for your organization</CardDescription>
+        <CardTitle className="text-2xl">Upcoming Payroll</CardTitle>
+        <CardDescription className="text-base mt-1">Scheduled payroll runs for your organization</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -78,21 +81,23 @@ export function UpcomingPayroll() {
         ) : upcomingPayrolls.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {upcomingPayrolls.map((payroll) => (
               <div
                 key={payroll._id}
-                className="flex items-center justify-between space-x-4 rounded-md border p-4"
+                className="flex items-center justify-between space-x-4 rounded-xl border p-4 hover:bg-muted/30 transition-colors cursor-pointer shadow-sm"
+                onClick={() => navigate(`/payroll/history/${payroll._id}`)}
               >
                 <div className="flex items-center space-x-4">
-                  <div className="rounded-full bg-primary/10 p-2">
-                    <DollarSign className="h-4 w-4 text-primary" />
+                  <div className="rounded-xl bg-primary/10 p-3">
+                    <DollarSign className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium leading-none">
+                    <p className="font-semibold">
                       {payroll.period || 'Monthly Payroll'}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      <CalendarDays className="h-3 w-3" />
                       {payroll.paymentDate
                         ? new Date(payroll.paymentDate).toLocaleDateString()
                         : 'No date set'}
@@ -100,16 +105,9 @@ export function UpcomingPayroll() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="text-sm font-medium">
-                    ${payroll.totalAmount?.toLocaleString() || '0'}
+                  <div className="text-lg font-bold">
+                    K{payroll.totalAmount?.toLocaleString() || '0'}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate(`/payroll/history/${payroll._id}`)}
-                  >
-                    View
-                  </Button>
                 </div>
               </div>
             ))}

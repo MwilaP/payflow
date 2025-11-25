@@ -19,7 +19,11 @@ import {
   Mail,
   Trash2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CheckCircle,
+  Play,
+  MoreVertical,
+  Users
 } from 'lucide-react'
 import { useDatabase } from '@/lib/db/db-context'
 import { getPayrollHistoryService } from '@/lib/db/services/service-factory'
@@ -34,6 +38,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 export function PayrollHistory() {
   const navigate = useNavigate()
   //const { isLoading } = useDatabase()
@@ -46,6 +57,8 @@ export function PayrollHistory() {
   const [payrollHistory, setPayrollHistory] = useState<any[]>([])
   const [payrollToDelete, setPayrollToDelete] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [completingPayrollId, setCompletingPayrollId] = useState<string | null>(null)
+  const [processingPayrollId, setProcessingPayrollId] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const itemsPerPage = 20
@@ -146,6 +159,110 @@ export function PayrollHistory() {
     }
   }
 
+  const handleProcessPayroll = async (payrollId: string, currentStatus: string) => {
+    if (!payrollHistoryService) return
+
+    if (currentStatus === 'processing') {
+      toast({
+        title: 'Already Processing',
+        description: 'This payroll is already in processing status.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (currentStatus === 'completed') {
+      toast({
+        title: 'Already Completed',
+        description: 'This payroll has already been completed.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (currentStatus !== 'draft' && currentStatus !== 'pending') {
+      toast({
+        title: 'Invalid Status',
+        description: 'Only draft or pending payrolls can be moved to processing.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    try {
+      setProcessingPayrollId(payrollId)
+      const updatedRecord = await payrollHistoryService.processPayroll(payrollId)
+
+      if (updatedRecord) {
+        setPayrollHistory((prev) =>
+          prev.map((item) => (item._id === payrollId ? updatedRecord : item))
+        )
+
+        toast({
+          title: 'Payroll Processing Started',
+          description: 'The payroll has been moved to processing status.'
+        })
+      }
+    } catch (error: any) {
+      console.error('Error processing payroll:', error)
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to start processing payroll. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setProcessingPayrollId(null)
+    }
+  }
+
+  const handleCompletePayroll = async (payrollId: string, currentStatus: string) => {
+    if (!payrollHistoryService) return
+
+    if (currentStatus === 'completed') {
+      toast({
+        title: 'Already Completed',
+        description: 'This payroll has already been marked as completed.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (currentStatus !== 'processing') {
+      toast({
+        title: 'Invalid Status',
+        description: 'Only payrolls with "Processing" status can be marked as complete.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    try {
+      setCompletingPayrollId(payrollId)
+      const updatedRecord = await payrollHistoryService.completePayroll(payrollId)
+
+      if (updatedRecord) {
+        // Update the list with the new status
+        setPayrollHistory((prev) =>
+          prev.map((item) => (item._id === payrollId ? updatedRecord : item))
+        )
+
+        toast({
+          title: 'Payroll Completed',
+          description: 'The payroll has been successfully marked as completed.'
+        })
+      }
+    } catch (error: any) {
+      console.error('Error completing payroll:', error)
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to complete payroll. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setCompletingPayrollId(null)
+    }
+  }
+
   const openDeleteDialog = (payrollId: string) => {
     setPayrollToDelete(payrollId)
     setDeleteDialogOpen(true)
@@ -160,39 +277,68 @@ export function PayrollHistory() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
-        return <Badge className="bg-green-500">Completed</Badge>
+        return (
+          <Badge className="bg-green-500 hover:bg-green-600 shadow-sm px-3 py-1">
+            <CheckCircle className="mr-1 h-3 w-3" />
+            Completed
+          </Badge>
+        )
       case 'processing':
-        return <Badge className="bg-blue-500">Processing</Badge>
+        return (
+          <Badge className="bg-blue-500 hover:bg-blue-600 shadow-sm px-3 py-1">
+            <Play className="mr-1 h-3 w-3" />
+            Processing
+          </Badge>
+        )
       case 'pending':
-        return <Badge variant="outline">Pending</Badge>
+        return (
+          <Badge variant="outline" className="shadow-sm px-3 py-1">
+            Pending
+          </Badge>
+        )
       case 'cancelled':
-        return <Badge variant="destructive">Cancelled</Badge>
+        return (
+          <Badge variant="destructive" className="shadow-sm px-3 py-1">
+            Cancelled
+          </Badge>
+        )
       default:
-        return <Badge variant="secondary">Unknown</Badge>
+        return (
+          <Badge variant="secondary" className="shadow-sm px-3 py-1">
+            Unknown
+          </Badge>
+        )
     }
   }
 
   // Empty state component
   const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-8 text-center">
-      <FileText className="h-10 w-10 text-muted-foreground mb-4" />
-      <h3 className="text-lg font-medium">No payroll history</h3>
-      <p className="text-sm text-muted-foreground mt-2 mb-4">
-        Generate your first payroll to see history
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="rounded-full bg-primary/10 p-6 mb-6">
+        <FileText className="h-12 w-12 text-primary" />
+      </div>
+      <h3 className="text-2xl font-semibold mb-2">No payroll history</h3>
+      <p className="text-base text-muted-foreground mt-2 mb-6 max-w-md">
+        Get started by generating your first payroll. All payroll records will appear here.
       </p>
-      <Button onClick={handleGeneratePayroll} size="sm">
-        <DollarSign className="mr-2 h-4 w-4" />
-        Generate Payroll
+      <Button onClick={handleGeneratePayroll} size="lg" className="shadow-md">
+        <DollarSign className="mr-2 h-5 w-5" />
+        Generate Your First Payroll
       </Button>
     </div>
   )
 
   // Loading state component
   const LoadingState = () => (
-    <div className="flex justify-center py-8">
-      <div className="animate-pulse space-y-4 w-full">
-        <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-        <div className="h-64 bg-gray-200 rounded"></div>
+    <div className="flex justify-center py-16">
+      <div className="animate-pulse space-y-6 w-full">
+        <div className="h-10 bg-muted rounded-lg w-1/4"></div>
+        <div className="space-y-3">
+          <div className="h-16 bg-muted rounded-lg"></div>
+          <div className="h-16 bg-muted rounded-lg"></div>
+          <div className="h-16 bg-muted rounded-lg"></div>
+          <div className="h-16 bg-muted rounded-lg"></div>
+        </div>
       </div>
     </div>
   )
@@ -204,7 +350,7 @@ export function PayrollHistory() {
   )
 
   return (
-    <Card>
+    <Card className="border-none shadow-lg">
       <CardContent className="p-6">
         {isLoading ? (
           <LoadingState />
@@ -212,58 +358,92 @@ export function PayrollHistory() {
           <EmptyState />
         ) : (
           <>
-            <div className="rounded-md border">
+            <div className="rounded-xl border shadow-sm overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Period</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Employees</TableHead>
-                    <TableHead>Total Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="bg-muted/50 hover:bg-muted/50">
+                    <TableHead className="font-semibold">Period</TableHead>
+                    <TableHead className="font-semibold">Date</TableHead>
+                    <TableHead className="font-semibold">Employees</TableHead>
+                    <TableHead className="font-semibold">Total Amount</TableHead>
+                    <TableHead className="font-semibold">Status</TableHead>
+                    <TableHead className="text-right font-semibold">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedPayrollHistory.map((payroll) => (
-                    <TableRow key={payroll._id}>
-                      <TableCell className="font-medium">
+                    <TableRow key={payroll._id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell className="font-semibold">
                         {payroll.period || 'Monthly Payroll'}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-muted-foreground">
                         {payroll.date ? new Date(payroll.date).toLocaleDateString() : '—'}
                       </TableCell>
-                      <TableCell>{payroll.employeeCount || 0}</TableCell>
-                      <TableCell>K{payroll.totalAmount?.toLocaleString() || '0'}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{payroll.employeeCount || 0}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-semibold text-lg">K{payroll.totalAmount?.toLocaleString() || '0'}</TableCell>
                       <TableCell>{getStatusBadge(payroll.status)}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate(`/payroll/history/${payroll._id}`)}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Download className="mr-2 h-4 w-4" />
-                            Export
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Mail className="mr-2 h-4 w-4" />
-                            Email All
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openDeleteDialog(payroll._id)}
-                            disabled={payroll.status === 'processing' || isDeleting}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4 text-red-500" />
-                            Delete
-                          </Button>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="hover:bg-muted">
+                              <MoreVertical className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => navigate(`/payroll/history/${payroll._id}`)}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            
+                            {(payroll.status === 'draft' || payroll.status === 'pending') && (
+                              <DropdownMenuItem
+                                onClick={() => handleProcessPayroll(payroll._id, payroll.status)}
+                                disabled={processingPayrollId === payroll._id}
+                              >
+                                <Play className="mr-2 h-4 w-4" />
+                                {processingPayrollId === payroll._id ? 'Starting...' : 'Start Processing'}
+                              </DropdownMenuItem>
+                            )}
+                            
+                            {payroll.status === 'processing' && (
+                              <DropdownMenuItem
+                                onClick={() => handleCompletePayroll(payroll._id, payroll.status)}
+                                disabled={completingPayrollId === payroll._id}
+                              >
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                {completingPayrollId === payroll._id ? 'Completing...' : 'Mark as Complete'}
+                              </DropdownMenuItem>
+                            )}
+                            
+                            <DropdownMenuSeparator />
+                            
+                            <DropdownMenuItem>
+                              <Download className="mr-2 h-4 w-4" />
+                              Export CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Mail className="mr-2 h-4 w-4" />
+                              Email Payslips
+                            </DropdownMenuItem>
+                            
+                            <DropdownMenuSeparator />
+                            
+                            <DropdownMenuItem
+                              onClick={() => openDeleteDialog(payroll._id)}
+                              disabled={payroll.status === 'processing' || isDeleting}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -273,25 +453,31 @@ export function PayrollHistory() {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center space-x-2 mt-4">
+              <div className="flex items-center justify-center space-x-3 mt-6 pt-4 border-t">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1 || isLoading}
+                  className="shadow-sm"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Previous
                 </Button>
-                <span className="text-sm">
-                  Page {currentPage} of {totalPages}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages || isLoading}
+                  className="shadow-sm"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             )}

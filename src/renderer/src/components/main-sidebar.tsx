@@ -33,30 +33,19 @@ export function MainSidebar({ user }: MainSidebarProps) {
   const { logout } = useAuth()
 
   return (
-    <div className="hidden bg-sidebar border-r border-sidebar-border md:block md:w-64">
-      <div className="flex h-16 items-center border-b border-sidebar-border px-4">
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl text-sidebar-foreground">
-          <CreditCard className="h-6 w-6 text-sidebar-primary" />
-          <span>Payroll</span>
+    <div className="hidden bg-sidebar border-r border-sidebar-border md:block md:w-64 shadow-lg">
+      <div className="flex h-20 items-center border-b border-sidebar-border px-6">
+        <Link to="/" className="flex items-center gap-3 font-bold text-2xl text-sidebar-foreground hover:opacity-80 transition-opacity">
+          <div className="p-2 rounded-xl bg-sidebar-primary/10">
+            <CreditCard className="h-7 w-7 text-sidebar-primary" />
+          </div>
+          <span className="bg-gradient-to-r from-sidebar-foreground to-sidebar-foreground/80 bg-clip-text text-transparent">Payroll</span>
         </Link>
       </div>
-      <ScrollArea className="h-[calc(100vh-4rem)]">
-        <div className="flex flex-col gap-4 p-4">
-          <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent/20 border border-sidebar-border p-3">
-            <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Avatar" />
-              <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground">
-                {user?.name?.substring(0, 2) || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-sidebar-foreground">
-                {user?.name || 'User'}
-              </span>
-              <span className="text-xs text-sidebar-foreground/70">{user?.role || 'Guest'}</span>
-            </div>
-          </div>
-          <nav className="flex flex-col gap-1">
+      <ScrollArea className="h-[calc(100vh-5rem)]">
+        <div className="flex flex-col gap-6 p-6">
+         
+          <nav className="flex flex-col gap-2">
             <NavItem
               href="/dashboard"
               icon={Home}
@@ -86,7 +75,7 @@ export function MainSidebar({ user }: MainSidebarProps) {
               isActive={pathname.startsWith('/settings')}
             />
           </nav>
-          <div className="mt-auto">
+          <div className="mt-auto pt-4 border-t border-sidebar-border/50">
             <NavItem
               href="/profile"
               icon={User}
@@ -95,11 +84,11 @@ export function MainSidebar({ user }: MainSidebarProps) {
             />
             <Button
               variant="ghost"
-              className="w-full justify-start gap-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              className="w-full justify-start gap-3 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 mt-2 h-11 rounded-lg"
               onClick={() => logout()}
             >
-              <LogOut className="h-4 w-4" />
-              Logout
+              <LogOut className="h-5 w-5" />
+              <span className="font-medium">Logout</span>
             </Button>
           </div>
         </div>
@@ -124,14 +113,14 @@ function NavItem({
       asChild
       variant="ghost"
       className={cn(
-        'justify-start gap-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200',
+        'justify-start gap-3 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 h-11 rounded-lg font-medium',
         isActive &&
-          'bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-sm hover:bg-sidebar-primary hover:text-sidebar-primary-foreground'
+          'bg-sidebar-primary text-sidebar-primary-foreground shadow-md hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground border border-sidebar-primary/20'
       )}
     >
-      <Link to={href}>
-        <Icon className="h-4 w-4" />
-        {label}
+      <Link to={href} className="flex items-center gap-3">
+        <Icon className="h-5 w-5" />
+        <span>{label}</span>
       </Link>
     </Button>
   )

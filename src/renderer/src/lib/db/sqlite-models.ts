@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 export const sqliteEmployeeSchema = z.object({
   id: z.string().default(() => `employee_${uuidv4()}`),
   rev: z.string().optional(),
+  employee_number: z.string().optional(),
   first_name: z.string().optional(),
   last_name: z.string().optional(),
   email: z.string().email('Invalid email address').optional(),
@@ -157,6 +158,7 @@ export const convertPouchDBToSQLite = {
     return {
       id: pouchEmployee._id,
       rev: pouchEmployee._rev,
+      employee_number: pouchEmployee.employeeNumber,
       first_name: pouchEmployee.firstName,
       last_name: pouchEmployee.lastName,
       email: pouchEmployee.email,
@@ -234,6 +236,7 @@ export const convertSQLiteToPouchDB = {
     return {
       _id: sqliteEmployee.id,
       _rev: sqliteEmployee.rev,
+      employeeNumber: sqliteEmployee.employee_number,
       firstName: sqliteEmployee.first_name,
       lastName: sqliteEmployee.last_name,
       email: sqliteEmployee.email,

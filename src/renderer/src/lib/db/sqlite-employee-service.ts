@@ -30,12 +30,42 @@ export interface SQLiteEmployeeService {
   getEmployeesByStatus(): Promise<Record<string, number>>
 }
 
+// Helper function to generate next employee number
+const generateEmployeeNumber = async (): Promise<string> => {
+  try {
+    const allEmployees = await sqliteOperations.getAll<SQLiteEmployee>('employees')
+    
+    // Find the highest employee number
+    let maxNumber = 0
+    for (const emp of allEmployees) {
+      if (emp.employee_number) {
+        const numStr = emp.employee_number.replace(/\D/g, '') // Remove non-digits
+        const num = parseInt(numStr, 10)
+        if (!isNaN(num) && num > maxNumber) {
+          maxNumber = num
+        }
+      }
+    }
+    
+    // Increment and format as 4-digit string
+    const nextNumber = maxNumber + 1
+    return nextNumber.toString().padStart(4, '0')
+  } catch (error) {
+    console.error('Error generating employee number:', error)
+    return '0001' // Default to 0001 if there's an error
+  }
+}
+
 export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
   return {
     async create(employeeData) {
+      // Generate employee number if not provided
+      const employeeNumber = employeeData.employee_number || await generateEmployeeNumber()
+      
       const employee: SQLiteEmployee = {
         ...employeeData,
         id: `employee_${uuidv4()}`,
+        employee_number: employeeNumber,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
@@ -99,11 +129,32 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
     async bulkCreate(employeesData) {
       return sqliteOperations.transaction(async (ops) => {
         const results: SQLiteEmployee[] = []
+        
+        // Get the starting employee number
+        let currentNumber = 0
+        try {
+          const allEmployees = await sqliteOperations.getAll<SQLiteEmployee>('employees')
+          for (const emp of allEmployees) {
+            if (emp.employee_number) {
+              const numStr = emp.employee_number.replace(/\D/g, '')
+              const num = parseInt(numStr, 10)
+              if (!isNaN(num) && num > currentNumber) {
+                currentNumber = num
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error getting current employee number:', error)
+        }
 
         for (const employeeData of employeesData) {
+          // Generate employee number if not provided
+          const employeeNumber = employeeData.employee_number || (++currentNumber).toString().padStart(4, '0')
+          
           const employee: SQLiteEmployee = {
             ...employeeData,
             id: `employee_${uuidv4()}`,
+            employee_number: employeeNumber,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
@@ -175,6 +226,7 @@ export const createEmployeeServiceCompat = () => {
     async create(employeeData: any) {
       // Convert PouchDB format to SQLite format
       const sqliteData = {
+        employee_number: employeeData.employeeNumber,
         first_name: employeeData.firstName,
         last_name: employeeData.lastName,
         email: employeeData.email,
