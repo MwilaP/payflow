@@ -79,6 +79,28 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  // Window control IPC handlers
+  ipcMain.on('window:minimize', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) window.minimize()
+  })
+
+  ipcMain.on('window:maximize', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) {
+      if (window.isMaximized()) {
+        window.unmaximize()
+      } else {
+        window.maximize()
+      }
+    }
+  })
+
+  ipcMain.on('window:close', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) window.close()
+  })
+
   // Email IPC handlers
   ipcMain.handle('email:configure', async (_, config: EmailConfig) => {
     console.log('\n========================================')

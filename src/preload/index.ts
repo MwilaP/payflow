@@ -44,6 +44,11 @@ export interface PayslipPDFData {
 
 // Custom APIs for renderer
 const api = {
+  window: {
+    minimize: () => ipcRenderer.send('window:minimize'),
+    maximize: () => ipcRenderer.send('window:maximize'),
+    close: () => ipcRenderer.send('window:close')
+  },
   email: {
     configure: (config: EmailConfig) => ipcRenderer.invoke('email:configure', config),
     isConfigured: () => ipcRenderer.invoke('email:isConfigured'),

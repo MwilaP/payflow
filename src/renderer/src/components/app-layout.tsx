@@ -11,7 +11,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth()
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden pt-10">
       {/* Sidebar - hidden on mobile */}
       <aside className="hidden md:flex w-64 flex-col border-r bg-background">
         <MainSidebar user={user} />

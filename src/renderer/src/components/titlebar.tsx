@@ -3,29 +3,26 @@ import { Button } from '@/components/ui/button'
 
 export function Titlebar() {
   const handleMinimize = () => {
-    if (window.electron) {
-      // Will need to add IPC handler for this
-      console.log('Minimize window')
+    if (window.api?.window) {
+      window.api.window.minimize()
     }
   }
 
   const handleMaximize = () => {
-    if (window.electron) {
-      // Will need to add IPC handler for this
-      console.log('Maximize window')
+    if (window.api?.window) {
+      window.api.window.maximize()
     }
   }
 
   const handleClose = () => {
-    if (window.electron) {
-      // Will need to add IPC handler for this
-      console.log('Close window')
+    if (window.api?.window) {
+      window.api.window.close()
     }
   }
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 h-10 bg-background border-b flex items-center justify-between px-4 z-50"
+      className="fixed top-0 left-0 right-0 h-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b flex items-center justify-between px-4 z-50"
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
       {/* App Title/Logo */}

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '@/lib/auth-context'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
+import { Titlebar } from '@/components/titlebar'
 import { SQLiteDatabaseProvider } from '@/lib/db/sqlite-db-context'
 
 // Import pages
@@ -26,21 +27,22 @@ function App() {
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <SQLiteDatabaseProvider>
           <AuthProvider>
+            <Titlebar />
             <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/employees" element={<EmployeesPage />} />
-              <Route path="/employees/new" element={<EmployeeNewPage />} />
-              <Route path="/employees/:id" element={<EmployeeDetailPage />} />
-              <Route path="/employees/:id/edit" element={<EmployeeEditPage />} />
-              <Route path="/employees/:id/leave" element={<EmployeeLeavePage />} />
-              <Route path="/leave" element={<LeavePage />} />
-              <Route path="/payroll/*" element={<PayrollPage />} />
-              <Route path="/reports" element={<ReportsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/employees" element={<EmployeesPage />} />
+                <Route path="/employees/new" element={<EmployeeNewPage />} />
+                <Route path="/employees/:id" element={<EmployeeDetailPage />} />
+                <Route path="/employees/:id/edit" element={<EmployeeEditPage />} />
+                <Route path="/employees/:id/leave" element={<EmployeeLeavePage />} />
+                <Route path="/leave" element={<LeavePage />} />
+                <Route path="/payroll/*" element={<PayrollPage />} />
+                <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             <Toaster />
           </AuthProvider>

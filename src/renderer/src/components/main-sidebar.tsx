@@ -33,13 +33,13 @@ export function MainSidebar({ user }: MainSidebarProps) {
   const { logout } = useAuth()
 
   return (
-    <div className="hidden bg-sidebar border-r border-sidebar-border md:block md:w-64 shadow-lg">
-      <div className="flex h-20 items-center border-b border-sidebar-border px-6">
-        <Link to="/" className="flex items-center gap-3 font-bold text-2xl text-sidebar-foreground hover:opacity-80 transition-opacity">
-          <div className="p-2 rounded-xl bg-sidebar-primary/10">
-            <CreditCard className="h-7 w-7 text-sidebar-primary" />
+    <div className="hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-r md:block md:w-64">
+      <div className="flex h-20 items-center border-b px-6">
+        <Link to="/" className="flex items-center gap-3 font-bold text-2xl text-foreground hover:opacity-80 transition-opacity">
+          <div className="p-2 rounded-xl bg-primary/10">
+            <CreditCard className="h-7 w-7 text-primary" />
           </div>
-          <span className="bg-gradient-to-r from-sidebar-foreground to-sidebar-foreground/80 bg-clip-text text-transparent">Payroll</span>
+          <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">Payroll</span>
         </Link>
       </div>
       <ScrollArea className="h-[calc(100vh-5rem)]">
@@ -113,9 +113,9 @@ function NavItem({
       asChild
       variant="ghost"
       className={cn(
-        'justify-start gap-3 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 h-11 rounded-lg font-medium',
+        'justify-start gap-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-200 h-11 rounded-lg font-medium',
         isActive &&
-          'bg-sidebar-primary text-sidebar-primary-foreground shadow-md hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground border border-sidebar-primary/20'
+          'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:text-primary-foreground'
       )}
     >
       <Link to={href} className="flex items-center gap-3">
