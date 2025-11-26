@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { db } from '@renderer/lib/database'
 
 type Theme = 'dark' | 'light' | 'system'
 
@@ -31,20 +30,9 @@ export function ThemeProvider({
   storageKey = 'vite-ui-theme',
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme)
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  // Load theme from database on mount
-  useEffect(() => {
-    const loadTheme = async () => {
-      const savedTheme = await db.getItem(storageKey)
-      if (savedTheme) {
-        setTheme(savedTheme as Theme)
-      }
-      setIsLoaded(true)
-    }
-    loadTheme()
-  }, [storageKey])
+  const [theme, setTheme] = useState<Theme>(
+    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+  )
 
   useEffect(() => {
     const root = window.document.documentElement
@@ -65,15 +53,10 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: async (theme: Theme) => {
-      await db.setItem(storageKey, theme)
+    setTheme: (theme: Theme) => {
+      localStorage.setItem(storageKey, theme)
       setTheme(theme)
     }
-  }
-
-  // Don't render until theme is loaded
-  if (!isLoaded) {
-    return null
   }
 
   return (

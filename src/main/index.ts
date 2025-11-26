@@ -6,7 +6,6 @@ import { emailService } from './services/email.service'
 import type { EmailConfig, EmailPayslipData } from './services/email.service'
 import { pdfGeneratorService } from './services/pdf-generator.service'
 import type { PayslipPDFData } from './services/pdf-generator.service'
-import { databaseService } from './services/database.service'
 
 function createWindow(): void {
   // Create the browser window.
@@ -207,69 +206,6 @@ app.whenReady().then(() => {
     }
   })
 
-  // Database IPC handlers
-  ipcMain.handle('db:get', (_, key: string) => {
-    try {
-      return { success: true, data: databaseService.get(key) }
-    } catch (error: any) {
-      return { success: false, error: error.message }
-    }
-  })
-
-  ipcMain.handle('db:set', (_, key: string, value: string) => {
-    try {
-      databaseService.set(key, value)
-      return { success: true }
-    } catch (error: any) {
-      return { success: false, error: error.message }
-    }
-  })
-
-  ipcMain.handle('db:delete', (_, key: string) => {
-    try {
-      databaseService.delete(key)
-      return { success: true }
-    } catch (error: any) {
-      return { success: false, error: error.message }
-    }
-  })
-
-  ipcMain.handle('db:getKeys', (_, prefix?: string) => {
-    try {
-      return { success: true, data: databaseService.getKeys(prefix) }
-    } catch (error: any) {
-      return { success: false, error: error.message }
-    }
-  })
-
-  ipcMain.handle('db:clear', () => {
-    try {
-      databaseService.clear()
-      return { success: true }
-    } catch (error: any) {
-      return { success: false, error: error.message }
-    }
-  })
-
-  ipcMain.handle('db:query', (_, sql: string, params?: any[]) => {
-    try {
-      return { success: true, data: databaseService.query(sql, params) }
-    } catch (error: any) {
-      return { success: false, error: error.message }
-    }
-  })
-
-  ipcMain.handle('db:getStats', () => {
-    try {
-      return { success: true, data: databaseService.getStats() }
-    } catch (error: any) {
-      return { success: false, error: error.message }
-    }
-  })
-
-  // Initialize database
-  databaseService.initialize()
-
   createWindow()
 
   app.on('activate', function () {
@@ -284,14 +220,8 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    databaseService.close()
     app.quit()
   }
-})
-
-// Close database before quitting
-app.on('before-quit', () => {
-  databaseService.close()
 })
 
 // In this file you can include the rest of your app's specific main process

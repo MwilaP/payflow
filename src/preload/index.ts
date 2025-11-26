@@ -62,15 +62,6 @@ const api = {
     generatePayslip: (data: PayslipPDFData) => ipcRenderer.invoke('pdf:generatePayslip', data),
     generateBulkPayslips: (payslipsData: PayslipPDFData[]) =>
       ipcRenderer.invoke('pdf:generateBulkPayslips', payslipsData)
-  },
-  db: {
-    get: (key: string) => ipcRenderer.invoke('db:get', key),
-    set: (key: string, value: string) => ipcRenderer.invoke('db:set', key, value),
-    delete: (key: string) => ipcRenderer.invoke('db:delete', key),
-    getKeys: (prefix?: string) => ipcRenderer.invoke('db:getKeys', prefix),
-    clear: () => ipcRenderer.invoke('db:clear'),
-    query: (sql: string, params?: any[]) => ipcRenderer.invoke('db:query', sql, params),
-    getStats: () => ipcRenderer.invoke('db:getStats')
   }
 }
 

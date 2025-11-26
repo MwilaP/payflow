@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { Building2, Save } from 'lucide-react'
-import { db } from '@renderer/lib/database'
 
 export interface CompanySettings {
   companyName: string
@@ -33,11 +32,12 @@ export function CompanySettingsComponent() {
     loadSettings()
   }, [])
 
-  const loadSettings = async () => {
+  const loadSettings = () => {
     try {
-      const saved = await db.getObject<CompanySettings>(STORAGE_KEY)
+      const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) {
-        setSettings(saved)
+        const parsed = JSON.parse(saved)
+        setSettings(parsed)
       }
     } catch (error) {
       console.error('Error loading company settings:', error)
@@ -65,7 +65,7 @@ export function CompanySettingsComponent() {
 
     setIsSaving(true)
     try {
-      await db.setObject(STORAGE_KEY, settings)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
       toast({
         title: 'Settings Saved',
         description: 'Company settings have been saved successfully.'
@@ -164,11 +164,11 @@ export function CompanySettingsComponent() {
 }
 
 // Helper function to get company settings
-export const getCompanySettings = async (): Promise<CompanySettings> => {
+export const getCompanySettings = (): CompanySettings => {
   try {
-    const saved = await db.getObject<CompanySettings>(STORAGE_KEY)
+    const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
-      return saved
+      return JSON.parse(saved)
     }
   } catch (error) {
     console.error('Error loading company settings:', error)
