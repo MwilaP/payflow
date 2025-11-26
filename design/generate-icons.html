@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Icon Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #1e40af;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .preview {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .icon-preview {
+            text-align: center;
+        }
+        .icon-preview canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .icon-preview p {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        button {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .instructions {
+            background: #eff6ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #1e40af;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #1e40af;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Payroll App Icon Generator</h1>
+        
+        <div class="preview" id="preview"></div>
+        
+        <div class="controls">
+            <button onclick="downloadAll()">📥 Download All Icons</button>
+            <button onclick="regenerate()">🔄 Regenerate</button>
+        </div>
+
+        <div class="instructions">
+            <h3>📝 Instructions</h3>
+            <ol>
+                <li>Click "Download All Icons" to save all icon sizes</li>
+                <li>Replace the icons in <code>build/icon.png</code> and <code>resources/icon.png</code></li>
+                <li>For Windows .ico file: The build process will generate it automatically</li>
+                <li>For macOS .icns file: The build process will generate it automatically</li>
+                <li>Run <code>npm run build:win</code> or <code>npm run build:mac</code> to rebuild with new icons</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const sizes = [512, 256, 128, 64, 32, 16];
+        const canvases = {};
+
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const scale = size / 512;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+            
+            // Background with rounded corners
+            const cornerRadius = 115 * scale;
+            ctx.fillStyle = '#1e40af';
+            roundRect(ctx, 0, 0, size, size, cornerRadius);
+            ctx.fill();
+            
+            // Gradient overlay
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#2563eb');
+            gradient.addColorStop(1, '#1e40af');
+            ctx.fillStyle = gradient;
+            roundRect(ctx, 0, 0, size, size, cornerRadius);
+            ctx.fill();
+            
+            // Document/Payslip
+            const docX = 140 * scale;
+            const docY = 100 * scale;
+            const docW = 232 * scale;
+            const docH = 312 * scale;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            roundRect(ctx, docX, docY, docW, docH, 12 * scale);
+            ctx.fill();
+            
+            // Document lines
+            ctx.fillStyle = 'rgba(30, 64, 175, 0.3)';
+            roundRect(ctx, 170 * scale, 140 * scale, 172 * scale, 12 * scale, 6 * scale);
+            ctx.fill();
+            
+            ctx.fillStyle = 'rgba(30, 64, 175, 0.25)';
+            roundRect(ctx, 170 * scale, 170 * scale, 140 * scale, 10 * scale, 5 * scale);
+            ctx.fill();
+            roundRect(ctx, 170 * scale, 195 * scale, 160 * scale, 10 * scale, 5 * scale);
+            ctx.fill();
+            
+            // Separator
+            ctx.strokeStyle = 'rgba(30, 64, 175, 0.2)';
+            ctx.lineWidth = 2 * scale;
+            ctx.beginPath();
+            ctx.moveTo(160 * scale, 235 * scale);
+            ctx.lineTo(352 * scale, 235 * scale);
+            ctx.stroke();
+            
+            // More lines
+            ctx.fillStyle = 'rgba(30, 64, 175, 0.2)';
+            roundRect(ctx, 170 * scale, 255 * scale, 120 * scale, 10 * scale, 5 * scale);
+            ctx.fill();
+            roundRect(ctx, 170 * scale, 280 * scale, 150 * scale, 10 * scale, 5 * scale);
+            ctx.fill();
+            roundRect(ctx, 170 * scale, 305 * scale, 130 * scale, 10 * scale, 5 * scale);
+            ctx.fill();
+            
+            // Checkmark circle shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.beginPath();
+            ctx.ellipse(256 * scale, 420 * scale, 40 * scale, 8 * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Checkmark circle (green for approval/completion)
+            ctx.fillStyle = '#10b981';
+            ctx.globalAlpha = 0.9;
+            ctx.beginPath();
+            ctx.arc(256 * scale, 360 * scale, 52 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+            
+            // Checkmark
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 12 * scale;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(235 * scale, 360 * scale);
+            ctx.lineTo(250 * scale, 375 * scale);
+            ctx.lineTo(280 * scale, 340 * scale);
+            ctx.stroke();
+        }
+
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        function generateIcons() {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '';
+            
+            sizes.forEach(size => {
+                const container = document.createElement('div');
+                container.className = 'icon-preview';
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                canvases[size] = canvas;
+                
+                drawIcon(canvas, size);
+                
+                container.appendChild(canvas);
+                
+                const label = document.createElement('p');
+                label.textContent = `${size}×${size}px`;
+                container.appendChild(label);
+                
+                preview.appendChild(container);
+            });
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadAll() {
+            // Main icons
+            downloadCanvas(canvases[512], 'icon.png');
+            downloadCanvas(canvases[512], 'icon-512.png');
+            
+            // Additional sizes
+            downloadCanvas(canvases[256], 'icon-256.png');
+            downloadCanvas(canvases[128], 'icon-128.png');
+            downloadCanvas(canvases[64], 'icon-64.png');
+            downloadCanvas(canvases[32], 'icon-32.png');
+            downloadCanvas(canvases[16], 'icon-16.png');
+            
+            alert('✅ All icons downloaded! \n\nReplace:\n- build/icon.png\n- resources/icon.png\n\nThen rebuild your app.');
+        }
+
+        function regenerate() {
+            generateIcons();
+        }
+
+        // Generate on load
+        generateIcons();
+    </script>
+</body>
+</html>
