@@ -35,16 +35,17 @@ export function MainSidebar({ user }: MainSidebarProps) {
   return (
     <div className="hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-r md:block md:w-64">
       <div className="flex h-20 items-center border-b px-6">
-        <Link  className="flex items-center gap-3 font-bold text-2xl text-foreground hover:opacity-80 transition-opacity">
+        <Link className="flex items-center gap-3 font-bold text-2xl text-foreground hover:opacity-80 transition-opacity">
           <div className="p-2 rounded-xl bg-primary/10">
             <CreditCard className="h-7 w-7 text-primary" />
           </div>
-          <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">Payroll</span>
+          <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            Payroll
+          </span>
         </Link>
       </div>
       <ScrollArea className="h-[calc(100vh-5rem)]">
         <div className="flex flex-col gap-6 p-6">
-         
           <nav className="flex flex-col gap-2">
             <NavItem
               href="/dashboard"
@@ -76,7 +77,6 @@ export function MainSidebar({ user }: MainSidebarProps) {
             />
           </nav>
           <div className="mt-auto pt-4 border-t border-sidebar-border/50">
-    
             <Button
               variant="ghost"
               className="w-full justify-start gap-3 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 mt-2 h-11 rounded-lg"

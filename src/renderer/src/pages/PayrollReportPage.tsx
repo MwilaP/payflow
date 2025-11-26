@@ -1,12 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -331,9 +325,7 @@ export default function PayrollReportPage() {
       <Card>
         <CardHeader>
           <CardTitle>Deduction Breakdown</CardTitle>
-          <CardDescription>
-            Total deductions by type across all employees
-          </CardDescription>
+          <CardDescription>Total deductions by type across all employees</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -436,9 +428,7 @@ export default function PayrollReportPage() {
               </TableRow>
               <TableRow className="font-bold">
                 <TableCell>Total Gross Pay</TableCell>
-                <TableCell className="text-right">
-                  {formatCurrency(report.totalGrossPay)}
-                </TableCell>
+                <TableCell className="text-right">{formatCurrency(report.totalGrossPay)}</TableCell>
               </TableRow>
               <TableRow className="text-destructive">
                 <TableCell className="font-medium">Total Deductions</TableCell>

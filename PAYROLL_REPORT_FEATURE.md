@@ -1,29 +1,34 @@
 # Payroll Report Feature
 
 ## Overview
+
 Comprehensive payroll reporting system that breaks down deductions and allowances by type across all employees in a payroll period.
 
 ## Features
 
 ### 📊 Deduction Breakdown
+
 - **Individual deduction types**: PAYE, NAPSA, NHIMA, Loans, etc.
 - **Total amount per deduction type**
 - **Employee count**: How many employees have each deduction
 - **Average amount**: Average deduction per employee
 
 ### 💰 Allowance Breakdown
+
 - **Individual allowance types**: Housing, Transport, etc.
 - **Total amount per allowance type**
 - **Employee count**: How many employees receive each allowance
 - **Average amount**: Average allowance per employee
 
 ### 📈 Summary Cards
+
 - Total Employees
 - Total Gross Pay
 - Total Deductions (highlighted in red)
 - Total Net Pay (highlighted in green)
 
 ### 📋 Payroll Summary Table
+
 - Total Basic Salary
 - Total Allowances
 - Total Gross Pay
@@ -39,11 +44,13 @@ Comprehensive payroll reporting system that breaks down deductions and allowance
 ## Report Actions
 
 ### Export CSV
+
 - Exports complete report data to CSV format
 - Includes all breakdowns and summaries
 - Filename format: `payroll_report_[period]_[date].csv`
 
 ### Print Report
+
 - Uses browser's print functionality
 - Print-friendly layout
 - All tables and summaries included
@@ -51,6 +58,7 @@ Comprehensive payroll reporting system that breaks down deductions and allowance
 ## Report Structure
 
 ### CSV Export Format
+
 ```
 Payroll Report
 Period: Monthly
@@ -81,17 +89,20 @@ Transport Allowance,50000.00,50,1000.00
 ## Technical Implementation
 
 ### Data Processing
+
 1. **Aggregation**: Loops through all payroll items
 2. **Grouping**: Groups deductions/allowances by name
 3. **Calculation**: Computes totals, counts, and averages
 4. **Sorting**: Orders by total amount (descending)
 
 ### Components
+
 - **PayrollReportPage.tsx**: Main report page component
 - **Route**: `/payroll/history/:id/report`
 - **Navigation**: Button added to PayrollHistoryDetailPage
 
 ### Data Structures
+
 ```typescript
 interface DeductionSummary {
   name: string
@@ -123,21 +134,25 @@ interface PayrollReport {
 ## Use Cases
 
 ### 1. Tax Reporting
+
 - See total PAYE collected
 - See total NAPSA contributions
 - See total NHIMA contributions
 
 ### 2. Budget Analysis
+
 - Analyze allowance costs
 - Compare deduction types
 - Track average costs per employee
 
 ### 3. Compliance
+
 - Verify statutory deductions
 - Audit payroll calculations
 - Generate reports for authorities
 
 ### 4. Financial Planning
+
 - Forecast future payroll costs
 - Analyze cost distribution
 - Identify cost-saving opportunities

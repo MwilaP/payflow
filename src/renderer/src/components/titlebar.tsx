@@ -31,7 +31,10 @@ export function Titlebar() {
       </div>
 
       {/* Window Controls */}
-      <div className="flex items-center gap-1" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+      <div
+        className="flex items-center gap-1"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
         <Button
           variant="ghost"
           size="icon"

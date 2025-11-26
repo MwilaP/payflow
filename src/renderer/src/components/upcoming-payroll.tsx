@@ -73,7 +73,9 @@ export function UpcomingPayroll() {
     <Card className="border-none shadow-lg">
       <CardHeader>
         <CardTitle className="text-2xl">Upcoming Payroll</CardTitle>
-        <CardDescription className="text-base mt-1">Scheduled payroll runs for your organization</CardDescription>
+        <CardDescription className="text-base mt-1">
+          Scheduled payroll runs for your organization
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -93,9 +95,7 @@ export function UpcomingPayroll() {
                     <DollarSign className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold">
-                      {payroll.period || 'Monthly Payroll'}
-                    </p>
+                    <p className="font-semibold">{payroll.period || 'Monthly Payroll'}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                       <CalendarDays className="h-3 w-3" />
                       {payroll.paymentDate

@@ -1,6 +1,7 @@
 # Print Payslips Feature Guide
 
 ## Overview
+
 The payslip printing feature allows you to generate and print all employee payslips for a given payroll period in one action.
 
 ## How to Use
@@ -21,6 +22,7 @@ The payslip printing feature allows you to generate and print all employee paysl
 ## Electron Configuration
 
 ### Pop-up Windows Enabled
+
 The main process (`src/main/index.ts`) is configured to allow blank windows for printing:
 
 ```typescript
@@ -45,6 +47,7 @@ mainWindow.webContents.setWindowOpenHandler((details) => {
 ```
 
 ### Why This Works
+
 - **Blank windows allowed**: `window.open('', '_blank')` is permitted
 - **External URLs blocked**: Regular URLs still open in default browser
 - **Security maintained**: Only internal print windows are allowed
@@ -61,14 +64,17 @@ mainWindow.webContents.setWindowOpenHandler((details) => {
 ## Troubleshooting
 
 ### Print window doesn't open
+
 - Restart the Electron app to apply the configuration changes
 - Check console for errors
 
 ### PDFs not loading
+
 - Ensure `pdfkit` dependency is installed: `pnpm add pdfkit @types/pdfkit`
 - Check that employee data is complete (email, name, etc.)
 
 ### Print dialog doesn't appear
+
 - The dialog appears after 1.5 seconds to allow PDFs to load
 - Check browser console for errors
 

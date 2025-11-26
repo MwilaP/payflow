@@ -213,7 +213,10 @@ class PDFGeneratorService {
       .strokeColor('#cccccc')
       .lineWidth(0.5)
       .moveTo(middleX, tableStartY)
-      .lineTo(middleX, yPosition + Math.max(data.allowances.length + 2, data.deductions.length + 1) * 15 + 40)
+      .lineTo(
+        middleX,
+        yPosition + Math.max(data.allowances.length + 2, data.deductions.length + 1) * 15 + 40
+      )
       .stroke()
 
     // Prepare earnings list (Basic Salary + Allowances)
@@ -279,15 +282,10 @@ class PDFGeneratorService {
         align: 'right'
       })
       .text('TOTAL DEDUCTIONS', middleX + 10, yPosition)
-      .text(
-        this.formatCurrency(data.totalDeductions),
-        middleX + 10 + columnWidth - 80,
-        yPosition,
-        {
-          width: 80,
-          align: 'right'
-        }
-      )
+      .text(this.formatCurrency(data.totalDeductions), middleX + 10 + columnWidth - 80, yPosition, {
+        width: 80,
+        align: 'right'
+      })
 
     yPosition += 30
 

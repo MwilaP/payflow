@@ -139,7 +139,9 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
           <CardTitle>
             Leave Management: {employee?.firstName} {employee.lastName}
             {employee?.employeeNumber && (
-              <span className="text-sm text-muted-foreground ml-2">(#{employee.employeeNumber})</span>
+              <span className="text-sm text-muted-foreground ml-2">
+                (#{employee.employeeNumber})
+              </span>
             )}
           </CardTitle>
         </CardHeader>

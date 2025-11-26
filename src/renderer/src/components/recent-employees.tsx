@@ -77,7 +77,9 @@ export function RecentEmployees() {
     <Card className="border-none shadow-lg">
       <CardHeader>
         <CardTitle className="text-2xl">Recent Employees</CardTitle>
-        <CardDescription className="text-base mt-1">Recently added employees in your organization</CardDescription>
+        <CardDescription className="text-base mt-1">
+          Recently added employees in your organization
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -108,7 +110,9 @@ export function RecentEmployees() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="shadow-sm">{employee.department || 'No Department'}</Badge>
+                  <Badge variant="outline" className="shadow-sm">
+                    {employee.department || 'No Department'}
+                  </Badge>
                 </div>
               </div>
             ))}

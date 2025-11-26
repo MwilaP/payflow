@@ -1,11 +1,13 @@
 # Company Settings Feature
 
 ## Overview
+
 Allows users to configure company information that appears on all generated payslips (both printed and emailed).
 
 ## Features
 
 ### Company Information Fields
+
 - **Company Name** (Required) - Appears at the top of payslips
 - **Company Address** (Required) - Full address displayed on payslips
 - **Company Phone** (Optional) - Contact phone number
@@ -31,26 +33,33 @@ Allows users to configure company information that appears on all generated pays
 ## Integration
 
 ### Payslip Generation
+
 Company settings are automatically used when:
+
 - **Emailing payslips**: Company name and address appear on PDF attachments
 - **Printing payslips**: Company name and address appear on printed PDFs
 - **PDF generation**: All PDF payslips include company information
 
 ### Default Values
+
 If no settings are configured:
+
 - Company Name: "Your Company Name"
 - Company Address: "Company Address"
 
 ## Technical Implementation
 
 ### Files Created
+
 - `src/renderer/src/components/company-settings.tsx` - Settings component
 
 ### Files Modified
+
 - `src/renderer/src/pages/SettingsPage.tsx` - Added Company tab
 - `src/renderer/src/pages/PayrollHistoryDetailPage.tsx` - Uses company settings for PDF generation
 
 ### Helper Function
+
 ```typescript
 import { getCompanySettings } from '@/components/company-settings'
 
@@ -59,6 +68,7 @@ const settings = getCompanySettings()
 ```
 
 ### Usage Example
+
 ```typescript
 // Get company settings
 const companySettings = getCompanySettings()
@@ -66,7 +76,7 @@ const companySettings = getCompanySettings()
 // Use in PDF data
 const pdfData: PayslipPDFData = {
   companyName: companySettings.companyName,
-  companyAddress: companySettings.companyAddress,
+  companyAddress: companySettings.companyAddress
   // ... other fields
 }
 ```
@@ -80,13 +90,16 @@ const pdfData: PayslipPDFData = {
 ## User Experience
 
 ### Settings Page
+
 - Clean, intuitive form layout
-- Clear field labels with required indicators (*)
+- Clear field labels with required indicators (\*)
 - Save button with loading state
 - Success/error toast notifications
 
 ### Payslip Display
+
 Company information appears at the top of every payslip:
+
 ```
 [Company Name]
 [Company Address]

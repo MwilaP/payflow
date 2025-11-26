@@ -11,12 +11,7 @@ export function PayrollStructures() {
     <AppLayout>
       <div className="space-y-6 p-6 md:p-8">
         <div className="flex flex-col gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/payroll')}
-            className="w-fit"
-          >
+          <Button variant="ghost" size="sm" onClick={() => navigate('/payroll')} className="w-fit">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Payroll
           </Button>

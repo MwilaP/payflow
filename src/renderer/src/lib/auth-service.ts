@@ -1,6 +1,7 @@
 'use client'
 
 import { createSQLiteUserService } from '@/lib/db/sqlite-user-service'
+import { db } from '@renderer/lib/database'
 
 // Session type definition
 export interface User {
@@ -76,8 +77,8 @@ export const login = async (
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
       }
 
-      // Store session in localStorage
-      localStorage.setItem('paylo_session', JSON.stringify(session))
+      // Store session in database
+      await db.setObject('paylo_session', session)
 
       return { success: true, session }
     } else {
@@ -93,27 +94,25 @@ export const login = async (
 }
 
 // Logout function
-export const logout = (): void => {
-  localStorage.removeItem('paylo_session')
+export const logout = async (): Promise<void> => {
+  await db.removeItem('paylo_session')
 }
 
 // Get current session
-export const getSession = (): Session | null => {
+export const getSession = async (): Promise<Session | null> => {
   if (typeof window === 'undefined') {
     return null
   }
 
   try {
-    const sessionData = localStorage.getItem('paylo_session')
-    if (!sessionData) {
+    const session = await db.getObject<Session>('paylo_session')
+    if (!session) {
       return null
     }
 
-    const session = JSON.parse(sessionData) as Session
-
     // Check if session is expired
     if (new Date(session.expires) < new Date()) {
-      localStorage.removeItem('paylo_session')
+      await db.removeItem('paylo_session')
       return null
     }
 
@@ -125,13 +124,13 @@ export const getSession = (): Session | null => {
 }
 
 // Check if user is authenticated
-export const isAuthenticated = (): boolean => {
-  const session = getSession()
+export const isAuthenticated = async (): Promise<boolean> => {
+  const session = await getSession()
   return !!session?.isLoggedIn
 }
 
 // Get current user
-export const getCurrentUser = (): User | null => {
-  const session = getSession()
+export const getCurrentUser = async (): Promise<User | null> => {
+  const session = await getSession()
   return session?.user || null
 }

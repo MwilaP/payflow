@@ -385,7 +385,9 @@ export function PayrollHistory() {
                           <span className="font-medium">{payroll.employeeCount || 0}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="font-semibold text-lg">K{payroll.totalAmount?.toLocaleString() || '0'}</TableCell>
+                      <TableCell className="font-semibold text-lg">
+                        K{payroll.totalAmount?.toLocaleString() || '0'}
+                      </TableCell>
                       <TableCell>{getStatusBadge(payroll.status)}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -396,33 +398,39 @@ export function PayrollHistory() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => navigate(`/payroll/history/${payroll._id}`)}>
+                            <DropdownMenuItem
+                              onClick={() => navigate(`/payroll/history/${payroll._id}`)}
+                            >
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
-                            
+
                             {(payroll.status === 'draft' || payroll.status === 'pending') && (
                               <DropdownMenuItem
                                 onClick={() => handleProcessPayroll(payroll._id, payroll.status)}
                                 disabled={processingPayrollId === payroll._id}
                               >
                                 <Play className="mr-2 h-4 w-4" />
-                                {processingPayrollId === payroll._id ? 'Starting...' : 'Start Processing'}
+                                {processingPayrollId === payroll._id
+                                  ? 'Starting...'
+                                  : 'Start Processing'}
                               </DropdownMenuItem>
                             )}
-                            
+
                             {payroll.status === 'processing' && (
                               <DropdownMenuItem
                                 onClick={() => handleCompletePayroll(payroll._id, payroll.status)}
                                 disabled={completingPayrollId === payroll._id}
                               >
                                 <CheckCircle className="mr-2 h-4 w-4" />
-                                {completingPayrollId === payroll._id ? 'Completing...' : 'Mark as Complete'}
+                                {completingPayrollId === payroll._id
+                                  ? 'Completing...'
+                                  : 'Mark as Complete'}
                               </DropdownMenuItem>
                             )}
-                            
+
                             <DropdownMenuSeparator />
-                            
+
                             <DropdownMenuItem>
                               <Download className="mr-2 h-4 w-4" />
                               Export CSV
@@ -431,9 +439,9 @@ export function PayrollHistory() {
                               <Mail className="mr-2 h-4 w-4" />
                               Email Payslips
                             </DropdownMenuItem>
-                            
+
                             <DropdownMenuSeparator />
-                            
+
                             <DropdownMenuItem
                               onClick={() => openDeleteDialog(payroll._id)}
                               disabled={payroll.status === 'processing' || isDeleting}

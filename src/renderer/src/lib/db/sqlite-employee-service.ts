@@ -34,7 +34,7 @@ export interface SQLiteEmployeeService {
 const generateEmployeeNumber = async (): Promise<string> => {
   try {
     const allEmployees = await sqliteOperations.getAll<SQLiteEmployee>('employees')
-    
+
     // Find the highest employee number
     let maxNumber = 0
     for (const emp of allEmployees) {
@@ -46,7 +46,7 @@ const generateEmployeeNumber = async (): Promise<string> => {
         }
       }
     }
-    
+
     // Increment and format as 4-digit string
     const nextNumber = maxNumber + 1
     return nextNumber.toString().padStart(4, '0')
@@ -60,8 +60,8 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
   return {
     async create(employeeData) {
       // Generate employee number if not provided
-      const employeeNumber = employeeData.employee_number || await generateEmployeeNumber()
-      
+      const employeeNumber = employeeData.employee_number || (await generateEmployeeNumber())
+
       const employee: SQLiteEmployee = {
         ...employeeData,
         id: `employee_${uuidv4()}`,
@@ -129,7 +129,7 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
     async bulkCreate(employeesData) {
       return sqliteOperations.transaction(async (ops) => {
         const results: SQLiteEmployee[] = []
-        
+
         // Get the starting employee number
         let currentNumber = 0
         try {
@@ -149,8 +149,9 @@ export const createSQLiteEmployeeService = (): SQLiteEmployeeService => {
 
         for (const employeeData of employeesData) {
           // Generate employee number if not provided
-          const employeeNumber = employeeData.employee_number || (++currentNumber).toString().padStart(4, '0')
-          
+          const employeeNumber =
+            employeeData.employee_number || (++currentNumber).toString().padStart(4, '0')
+
           const employee: SQLiteEmployee = {
             ...employeeData,
             id: `employee_${uuidv4()}`,

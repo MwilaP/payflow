@@ -506,7 +506,9 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                     </div>
                     {allowance.type === 'percentage' && basicSalary > 0 && allowance.value > 0 && (
                       <div className="col-span-full text-sm text-muted-foreground">
-                        Preview: {allowance.name} = {allowance.value}% of K{basicSalary.toLocaleString()} = K{((allowance.value / 100) * basicSalary).toLocaleString()}
+                        Preview: {allowance.name} = {allowance.value}% of K
+                        {basicSalary.toLocaleString()} = K
+                        {((allowance.value / 100) * basicSalary).toLocaleString()}
                       </div>
                     )}
                   </div>
@@ -624,7 +626,9 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                     </div>
                     {deduction.type === 'percentage' && basicSalary > 0 && deduction.value > 0 && (
                       <div className="col-span-full text-sm text-muted-foreground">
-                        Preview: {deduction.name} = {deduction.value}% of K{basicSalary.toLocaleString()} = K{((deduction.value / 100) * basicSalary).toLocaleString()}
+                        Preview: {deduction.name} = {deduction.value}% of K
+                        {basicSalary.toLocaleString()} = K
+                        {((deduction.value / 100) * basicSalary).toLocaleString()}
                       </div>
                     )}
                   </div>
@@ -635,17 +639,10 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => navigate('/payroll/structures')}
-            >
+            <Button type="button" variant="outline" onClick={() => navigate('/payroll/structures')}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-            >
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
