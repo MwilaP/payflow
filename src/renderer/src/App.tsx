@@ -29,8 +29,7 @@ function App() {
           <AuthProvider>
             <Titlebar />
             <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
+                <Route path="/" element={<LoginPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/employees" element={<EmployeesPage />} />

@@ -1,10 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Link, Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   CalendarDays,
   CreditCard,
@@ -13,12 +12,15 @@ import {
   FileText,
   BarChart,
   RefreshCw,
-  Upload
+  Upload,
+  Plus,
+  History,
+  TrendingUp,
+  ArrowLeft
 } from 'lucide-react'
 import { PayrollGenerate } from '@/components/payroll-generate'
 import { PayrollStructures } from '@/components/payroll-structures'
 import { PayrollHistory } from '@/components/payroll-history'
-import { PayrollSettings } from '@/components/payroll-settings'
 import { AppLayout } from '@/components/app-layout'
 import PayrollStructureNewPage from './PayrollStructureNewPage'
 import PayrollStructureEditPage from './PayrollStructureEditPage'
@@ -30,6 +32,8 @@ import { getPayrollHistoryService } from '@/lib/db/services/service-factory'
 import type { PayrollHistory as PayrollHistoryType } from '@/lib/db/services/payroll-history.service'
 
 function PayrollDashboard() {
+  const navigate = useNavigate()
+
   // State for payroll data
   const [lastPayroll, setLastPayroll] = useState<PayrollHistoryType | null>(null)
   const [nextPayrollEstimate, setNextPayrollEstimate] = useState<number>(0)
@@ -168,124 +172,168 @@ function PayrollDashboard() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 p-6 md:p-10">
+      <div className="space-y-6 p-6 md:p-8">
+        {/* Header Section */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Payroll Management</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage payroll processing, history, and settings
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Button onClick={() => navigate('/payroll/generate')} size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              Generate Payroll
+            </Button>
+          </div>
+        </div>
 
-      <Tabs defaultValue="history" className="mt-8">
-        <TabsList className="grid w-full max-w-md grid-cols-2 h-12">
-          <TabsTrigger value="history" className="text-base">Payroll History</TabsTrigger>
-          <TabsTrigger value="settings" className="text-base">Settings</TabsTrigger>
-        </TabsList>
-        <TabsContent value="history" className="space-y-6 mt-6">
-          <Card className="border-none shadow-lg">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-2xl">Payroll Summary</CardTitle>
-                  <CardDescription className="text-base mt-1">Overview of recent payroll activity</CardDescription>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading} className="shadow-sm">
-                  <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
-              </div>
+        {/* Stats Cards */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card className="relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Last Payroll</CardTitle>
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid gap-6 md:grid-cols-3">
-                <div className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-card p-6 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl" />
-                  <div className="relative">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="p-2 rounded-lg bg-blue-500/10">
-                        <CalendarDays className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Last Payroll</h3>
-                    </div>
-                    {isLoading ? (
-                      <p className="mt-2 text-3xl font-bold animate-pulse">Loading...</p>
-                    ) : error ? (
-                      <p className="mt-2 text-lg text-red-500">Error loading data</p>
-                    ) : lastPayroll && lastPayroll.totalAmount ? (
-                      <>
-                        <p className="mt-2 text-3xl font-bold tracking-tight">
-                          K{lastPayroll.totalAmount.toLocaleString()}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          {lastPayroll.date
-                            ? format(new Date(lastPayroll.date), 'MMMM yyyy')
-                            : 'Date unknown'}
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="mt-2 text-3xl font-bold tracking-tight">K0</p>
-                        <p className="text-sm text-muted-foreground mt-2">No completed payroll</p>
-                      </>
-                    )}
+            <CardContent>
+              {isLoading ? (
+                <div className="text-2xl font-bold animate-pulse">Loading...</div>
+              ) : error ? (
+                <div className="text-sm text-red-500">Error loading data</div>
+              ) : lastPayroll && lastPayroll.totalAmount ? (
+                <>
+                  <div className="text-2xl font-bold">
+                    K{lastPayroll.totalAmount.toLocaleString()}
                   </div>
-                </div>
-                <div className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-green-50 to-white dark:from-green-950/20 dark:to-card p-6 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full blur-2xl" />
-                  <div className="relative">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="p-2 rounded-lg bg-green-500/10">
-                        <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-                      </div>
-                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Next Payroll</h3>
-                    </div>
-                    {isLoading ? (
-                      <p className="mt-2 text-3xl font-bold animate-pulse">Loading...</p>
-                    ) : error ? (
-                      <p className="mt-2 text-lg text-red-500">Error loading data</p>
-                    ) : nextPayrollEstimate > 0 ? (
-                      <>
-                        <p className="mt-2 text-3xl font-bold tracking-tight">
-                          K
-                          {nextPayrollEstimate.toLocaleString(undefined, {
-                            maximumFractionDigits: 0
-                          })}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          {format(new Date(), 'MMMM yyyy')} (Estimated)
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="mt-2 text-3xl font-bold tracking-tight">K0</p>
-                        <p className="text-sm text-muted-foreground mt-2">No estimate available</p>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-card p-6 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full blur-2xl" />
-                  <div className="relative">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="p-2 rounded-lg bg-purple-500/10">
-                        <BarChart className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">YTD Payroll</h3>
-                    </div>
-                    {isLoading ? (
-                      <p className="mt-2 text-3xl font-bold animate-pulse">Loading...</p>
-                    ) : error ? (
-                      <p className="mt-2 text-lg text-red-500">Error loading data</p>
-                    ) : (
-                      <>
-                        <p className="mt-2 text-3xl font-bold tracking-tight">K{ytdTotal.toLocaleString()}</p>
-                        <p className="text-sm text-muted-foreground mt-2">{ytdPeriod}</p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {lastPayroll.date
+                      ? format(new Date(lastPayroll.date), 'MMMM yyyy')
+                      : 'Date unknown'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">K0</div>
+                  <p className="text-xs text-muted-foreground mt-1">No completed payroll</p>
+                </>
+              )}
             </CardContent>
           </Card>
-          <PayrollHistory />
-        </TabsContent>
-        <TabsContent value="settings" className="space-y-4">
-          <PayrollSettings />
-        </TabsContent>
-      </Tabs>
+
+          <Card className="relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full blur-3xl" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Next Payroll (Est.)</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="text-2xl font-bold animate-pulse">Loading...</div>
+              ) : error ? (
+                <div className="text-sm text-red-500">Error loading data</div>
+              ) : nextPayrollEstimate > 0 ? (
+                <>
+                  <div className="text-2xl font-bold">
+                    K{nextPayrollEstimate.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {format(new Date(), 'MMMM yyyy')} (Estimated)
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">K0</div>
+                  <p className="text-xs text-muted-foreground mt-1">No estimate available</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">YTD Payroll</CardTitle>
+              <BarChart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="text-2xl font-bold animate-pulse">Loading...</div>
+              ) : error ? (
+                <div className="text-sm text-red-500">Error loading data</div>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">K{ytdTotal.toLocaleString()}</div>
+                  <p className="text-xs text-muted-foreground mt-1">{ytdPeriod}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common payroll tasks and operations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-4">
+              <Button
+                variant="outline"
+                className="h-auto flex-col items-start p-4 hover:bg-accent"
+                onClick={() => navigate('/payroll/generate')}
+              >
+                <DollarSign className="h-5 w-5 mb-2" />
+                <div className="text-left">
+                  <div className="font-semibold">Generate Payroll</div>
+                  <div className="text-xs text-muted-foreground mt-1">Create new payroll</div>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-auto flex-col items-start p-4 hover:bg-accent"
+                onClick={() => navigate('/payroll/structures')}
+              >
+                <FileText className="h-5 w-5 mb-2" />
+                <div className="text-left">
+                  <div className="font-semibold">Structures</div>
+                  <div className="text-xs text-muted-foreground mt-1">Manage pay structures</div>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-auto flex-col items-start p-4 hover:bg-accent"
+                onClick={() => navigate('/payroll/import')}
+              >
+                <Upload className="h-5 w-5 mb-2" />
+                <div className="text-left">
+                  <div className="font-semibold">Import Data</div>
+                  <div className="text-xs text-muted-foreground mt-1">Upload payroll data</div>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-auto flex-col items-start p-4 hover:bg-accent"
+                onClick={() => navigate('/payroll/history')}
+              >
+                <History className="h-5 w-5 mb-2" />
+                <div className="text-left">
+                  <div className="font-semibold">Payroll History</div>
+                  <div className="text-xs text-muted-foreground mt-1">View past payrolls</div>
+                </div>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
   )
@@ -300,7 +348,33 @@ export default function PayrollPage() {
         <Route path="/structures" element={<PayrollStructures />} />
         <Route path="/structures/new" element={<PayrollStructureNewPage />} />
         <Route path="/structures/:id/edit" element={<PayrollStructureEditPage />} />
-        <Route path="/history" element={<PayrollHistory />} />
+        <Route
+          path="/history"
+          element={
+            <AppLayout>
+              <div className="space-y-6 p-6 md:p-8">
+                <div className="flex flex-col gap-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.history.back()}
+                    className="w-fit"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Payroll
+                  </Button>
+                  <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Payroll History</h1>
+                    <p className="text-muted-foreground mt-1">
+                      View and manage all payroll records
+                    </p>
+                  </div>
+                </div>
+                <PayrollHistory />
+              </div>
+            </AppLayout>
+          }
+        />
         <Route path="/history/:id" element={<PayrollHistoryDetailPage />} />
         <Route path="/history/:id/report" element={<PayrollReportPage />} />
         <Route path="/import" element={<PayrollImportPage />} />

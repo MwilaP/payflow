@@ -49,6 +49,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { AppLayout } from '@/components/app-layout'
 
 export default function PayrollHistoryDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -701,63 +702,70 @@ export default function PayrollHistoryDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <AppLayout>
+        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
           <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
+      </AppLayout>
     )
   }
 
   if (error) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="outline" onClick={() => navigate('/payroll')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Payroll
-          </Button>
+      <AppLayout>
+        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+          <div className="flex items-center gap-4 mb-6">
+            <Button variant="outline" onClick={() => navigate('/payroll')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Payroll
+            </Button>
+          </div>
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center py-8">
+                <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-destructive">Error</h3>
+                <p className="text-sm text-muted-foreground mt-2">{error}</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center py-8">
-              <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-destructive">Error</h3>
-              <p className="text-sm text-muted-foreground mt-2">{error}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      </AppLayout>
     )
   }
 
   if (!payrollRecord) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="outline" onClick={() => navigate('/payroll')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Payroll
-          </Button>
+      <AppLayout>
+        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+          <div className="flex items-center gap-4 mb-6">
+            <Button variant="outline" onClick={() => navigate('/payroll')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Payroll
+            </Button>
+          </div>
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center py-8">
+                <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium">Payroll Record Not Found</h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  The requested payroll record could not be found.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center py-8">
-              <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">Payroll Record Not Found</h3>
-              <p className="text-sm text-muted-foreground mt-2">
-                The requested payroll record could not be found.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      </AppLayout>
     )
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <AppLayout>
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -1109,5 +1117,6 @@ export default function PayrollHistoryDetailPage() {
         }}
       />
     </div>
+    </AppLayout>
   )
 }

@@ -35,7 +35,7 @@ export function MainSidebar({ user }: MainSidebarProps) {
   return (
     <div className="hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-r md:block md:w-64">
       <div className="flex h-20 items-center border-b px-6">
-        <Link to="/" className="flex items-center gap-3 font-bold text-2xl text-foreground hover:opacity-80 transition-opacity">
+        <Link  className="flex items-center gap-3 font-bold text-2xl text-foreground hover:opacity-80 transition-opacity">
           <div className="p-2 rounded-xl bg-primary/10">
             <CreditCard className="h-7 w-7 text-primary" />
           </div>
@@ -76,12 +76,7 @@ export function MainSidebar({ user }: MainSidebarProps) {
             />
           </nav>
           <div className="mt-auto pt-4 border-t border-sidebar-border/50">
-            <NavItem
-              href="/profile"
-              icon={User}
-              label="My Profile"
-              isActive={pathname === '/profile'}
-            />
+    
             <Button
               variant="ghost"
               className="w-full justify-start gap-3 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 mt-2 h-11 rounded-lg"

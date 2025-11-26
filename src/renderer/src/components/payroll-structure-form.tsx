@@ -104,8 +104,13 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
     initDb()
   }, [toast])
 
-  // Update tax deduction when salary or allowances change
+  // Update tax deduction when salary or allowances change (only for new structures)
   useEffect(() => {
+    // Skip auto-calculation completely when editing
+    if (isEditing) {
+      return
+    }
+
     if (basicSalary > 0) {
       // Calculate total allowances
       const totalAllowances = allowances.reduce((total, allowance) => {
@@ -148,7 +153,7 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
         ]
       })
     }
-  }, [basicSalary, allowances])
+  }, [basicSalary, allowances, isEditing])
 
   // Load data if editing
   useEffect(() => {
@@ -187,7 +192,8 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
 
       fetchPayrollStructure()
     }
-  }, [isEditing, id, dbInitialized, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, id, dbInitialized])
 
   // Handlers for allowances
   const addAllowance = () => {
@@ -335,12 +341,10 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-3">
-      <div
-        className="space-y-6 md:col-span-2 overflow-y-auto"
-        style={{ maxHeight: 'calc(100vh - 8rem)' }}
-      >
-        <form onSubmit={handleSubmit}>
+    <div className="grid gap-4 md:grid-cols-3">
+      <div className="space-y-4 md:col-span-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Structure Details Card */}
           <Card>
             <CardHeader>
               <CardTitle>Structure Details</CardTitle>
@@ -348,9 +352,11 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                 Define the basic information for this payroll structure
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Structure Name *</Label>
+            <CardContent className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="name">
+                  Structure Name <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="name"
                   placeholder="e.g., Standard Staff Payroll"
@@ -359,19 +365,21 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                   required
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
                   placeholder="Describe the purpose of this structure"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="min-h-[80px]"
+                  className="min-h-[60px] resize-none"
                 />
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="frequency">Pay Frequency *</Label>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="frequency">
+                    Pay Frequency <span className="text-destructive">*</span>
+                  </Label>
                   <Select value={frequency} onValueChange={setFrequency}>
                     <SelectTrigger id="frequency">
                       <SelectValue placeholder="Select frequency" />
@@ -383,11 +391,13 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="basicSalary">Basic Salary *</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="basicSalary">
+                    Basic Salary <span className="text-destructive">*</span>
+                  </Label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-                      $
+                      K
                     </span>
                     <Input
                       id="basicSalary"
@@ -404,7 +414,8 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
             </CardContent>
           </Card>
 
-          <Card className="mt-6">
+          {/* Allowances Card */}
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Allowances</CardTitle>
@@ -412,12 +423,12 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
               </div>
               <Button type="button" variant="outline" size="sm" onClick={addAllowance}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Allowance
+                Add
               </Button>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {allowances.length === 0 ? (
-                <div className="rounded-md border border-dashed p-8 text-center">
+                <div className="rounded-md border border-dashed p-6 text-center">
                   <p className="text-sm text-muted-foreground">No allowances added yet</p>
                   <Button
                     type="button"
@@ -434,9 +445,9 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                 allowances.map((allowance) => (
                   <div
                     key={allowance.id}
-                    className="grid gap-4 rounded-md border p-4 md:grid-cols-4"
+                    className="grid gap-3 rounded-md border p-3 md:grid-cols-4"
                   >
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label htmlFor={`allowance-name-${allowance.id}`}>Name</Label>
                       <Input
                         id={`allowance-name-${allowance.id}`}
@@ -445,7 +456,7 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                         onChange={(e) => updateAllowance(allowance.id, 'name', e.target.value)}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label htmlFor={`allowance-type-${allowance.id}`}>Type</Label>
                       <Select
                         value={allowance.type}
@@ -460,14 +471,14 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label htmlFor={`allowance-value-${allowance.id}`}>Value</Label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-                          {allowance.type === 'percentage' ? '%' : '$'}
+                          {allowance.type === 'percentage' ? '%' : 'K'}
                         </span>
                         <Input
-                          id={`allowance-value-$F{allowance.id}`}
+                          id={`allowance-value-${allowance.id}`}
                           type="number"
                           placeholder="0"
                           className="pl-8"
@@ -495,9 +506,7 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                     </div>
                     {allowance.type === 'percentage' && basicSalary > 0 && allowance.value > 0 && (
                       <div className="col-span-full text-sm text-muted-foreground">
-                        Preview: {allowance.name} = {allowance.value}% of ZMW
-                        {basicSalary.toLocaleString()} = ZMW
-                        {((allowance.value / 100) * basicSalary).toLocaleString()}
+                        Preview: {allowance.name} = {allowance.value}% of K{basicSalary.toLocaleString()} = K{((allowance.value / 100) * basicSalary).toLocaleString()}
                       </div>
                     )}
                   </div>
@@ -506,7 +515,8 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
             </CardContent>
           </Card>
 
-          <Card className="mt-6">
+          {/* Deductions Card */}
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Deductions</CardTitle>
@@ -514,12 +524,12 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
               </div>
               <Button type="button" variant="outline" size="sm" onClick={addDeduction}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Deduction
+                Add
               </Button>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {deductions.length === 0 ? (
-                <div className="rounded-md border border-dashed p-8 text-center">
+                <div className="rounded-md border border-dashed p-6 text-center">
                   <p className="text-sm text-muted-foreground">No deductions added yet</p>
                   <Button
                     type="button"
@@ -536,9 +546,9 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                 deductions.map((deduction) => (
                   <div
                     key={deduction.id}
-                    className="grid gap-4 rounded-md border p-4 md:grid-cols-5"
+                    className="grid gap-3 rounded-md border p-3 md:grid-cols-5"
                   >
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label htmlFor={`deduction-name-${deduction.id}`}>Name</Label>
                       <Input
                         id={`deduction-name-${deduction.id}`}
@@ -547,7 +557,7 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                         onChange={(e) => updateDeduction(deduction.id, 'name', e.target.value)}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label htmlFor={`deduction-type-${deduction.id}`}>Type</Label>
                       <Select
                         value={deduction.type}
@@ -562,11 +572,11 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label htmlFor={`deduction-value-${deduction.id}`}>Value</Label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-                          {deduction.type === 'percentage' ? '%' : '$'}
+                          {deduction.type === 'percentage' ? '%' : 'K'}
                         </span>
                         <Input
                           id={`deduction-value-${deduction.id}`}
@@ -584,7 +594,7 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label htmlFor={`deduction-preTax-${deduction.id}`}>Tax Treatment</Label>
                       <Select
                         value={deduction.preTax ? 'pre-tax' : 'post-tax'}
@@ -614,9 +624,7 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
                     </div>
                     {deduction.type === 'percentage' && basicSalary > 0 && deduction.value > 0 && (
                       <div className="col-span-full text-sm text-muted-foreground">
-                        Preview: {deduction.name} = {deduction.value}% of K
-                        {basicSalary.toLocaleString()} = K
-                        {((deduction.value / 100) * basicSalary).toLocaleString()}
+                        Preview: {deduction.name} = {deduction.value}% of K{basicSalary.toLocaleString()} = K{((deduction.value / 100) * basicSalary).toLocaleString()}
                       </div>
                     )}
                   </div>
@@ -625,11 +633,19 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
             </CardContent>
           </Card>
 
-          <div className="mt-6 flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => navigate('/payroll/structures')}>
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => navigate('/payroll/structures')}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

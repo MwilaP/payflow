@@ -288,7 +288,7 @@ export function EmployeeProfile({ id }: { id: string }) {
   const timeAtCompany = calculateTimeAtCompany(employee.createdAt)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col gap-6 md:flex-row">
