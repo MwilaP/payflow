@@ -129,120 +129,128 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
-      <Card className="mx-auto w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-muted/30 p-8">
+      <Card className="w-full h-full">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center">
-            <div className="flex items-center gap-2 text-2xl font-bold">
-              <CreditCard className="h-8 w-8 text-primary" />
+            <div className="flex items-center gap-2 text-3xl font-bold">
+              <CreditCard className="h-10 w-10 text-primary" />
               <span>Payroll</span>
             </div>
           </div>
-          <CardTitle className="text-xl">Welcome! Let's Get Started</CardTitle>
-          <CardDescription>
-            Create your admin account to begin managing your payroll system
+          <CardTitle className="text-2xl">Welcome! Let's Get Started</CardTitle>
+          <CardDescription className="text-base">
+            Create your admin account to begin managing your payflow
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <div className="relative">
-                <UserCircle className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="John Doe"
-                  className="pl-9"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 gap-8">
+              {/* Left Column */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-base">Full Name</Label>
+                  <div className="relative">
+                    <UserCircle className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                    <Input
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="John Doe"
+                      className="pl-10 h-12 text-base"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  placeholder="johndoe"
-                  className="pl-9"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-base">Username</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                    <Input
+                      id="username"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      placeholder="johndoe"
+                      className="pl-10 h-12 text-base"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john@example.com"
-                  className="pl-9"
-                  disabled={isLoading}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-base">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="john@example.com"
+                      className="pl-10 h-12 text-base"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="pl-9"
-                  disabled={isLoading}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Must be at least 8 characters long
-              </p>
-            </div>
+              {/* Right Column */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-base">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="••••••••"
+                      className="pl-10 h-12 text-base"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Must be at least 8 characters long
+                  </p>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="pl-9"
-                  disabled={isLoading}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword" className="text-base">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      placeholder="••••••••"
+                      className="pl-10 h-12 text-base"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full h-12 text-base" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Creating Account...
                 </>
               ) : (
                 'Create Admin Account'
               )}
             </Button>
-            <p className="text-center text-xs text-muted-foreground">
+            <p className="text-center text-sm text-muted-foreground">
               This will be your administrator account with full access to the system
             </p>
           </CardFooter>

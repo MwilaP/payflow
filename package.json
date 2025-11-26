@@ -1,10 +1,11 @@
 {
-  "name": "payroll",
+  "name": "payflow",
+  "productName": "PayFlow",
   "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
+  "description": "Professional payroll management application - Streamline Your Payroll",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "PayFlow Team",
+  "homepage": "https://payflow.app",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",

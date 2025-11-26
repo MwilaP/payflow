@@ -1,6 +1,8 @@
-# payroll
+# PayFlow
 
-An Electron application with React and TypeScript
+**Streamline Your Payroll**
+
+PayFlow is a professional desktop payroll management application built with Electron, React, and TypeScript. Manage employee payroll, generate payslips, and automate email distribution with ease.
 
 ## Recommended IDE Setup
 
