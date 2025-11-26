@@ -7,7 +7,8 @@ import {
   getSession,
   login as authLogin,
   logout as authLogout,
-  initializeAuth
+  initializeAuth,
+  hasUsers
 } from '@/lib/auth-service'
 
 // Define the context type
@@ -16,11 +17,13 @@ interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
+  needsOnboarding: boolean
   login: (
     usernameOrEmail: string,
     password: string
   ) => Promise<{ success: boolean; error?: string }>
   logout: () => void
+  checkForUsers: () => Promise<void>
 }
 
 // Create the context with default values
@@ -29,14 +32,23 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  needsOnboarding: false,
   login: async () => ({ success: false }),
-  logout: () => {}
+  logout: () => {},
+  checkForUsers: async () => {}
 })
 
 // Provider component
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [needsOnboarding, setNeedsOnboarding] = useState(false)
+
+  // Check if users exist in the system
+  const checkForUsers = async () => {
+    const usersExist = await hasUsers()
+    setNeedsOnboarding(!usersExist)
+  }
 
   // Initialize auth and load session
   useEffect(() => {
@@ -44,6 +56,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         // Initialize auth system
         await initializeAuth()
+
+        // Check if we need onboarding
+        await checkForUsers()
 
         // Load session from storage
         const currentSession = getSession()
@@ -83,8 +98,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     isAuthenticated,
     isLoading,
+    needsOnboarding,
     login,
-    logout
+    logout,
+    checkForUsers
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { CreditCard, Loader2 } from 'lucide-react'
 
@@ -18,8 +18,15 @@ import { useToast } from '@/components/ui/use-toast'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, needsOnboarding, isLoading: authLoading } = useAuth()
   const { toast } = useToast()
+
+  // Redirect to onboarding if no users exist
+  useEffect(() => {
+    if (!authLoading && needsOnboarding) {
+      navigate('/onboarding')
+    }
+  }, [needsOnboarding, authLoading, navigate])
 
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -85,9 +92,6 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-xl">Sign in to your account</CardTitle>
           <CardDescription>Enter your username and password to access your account</CardDescription>
-          <CardDescription className="text-sm font-medium text-primary">
-            Test Account: username: testuser, password: securepass123
-          </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">

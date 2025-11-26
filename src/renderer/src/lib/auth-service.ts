@@ -17,7 +17,7 @@ export interface Session {
   expires: string
 }
 
-// Initialize the auth system and create test user if needed
+// Initialize the auth system
 export const initializeAuth = async (): Promise<boolean> => {
   try {
     console.log('Initializing auth system...')
@@ -31,15 +31,87 @@ export const initializeAuth = async (): Promise<boolean> => {
       return false
     }
 
-    console.log('Database initialized, creating test user...')
-    const userService = createSQLiteUserService()
-    const testUser = await userService.createTestUser()
-    console.log('Test user created:', testUser)
-
+    console.log('Database initialized successfully')
     return true
   } catch (error) {
     console.error('Error initializing auth:', error)
     return false
+  }
+}
+
+// Check if any users exist in the system
+export const hasUsers = async (): Promise<boolean> => {
+  try {
+    const userService = createSQLiteUserService()
+    const users = await userService.getAll()
+    return users.length > 0
+  } catch (error) {
+    console.error('Error checking for users:', error)
+    return false
+  }
+}
+
+// Register a new user (for onboarding)
+export const register = async (
+  username: string,
+  email: string,
+  password: string,
+  name: string
+): Promise<{ success: boolean; user: User | null; error?: string }> => {
+  try {
+    console.log('Starting registration process...')
+    
+    // Ensure database is initialized
+    const { initializeSQLiteDatabase } = await import('@/lib/db/indexeddb-sqlite-service')
+    const dbResult = await initializeSQLiteDatabase()
+
+    if (!dbResult.success) {
+      console.error('Failed to initialize database:', dbResult.error)
+      return { success: false, user: null, error: 'Database initialization failed' }
+    }
+
+    console.log('Database initialized, creating user...')
+    const userService = createSQLiteUserService()
+
+    // Check if username already exists
+    const existingUsername = await userService.getByUsername(username)
+    if (existingUsername) {
+      console.log('Username already exists')
+      return { success: false, user: null, error: 'Username already exists' }
+    }
+
+    // Check if email already exists
+    const existingEmail = await userService.getByEmail(email)
+    if (existingEmail) {
+      console.log('Email already exists')
+      return { success: false, user: null, error: 'Email already exists' }
+    }
+
+    // Create the user
+    console.log('Creating user with data:', { username, email, name, role: 'admin' })
+    const newUser = await userService.create({
+      username,
+      email,
+      password, // In production, this should be hashed
+      role: 'admin', // First user is always admin
+      name
+    })
+
+    console.log('User created successfully:', newUser)
+
+    return {
+      success: true,
+      user: {
+        _id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role
+      }
+    }
+  } catch (error) {
+    console.error('Registration error:', error)
+    return { success: false, user: null, error: 'Registration failed: ' + (error as Error).message }
   }
 }
 
@@ -51,9 +123,6 @@ export const login = async (
   try {
     const userService = createSQLiteUserService()
     console.log('login...')
-
-    // First ensure we have a test user
-    await userService.createTestUser()
 
     // Validate credentials using SQLite user service
     const user = await userService.validateCredentials(usernameOrEmail, password)

@@ -65,9 +65,22 @@ function createWindow(): void {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
+
+  // Load SMTP configuration from storage on startup
+  try {
+    console.log('🔄 Loading SMTP configuration from storage...')
+    const loaded = await emailService.loadFromStorage()
+    if (loaded) {
+      console.log('✓ SMTP configuration loaded successfully')
+    } else {
+      console.log('ℹ No saved SMTP configuration found')
+    }
+  } catch (error) {
+    console.error('✗ Failed to load SMTP configuration:', error)
+  }
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

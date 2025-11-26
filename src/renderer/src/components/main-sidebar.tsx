@@ -2,7 +2,7 @@
 
 import type React from 'react'
 
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   BarChart3,
   Calendar,
@@ -29,8 +29,14 @@ interface MainSidebarProps {
 
 export function MainSidebar({ user }: MainSidebarProps) {
   const location = useLocation()
+  const navigate = useNavigate()
   const pathname = location.pathname
   const { logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
 
   return (
     <div className="hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-r md:block md:w-64">
@@ -80,7 +86,7 @@ export function MainSidebar({ user }: MainSidebarProps) {
             <Button
               variant="ghost"
               className="w-full justify-start gap-3 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 mt-2 h-11 rounded-lg"
-              onClick={() => logout()}
+              onClick={handleLogout}
             >
               <LogOut className="h-5 w-5" />
               <span className="font-medium">Logout</span>

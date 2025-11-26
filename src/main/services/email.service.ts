@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import type { Transporter } from 'nodemailer'
+import { saveSMTPConfig, loadSMTPConfig } from './settings.service'
 
 export interface EmailConfig {
   host: string
@@ -120,9 +121,29 @@ class EmailService {
   private config: EmailConfig | null = null
 
   /**
-   * Initialize email service with configuration
+   * Load configuration from persistent storage on startup
    */
-  async initialize(config: EmailConfig): Promise<void> {
+  async loadFromStorage(): Promise<boolean> {
+    try {
+      const savedConfig = loadSMTPConfig()
+      if (savedConfig) {
+        console.log('Loading SMTP configuration from storage...')
+        await this.initialize(savedConfig, false) // Don't save again
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Failed to load SMTP configuration from storage:', error)
+      return false
+    }
+  }
+
+  /**
+   * Initialize email service with configuration
+   * @param config - Email configuration
+   * @param persist - Whether to persist the configuration (default: true)
+   */
+  async initialize(config: EmailConfig, persist = true): Promise<void> {
     try {
       console.log('Initializing email service with config:', {
         host: config.host,
@@ -153,6 +174,11 @@ class EmailService {
       console.log('Verifying SMTP connection...')
       await this.transporter.verify()
       console.log('✓ Email service initialized successfully')
+
+      // Persist configuration if requested
+      if (persist) {
+        saveSMTPConfig(config)
+      }
     } catch (error: any) {
       console.error('✗ Failed to initialize email service:', error)
       const errorMessage = getInitErrorMessage(error, config)

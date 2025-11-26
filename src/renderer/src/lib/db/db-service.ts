@@ -793,52 +793,6 @@ export const dbOperations = {
   }
 }
 
-// Initialize the users database with a test user
-export const initializeTestUser = async () => {
-  try {
-    // Get the users database
-    const { users } = await getDatabases()
-
-    if (!users) {
-      console.error('Users database not available')
-      return false
-    }
-
-    // Check if the test user already exists
-    const result = await dbOperations.find(users, {
-      selector: {
-        $or: [{ username: 'testuser' }, { email: 'testuser@example.com' }]
-      }
-    })
-
-    if (result.docs && result.docs.length > 0) {
-      console.log('Test user already exists')
-      return true
-    }
-
-    // Create the test user
-    const testUser = {
-      username: 'testuser',
-      email: 'testuser@example.com',
-      password: 'securepass123', // In a real app, this would be hashed
-      role: 'admin',
-      name: 'Test User'
-    }
-
-    const created = await dbOperations.create(users, testUser)
-
-    if (created) {
-      console.log('Test user created successfully')
-      return true
-    } else {
-      console.error('Failed to create test user')
-      return false
-    }
-  } catch (error) {
-    console.error('Error initializing test user:', error)
-    return false
-  }
-}
 
 // Export the operations queue for testing
 export const getOperationsQueue = () => [...operationsQueue]

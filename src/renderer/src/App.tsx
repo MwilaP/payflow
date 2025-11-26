@@ -9,6 +9,7 @@ import { SQLiteDatabaseProvider } from '@/lib/db/sqlite-db-context'
 // Import pages
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
+import OnboardingPage from './pages/OnboardingPage'
 import DashboardPage from './pages/DashboardPage'
 import EmployeesPage from './pages/EmployeesPage'
 import EmployeeNewPage from './pages/EmployeeNewPage'
@@ -29,6 +30,7 @@ function App() {
           <AuthProvider>
             <Titlebar />
             <Routes>
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/" element={<LoginPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />

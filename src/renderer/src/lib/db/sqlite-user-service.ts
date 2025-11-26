@@ -15,7 +15,6 @@ export interface SQLiteUserService {
 
   // Authentication helpers
   validateCredentials(usernameOrEmail: string, password: string): Promise<SQLiteUser | null>
-  createTestUser(): Promise<SQLiteUser>
 }
 
 export const createSQLiteUserService = (): SQLiteUserService => {
@@ -83,67 +82,6 @@ export const createSQLiteUserService = (): SQLiteUserService => {
       }
 
       return null
-    },
-
-    async createTestUser() {
-      console.log('Creating test user...')
-
-      // Check if test user already exists
-      const existingUser = await this.getByUsername('testuser')
-      if (existingUser) {
-        console.log('Test user already exists:', existingUser)
-        return existingUser
-      }
-
-      console.log('Test user does not exist, creating new one...')
-
-      // Create test user
-      const testUser = {
-        username: 'testuser',
-        email: 'testuser@example.com',
-        password: 'securepass123', // In real app, this would be hashed
-        role: 'admin' as const,
-        name: 'Test User'
-      }
-
-      console.log('Creating user with data:', testUser)
-      const createdUser = await this.create(testUser)
-      console.log('User created successfully:', createdUser)
-
-      return createdUser
-    }
-  }
-}
-
-// Compatibility wrapper for existing auth service
-export const createUserServiceCompat = () => {
-  const sqliteService = createSQLiteUserService()
-
-  return {
-    async find(conditions: any) {
-      // Handle PouchDB-style queries
-      if (conditions.selector && conditions.selector.$or) {
-        const orConditions = conditions.selector.$or
-
-        for (const condition of orConditions) {
-          if (condition.username) {
-            const user = await sqliteService.getByUsername(condition.username)
-            if (user) return { docs: [user] }
-          }
-          if (condition.email) {
-            const user = await sqliteService.getByEmail(condition.email)
-            if (user) return { docs: [user] }
-          }
-        }
-
-        return { docs: [] }
-      }
-
-      return { docs: [] }
-    },
-
-    async createTestUser() {
-      return await sqliteService.createTestUser()
     }
   }
 }

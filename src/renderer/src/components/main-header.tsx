@@ -1,6 +1,6 @@
 'use client'
 
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Bell, Menu, Search, Settings, LogOut, User, ChevronDown } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -30,11 +30,13 @@ const getPageName = (pathname: string): string => {
 
 export function MainHeader() {
   const location = useLocation()
+  const navigate = useNavigate()
   const { user, logout } = useAuth()
   const pageName = getPageName(location.pathname)
 
   const handleLogout = () => {
     logout()
+    navigate('/')
   }
 
   return (

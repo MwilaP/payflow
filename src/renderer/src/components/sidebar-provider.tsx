@@ -12,7 +12,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user } = useAuth()
 
   // Pages that don't require authentication and don't show the sidebar
-  const publicPages = ['/login', '/reset-password', '/']
+  const publicPages = ['/login', '/reset-password', '/', '/onboarding']
   const isPublicPage = publicPages.includes(pathname)
 
   // For public pages, don't show the sidebar
