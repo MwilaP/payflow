@@ -4,12 +4,10 @@ import type React from 'react'
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CalendarIcon, Upload } from 'lucide-react'
+import { Upload } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -19,8 +17,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
+import { DateInput } from '@/components/date-input'
 import { useToast } from '@/hooks/use-toast'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -237,9 +234,28 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
   }, [formData.payrollStructureId, servicesLoaded, payrollStructureService])
 
   const handleInputChange = (field: string, value: any) => {
+    // Fields that should be automatically converted to uppercase
+    const uppercaseFields = [
+      'firstName',
+      'lastName',
+      'address',
+      'department',
+      'designation',
+      'bankName',
+      'branchName',
+      'ifscCode',
+      'nationalId',
+      'taxNumber',
+      'pensionNumber'
+    ]
+
+    // Convert to uppercase if it's a string field in the uppercase list
+    const processedValue =
+      typeof value === 'string' && uppercaseFields.includes(field) ? value.toUpperCase() : value
+
     setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: processedValue
     }))
   }
 
@@ -395,30 +411,13 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
 
                 <div className="space-y-2">
                   <Label htmlFor="dob">Date of Birth</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        id="dob"
-                        variant={'outline'}
-                        className={cn(
-                          'w-full pl-3 text-left font-normal',
-                          !formData.dob && 'text-muted-foreground'
-                        )}
-                      >
-                        {formData.dob ? format(formData.dob, 'PPP') : <span>Pick a date</span>}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.dob}
-                        onSelect={(date) => handleInputChange('dob', date)}
-                        disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DateInput
+                    id="dob"
+                    value={formData.dob}
+                    onChange={(date) => handleInputChange('dob', date)}
+                    placeholder="DD/MM/YYYY"
+                    disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -517,34 +516,13 @@ export function EmployeeForm({ employeeId, isEditing = false }: EmployeeFormProp
 
               <div className="space-y-2">
                 <Label htmlFor="hireDate">Hire Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="hireDate"
-                      variant={'outline'}
-                      className={cn(
-                        'w-full pl-3 text-left font-normal',
-                        !formData.hireDate && 'text-muted-foreground'
-                      )}
-                    >
-                      {formData.hireDate ? (
-                        format(formData.hireDate, 'PPP')
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={formData.hireDate}
-                      onSelect={(date) => handleInputChange('hireDate', date)}
-                      disabled={(date) => date > new Date()}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DateInput
+                  id="hireDate"
+                  value={formData.hireDate}
+                  onChange={(date) => handleInputChange('hireDate', date)}
+                  placeholder="DD/MM/YYYY"
+                  disabled={(date) => date > new Date()}
+                />
               </div>
 
               {

@@ -8,6 +8,8 @@ import { pdfGeneratorService } from './services/pdf-generator.service'
 import type { PayslipPDFData } from './services/pdf-generator.service'
 
 function createWindow(): void {
+  console.log('🚀 Creating main window...')
+  
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1280,
@@ -31,7 +33,31 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
+    console.log('✓ Window ready to show')
     mainWindow.show()
+  })
+
+  // Log renderer process console messages in production
+  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+    const levels = ['VERBOSE', 'INFO', 'WARNING', 'ERROR']
+    console.log(`[Renderer ${levels[level]}] ${message} (${sourceId}:${line})`)
+  })
+
+  // Log renderer errors
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
+    console.error('✗ Renderer failed to load:', errorCode, errorDescription)
+  })
+
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    console.error('✗ Renderer process gone:', details)
+  })
+
+  mainWindow.webContents.on('unresponsive', () => {
+    console.error('✗ Renderer process unresponsive')
+  })
+
+  mainWindow.webContents.on('responsive', () => {
+    console.log('✓ Renderer process responsive again')
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -53,12 +79,30 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  // Enable DevTools in production for debugging (Ctrl+Shift+I or F12)
+  if (!is.dev) {
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+      if (
+        (input.control && input.shift && input.key.toLowerCase() === 'i') ||
+        input.key === 'F12'
+      ) {
+        mainWindow.webContents.toggleDevTools()
+        event.preventDefault()
+      }
+    })
+  }
+
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    console.log('📡 Loading development URL:', process.env['ELECTRON_RENDERER_URL'])
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    const htmlPath = join(__dirname, '../renderer/index.html')
+    console.log('📄 Loading production HTML:', htmlPath)
+    mainWindow.loadFile(htmlPath).catch((err) => {
+      console.error('✗ Failed to load HTML file:', err)
+    })
   }
 }
 
@@ -68,19 +112,6 @@ function createWindow(): void {
 app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.payflow')
-
-  // Load SMTP configuration from storage on startup
-  try {
-    console.log('🔄 Loading SMTP configuration from storage...')
-    const loaded = await emailService.loadFromStorage()
-    if (loaded) {
-      console.log('✓ SMTP configuration loaded successfully')
-    } else {
-      console.log('ℹ No saved SMTP configuration found')
-    }
-  } catch (error) {
-    console.error('✗ Failed to load SMTP configuration:', error)
-  }
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -156,13 +187,16 @@ app.whenReady().then(async () => {
     }
   })
 
-  ipcMain.handle('email:sendBulkPayslips', async (_, payslips: EmailPayslipData[]) => {
+  ipcMain.handle('email:sendBulkPayslips', async (_, payslips: EmailPayslipData[], payrollRecordId?: string) => {
     console.log('\n========================================')
     console.log('📧 SENDING BULK PAYSLIP EMAILS')
     console.log(`Total recipients: ${payslips.length}`)
+    if (payrollRecordId) {
+      console.log(`Payroll Record ID: ${payrollRecordId}`)
+    }
     console.log('========================================')
     try {
-      const result = await emailService.sendBulkPayslips(payslips)
+      const result = await emailService.sendBulkPayslips(payslips, payrollRecordId)
       console.log('========================================\n')
       return { success: true, data: result }
     } catch (error: any) {
@@ -219,7 +253,22 @@ app.whenReady().then(async () => {
     }
   })
 
+  // Create window immediately - don't wait for SMTP
   createWindow()
+
+  // Load SMTP configuration in background (non-blocking)
+  // This won't delay the app startup
+  emailService.loadFromStorage()
+    .then((loaded) => {
+      if (loaded) {
+        console.log('✓ SMTP configuration loaded successfully')
+      } else {
+        console.log('ℹ No saved SMTP configuration found')
+      }
+    })
+    .catch((error) => {
+      console.error('✗ Failed to load SMTP configuration:', error)
+    })
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

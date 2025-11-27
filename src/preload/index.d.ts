@@ -6,7 +6,7 @@ interface EmailAPI {
   isConfigured: () => Promise<boolean>
   getConfig: () => Promise<Omit<EmailConfig, 'auth'> | null>
   sendPayslip: (data: EmailPayslipData) => Promise<{ success: boolean; error?: string }>
-  sendBulkPayslips: (payslips: EmailPayslipData[]) => Promise<{
+  sendBulkPayslips: (payslips: EmailPayslipData[], payrollRecordId?: string) => Promise<{
     success: boolean
     error?: string
     data?: {

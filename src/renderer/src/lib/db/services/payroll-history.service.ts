@@ -612,5 +612,54 @@ export const payrollHistoryService = (db: any) => ({
         `Failed to bulk process payrolls: ${error?.message || 'Unknown error'}`
       )
     }
+  },
+
+  // Update email status for a specific payroll item
+  async updatePayrollItemEmailStatus(
+    payrollRecordId: string,
+    employeeId: string,
+    status: 'sent' | 'failed',
+    error?: string,
+    emailSentAt?: string
+  ): Promise<PayrollHistory | null> {
+    if (!db) {
+      throw new PayrollError('Database connection not available')
+    }
+
+    try {
+      // Get the current payroll record
+      const payroll = await this.getPayrollRecordById(payrollRecordId)
+      if (!payroll || !payroll.items) {
+        throw new PayrollError('Payroll record not found or has no items')
+      }
+
+      // Find and update the specific item
+      const updatedItems = payroll.items.map((item: PayrollItem) => {
+        if (item.employeeId === employeeId) {
+          return {
+            ...item,
+            emailStatus: status,
+            emailError: error,
+            emailSentAt: emailSentAt || new Date().toISOString()
+          }
+        }
+        return item
+      })
+
+      // Update the payroll record
+      const updatedPayroll = {
+        ...payroll,
+        items: updatedItems,
+        updatedAt: new Date().toISOString()
+      }
+
+      const result = await dbOperations.put(db, updatedPayroll)
+      return result
+    } catch (error: any) {
+      console.error(`Error updating email status for payroll ${payrollRecordId}, employee ${employeeId}:`, error)
+      throw new PayrollError(
+        `Failed to update email status: ${error?.message || 'Unknown error'}`
+      )
+    }
   }
 })

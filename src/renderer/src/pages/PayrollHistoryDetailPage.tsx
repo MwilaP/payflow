@@ -32,7 +32,10 @@ import {
   Printer,
   BarChart3,
   CheckCircle,
-  Play
+  Play,
+  AlertTriangle,
+  XCircle,
+  Clock
 } from 'lucide-react'
 import { getPayrollHistoryService, getEmployeeService } from '@/lib/db/services/service-factory'
 import { useToast } from '@/hooks/use-toast'
@@ -41,6 +44,7 @@ import { emailService } from '@/lib/email-service'
 import { pdfService } from '@/lib/pdf-service'
 import { EmailConfigDialog } from '@/components/email-config-dialog'
 import { getCompanySettings } from '@/components/company-settings'
+import { FailedEmailsDialog } from '@/components/failed-emails-dialog'
 import type { PayslipPDFData } from '../../../preload'
 import type { EmailPayslipData } from '@/lib/email-service'
 import {
@@ -65,6 +69,7 @@ export default function PayrollHistoryDetailPage() {
   const [showEmailConfig, setShowEmailConfig] = useState(false)
   const [isCompletingPayroll, setIsCompletingPayroll] = useState(false)
   const [isProcessingPayroll, setIsProcessingPayroll] = useState(false)
+  const [showFailedEmails, setShowFailedEmails] = useState(false)
 
   useEffect(() => {
     const loadPayrollRecord = async () => {
@@ -100,6 +105,24 @@ export default function PayrollHistoryDetailPage() {
     loadPayrollRecord()
     checkEmailConfig()
   }, [id])
+
+  // Get failed emails from payroll record
+  const getFailedEmails = () => {
+    if (!payrollRecord || !payrollRecord.items) return []
+
+    return payrollRecord.items
+      .filter((item: any) => item.emailStatus === 'failed')
+      .map((item: any) => ({
+        employeeId: item.employeeId,
+        employeeName: item.employeeName || `Employee ${item.employeeId}`,
+        employeeEmail: item.employeeEmail || 'N/A',
+        employeeNumber: item.employeeNumber,
+        netSalary: item.netSalary || 0,
+        error: item.emailError || 'Unknown error'
+      }))
+  }
+
+  const failedEmails = getFailedEmails()
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -331,6 +354,7 @@ export default function PayrollHistoryDetailPage() {
 
           // Prepare email data (will add PDF later)
           emailDataArray.push({
+            employeeId: item.employeeId,
             employeeName: `${employee.firstName} ${employee.lastName}`,
             employeeEmail: employee.email,
             period: payrollRecord.period || 'Monthly',
@@ -379,7 +403,45 @@ export default function PayrollHistoryDetailPage() {
         description: `Sending payslips to ${emailDataWithPDFs.length} employees...`
       })
 
-      const result = await emailService.sendBulkPayslips(emailDataWithPDFs)
+      const result = await emailService.sendBulkPayslips(emailDataWithPDFs, payrollRecord._id)
+
+      // Update payroll record with email status results
+      const updatedItems = payrollRecord.items.map((item: any) => {
+        // Find the corresponding email data for this employee
+        const emailData = emailDataWithPDFs.find((email: any) => email.employeeId === item.employeeId)
+
+        if (emailData) {
+          // Check if this email failed
+          const failedEmail = result.data?.errors?.find((error: any) => error.email === emailData.employeeEmail)
+
+          if (failedEmail) {
+            // Email failed
+            return {
+              ...item,
+              emailStatus: 'failed',
+              emailError: failedEmail.error,
+              emailSentAt: new Date().toISOString()
+            }
+          } else {
+            // Email succeeded
+            return {
+              ...item,
+              emailStatus: 'sent',
+              emailError: undefined,
+              emailSentAt: new Date().toISOString()
+            }
+          }
+        }
+
+        return item
+      })
+
+      // Update the payroll record in state
+      const updatedPayrollRecord = {
+        ...payrollRecord,
+        items: updatedItems
+      }
+      setPayrollRecord(updatedPayrollRecord)
 
       if (result.success && result.data) {
         if (result.data.success) {
@@ -826,6 +888,16 @@ export default function PayrollHistoryDetailPage() {
               <Download className="mr-2 h-4 w-4" />
               Export
             </Button>
+            {failedEmails.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => setShowFailedEmails(true)}
+                className="border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-950/20"
+              >
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                Failed Emails ({failedEmails.length})
+              </Button>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button disabled={isSendingEmails}>
@@ -918,6 +990,7 @@ export default function PayrollHistoryDetailPage() {
                       <TableHead>Allowances</TableHead>
                       <TableHead>Deductions</TableHead>
                       <TableHead className="text-right">Net Salary</TableHead>
+                      <TableHead className="text-center">Email Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -969,10 +1042,30 @@ export default function PayrollHistoryDetailPage() {
                             <TableCell className="text-right font-medium">
                               K{item.netSalary?.toLocaleString() || '0'}
                             </TableCell>
+                            <TableCell className="text-center">
+                              {item.emailStatus === 'sent' ? (
+                                <div className="flex items-center justify-center gap-1">
+                                  <CheckCircle className="h-4 w-4 text-green-500" />
+                                  <span className="text-xs text-green-600 font-medium">Sent</span>
+                                </div>
+                              ) : item.emailStatus === 'failed' ? (
+                                <div className="flex items-center justify-center gap-1">
+                                  <XCircle className="h-4 w-4 text-red-500" />
+                                  <span className="text-xs text-red-600 font-medium">Failed</span>
+                                </div>
+                              ) : item.emailStatus === 'pending' ? (
+                                <div className="flex items-center justify-center gap-1">
+                                  <Clock className="h-4 w-4 text-yellow-500" />
+                                  <span className="text-xs text-yellow-600 font-medium">Pending</span>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
                           </TableRow>
                           {isExpanded && (
                             <TableRow key={`${employeeId}_details`}>
-                              <TableCell colSpan={7} className="bg-muted/30 p-0">
+                              <TableCell colSpan={8} className="bg-muted/30 p-0">
                                 <div className="p-4 space-y-4">
                                   <div className="grid md:grid-cols-2 gap-4">
                                     {/* Allowances Breakdown */}
@@ -1128,6 +1221,15 @@ export default function PayrollHistoryDetailPage() {
               emailService.isConfigured().then(setIsEmailConfigured)
             }
           }}
+        />
+
+        {/* Failed Emails Dialog */}
+        <FailedEmailsDialog
+          open={showFailedEmails}
+          onOpenChange={setShowFailedEmails}
+          failedEmails={failedEmails}
+          payrollRecord={payrollRecord}
+          onPayrollUpdate={setPayrollRecord}
         />
       </div>
     </AppLayout>

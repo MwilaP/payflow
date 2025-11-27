@@ -175,7 +175,19 @@ export function NewEmployeeForm() {
                     <FormItem>
                       <FormLabel>First Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter first name" {...field} />
+                        <Input
+                          placeholder="Enter first name"
+                          name={field.name}
+                          ref={field.ref}
+                          value={field.value || ''}
+                          onBlur={field.onBlur}
+                          className="uppercase"
+                          onChange={(e) => {
+                            const upperValue = e.target.value.toUpperCase()
+                            e.target.value = upperValue
+                            field.onChange(upperValue)
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -188,7 +200,19 @@ export function NewEmployeeForm() {
                     <FormItem>
                       <FormLabel>Last Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter last name" {...field} />
+                        <Input
+                          placeholder="Enter last name"
+                          name={field.name}
+                          ref={field.ref}
+                          value={field.value || ''}
+                          onBlur={field.onBlur}
+                          className="uppercase"
+                          onChange={(e) => {
+                            const upperValue = e.target.value.toUpperCase()
+                            e.target.value = upperValue
+                            field.onChange(upperValue)
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -214,7 +238,19 @@ export function NewEmployeeForm() {
                     <FormItem>
                       <FormLabel>Phone Number *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter phone number" {...field} />
+                        <Input
+                          placeholder="Enter phone number"
+                          name={field.name}
+                          ref={field.ref}
+                          value={field.value || ''}
+                          onBlur={field.onBlur}
+                          className="uppercase"
+                          onChange={(e) => {
+                            const upperValue = e.target.value.toUpperCase()
+                            e.target.value = upperValue
+                            field.onChange(upperValue)
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -289,8 +325,16 @@ export function NewEmployeeForm() {
                   <FormControl>
                     <Textarea
                       placeholder="Enter full address"
-                      className="min-h-[80px]"
-                      {...field}
+                      className="min-h-[80px] uppercase"
+                      name={field.name}
+                      ref={field.ref}
+                      value={field.value || ''}
+                      onBlur={field.onBlur}
+                      onChange={(e) => {
+                        const upperValue = e.target.value.toUpperCase()
+                        e.target.value = upperValue
+                        field.onChange(upperValue)
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -342,7 +386,19 @@ export function NewEmployeeForm() {
                   <FormItem>
                     <FormLabel>Designation *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter job title" {...field} />
+                      <Input
+                        placeholder="Enter job title"
+                        name={field.name}
+                        ref={field.ref}
+                        value={field.value || ''}
+                        onBlur={field.onBlur}
+                        className="uppercase"
+                        onChange={(e) => {
+                          const upperValue = e.target.value.toUpperCase()
+                          e.target.value = upperValue
+                          field.onChange(upperValue)
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -471,7 +527,19 @@ export function NewEmployeeForm() {
                   <FormItem>
                     <FormLabel>Account Number *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter account number" {...field} />
+                      <Input
+                        placeholder="Enter account number"
+                        name={field.name}
+                        ref={field.ref}
+                        value={field.value || ''}
+                        onBlur={field.onBlur}
+                        className="uppercase"
+                        onChange={(e) => {
+                          const upperValue = e.target.value.toUpperCase()
+                          e.target.value = upperValue
+                          field.onChange(upperValue)
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -484,7 +552,19 @@ export function NewEmployeeForm() {
                   <FormItem>
                     <FormLabel>Bank Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter bank name" {...field} />
+                      <Input
+                        placeholder="Enter bank name"
+                        name={field.name}
+                        ref={field.ref}
+                        value={field.value || ''}
+                        onBlur={field.onBlur}
+                        className="uppercase"
+                        onChange={(e) => {
+                          const upperValue = e.target.value.toUpperCase()
+                          e.target.value = upperValue
+                          field.onChange(upperValue)
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -497,7 +577,19 @@ export function NewEmployeeForm() {
                   <FormItem>
                     <FormLabel>Branch Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter branch name" {...field} />
+                      <Input
+                        placeholder="Enter branch name"
+                        name={field.name}
+                        ref={field.ref}
+                        value={field.value || ''}
+                        onBlur={field.onBlur}
+                        className="uppercase"
+                        onChange={(e) => {
+                          const upperValue = e.target.value.toUpperCase()
+                          e.target.value = upperValue
+                          field.onChange(upperValue)
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -510,7 +602,19 @@ export function NewEmployeeForm() {
                   <FormItem>
                     <FormLabel>IFSC/SWIFT Code</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter IFSC/SWIFT code" {...field} />
+                      <Input
+                        placeholder="Enter IFSC/SWIFT code"
+                        name={field.name}
+                        ref={field.ref}
+                        value={field.value || ''}
+                        onBlur={field.onBlur}
+                        className="uppercase"
+                        onChange={(e) => {
+                          const upperValue = e.target.value.toUpperCase()
+                          e.target.value = upperValue
+                          field.onChange(upperValue)
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -535,7 +639,11 @@ export function NewEmployeeForm() {
                   <FormItem>
                     <FormLabel>National ID *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter national ID number" {...field} />
+                      <Input
+                        placeholder="Enter national ID number"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -548,7 +656,11 @@ export function NewEmployeeForm() {
                   <FormItem>
                     <FormLabel>Tax Number *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter tax identification number" {...field} />
+                      <Input
+                        placeholder="Enter tax identification number"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -561,7 +673,11 @@ export function NewEmployeeForm() {
                   <FormItem>
                     <FormLabel>Pension Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter pension number" {...field} />
+                      <Input
+                        placeholder="Enter pension number"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

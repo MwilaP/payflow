@@ -1,5 +1,5 @@
 import PDFDocument from 'pdfkit'
-import { Readable } from 'stream'
+
 
 export interface PayslipPDFData {
   // Company Information

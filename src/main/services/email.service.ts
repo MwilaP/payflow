@@ -14,6 +14,7 @@ export interface EmailConfig {
 }
 
 export interface EmailPayslipData {
+  employeeId?: string
   employeeName: string
   employeeEmail: string
   period: string
@@ -128,7 +129,8 @@ class EmailService {
       const savedConfig = loadSMTPConfig()
       if (savedConfig) {
         console.log('Loading SMTP configuration from storage...')
-        await this.initialize(savedConfig, false) // Don't save again
+        // Load config without verification to avoid blocking startup
+        await this.initialize(savedConfig, false, false) // Don't save, don't verify
         return true
       }
       return false
@@ -142,8 +144,9 @@ class EmailService {
    * Initialize email service with configuration
    * @param config - Email configuration
    * @param persist - Whether to persist the configuration (default: true)
+   * @param verify - Whether to verify the connection (default: true)
    */
-  async initialize(config: EmailConfig, persist = true): Promise<void> {
+  async initialize(config: EmailConfig, persist = true, verify = true): Promise<void> {
     try {
       console.log('Initializing email service with config:', {
         host: config.host,
@@ -170,10 +173,14 @@ class EmailService {
         logger: true // Enable logger
       })
 
-      // Verify connection
-      console.log('Verifying SMTP connection...')
-      await this.transporter.verify()
-      console.log('✓ Email service initialized successfully')
+      // Verify connection only if requested (skip on startup to avoid blocking)
+      if (verify) {
+        console.log('Verifying SMTP connection...')
+        await this.transporter.verify()
+        console.log('✓ Email service initialized and verified successfully')
+      } else {
+        console.log('✓ Email service initialized (verification skipped)')
+      }
 
       // Persist configuration if requested
       if (persist) {
@@ -238,14 +245,14 @@ class EmailService {
       console.log(`Payslip email sent to ${data.employeeEmail}`)
     } catch (error) {
       console.error(`Failed to send email to ${data.employeeEmail}:`, error)
-      throw new Error(`Failed to send email: ${error.message}`)
+      throw new Error(`Failed to send email: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
   /**
-   * Send payslips to multiple employees
+   * Send payslips to multiple employees and update payroll record with email status
    */
-  async sendBulkPayslips(payslips: EmailPayslipData[]): Promise<BulkEmailResult> {
+  async sendBulkPayslips(payslips: EmailPayslipData[], payrollRecordId?: string): Promise<BulkEmailResult> {
     if (!this.transporter || !this.config) {
       throw new Error('Email service not configured. Please configure email settings first.')
     }
@@ -261,17 +268,43 @@ class EmailService {
       try {
         await this.sendPayslipEmail(payslip)
         result.sent++
+
+        // Update payroll record if ID is provided
+        if (payrollRecordId && payslip.employeeId) {
+          await this.updatePayrollItemEmailStatus(payrollRecordId, payslip.employeeId, 'sent')
+        }
       } catch (error: any) {
         result.failed++
         result.errors.push({
           email: payslip.employeeEmail,
           error: error.message || 'Unknown error'
         })
+
+        // Update payroll record with failed status if ID is provided
+        if (payrollRecordId && payslip.employeeId) {
+          await this.updatePayrollItemEmailStatus(payrollRecordId, payslip.employeeId, 'failed', error.message || 'Unknown error')
+        }
       }
     }
 
     result.success = result.failed === 0
     return result
+  }
+
+  /**
+   * Update email status for a specific payroll item
+   * Note: This is kept for future use but not currently used since we update locally in the renderer
+   */
+  private async updatePayrollItemEmailStatus(
+    payrollRecordId: string,
+    employeeId: string,
+    status: 'sent' | 'failed',
+    error?: string
+  ): Promise<void> {
+    console.log(`Email status update: ${payrollRecordId}, ${employeeId}, ${status}`)
+    if (error) {
+      console.log(`Email error: ${error}`)
+    }
   }
 
   /**

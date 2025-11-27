@@ -21,9 +21,12 @@ export default function LoginPage() {
   const { login, needsOnboarding, isLoading: authLoading } = useAuth()
   const { toast } = useToast()
 
+  console.log('🔐 LoginPage rendering:', { needsOnboarding, authLoading })
+
   // Redirect to onboarding if no users exist
   useEffect(() => {
     if (!authLoading && needsOnboarding) {
+      console.log('➡️ Redirecting to onboarding - no users exist')
       navigate('/onboarding')
     }
   }, [needsOnboarding, authLoading, navigate])
