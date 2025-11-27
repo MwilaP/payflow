@@ -1,13 +1,14 @@
+import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 // Note: Google Fonts will be loaded via CSS import in main.tsx
 import { AuthProvider } from '@/lib/auth-context'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { Titlebar } from '@/components/titlebar'
+import { LaunchScreen } from '@/components/launch-screen'
 import { SQLiteDatabaseProvider } from '@/lib/db/sqlite-db-context'
 
 // Import pages
-import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import OnboardingPage from './pages/OnboardingPage'
 import DashboardPage from './pages/DashboardPage'
@@ -23,6 +24,21 @@ import ResetPasswordPage from './pages/ResetPasswordPage'
 import SettingsPage from './pages/SettingsPage'
 
 function App() {
+  const [isInitializing, setIsInitializing] = useState(true)
+
+  useEffect(() => {
+    // Show launch screen for minimum 3 seconds to allow SMTP and auth initialization
+    const timer = setTimeout(() => {
+      setIsInitializing(false)
+    }, 3000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isInitializing) {
+    return <LaunchScreen />
+  }
+
   return (
     <div className="font-sans">
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>

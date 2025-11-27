@@ -17,7 +17,25 @@ export interface PayrollHistory {
   processedBy?: string
   updatedAt?: string
   createdAt?: string
+  items?: PayrollItem[]
   [key: string]: any // For additional properties
+}
+
+// Define individual payroll item with email status
+export interface PayrollItem {
+  employeeId: string
+  employeeName: string
+  employeeNumber?: string
+  basicSalary: number
+  allowances: number
+  deductions: number
+  netSalary: number
+  allowanceBreakdown?: Array<{ name: string; value: number; type?: string; percentage?: number }>
+  deductionBreakdown?: Array<{ name: string; value: number; type?: string; percentage?: number; preTax?: boolean }>
+  emailStatus?: 'pending' | 'sent' | 'failed'
+  emailError?: string
+  emailSentAt?: string
+  [key: string]: any
 }
 
 // Define valid status transitions

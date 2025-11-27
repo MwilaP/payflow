@@ -17,12 +17,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         <MainSidebar user={user} />
       </aside>
 
-      {/* Main content area */}
+      
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
         <MainHeader />
 
-        {/* Page content */}
+    
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CreditCard, Loader2, User, Mail, Lock, UserCircle } from 'lucide-react'
+import { CreditCard, Loader2, User, Mail, Lock, UserCircle, CheckCircle2 } from 'lucide-react'
 
 import { register } from '@/lib/auth-service'
+import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -19,8 +20,11 @@ import { useToast } from '@/components/ui/use-toast'
 export default function OnboardingPage() {
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { login, checkForUsers } = useAuth()
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [loadingMessage, setLoadingMessage] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -76,9 +80,12 @@ export default function OnboardingPage() {
     }
 
     setIsLoading(true)
+    setLoadingMessage('Creating your account...')
 
     try {
       console.log('Submitting registration form...')
+      
+      // Step 1: Register the user
       const result = await register(
         formData.username,
         formData.email,
@@ -89,27 +96,40 @@ export default function OnboardingPage() {
       console.log('Registration result:', result)
 
       if (result.success && result.user) {
-        // Create a session for the newly registered user
-        const session = {
-          user: result.user,
-          isLoggedIn: true,
-          expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-        }
+        setLoadingMessage('Account created successfully!')
+        setIsSuccess(true)
         
-        // Store session in localStorage
-        localStorage.setItem('paylo_session', JSON.stringify(session))
+        // Small delay to show success state
+        await new Promise(resolve => setTimeout(resolve, 800))
         
-        toast({
-          title: 'Account Created',
-          description: 'Welcome! Redirecting to your dashboard...'
-        })
+        // Step 2: Automatically log in the user
+        setLoadingMessage('Logging you in...')
+        const loginResult = await login(formData.username, formData.password)
         
-        // Redirect to dashboard after a short delay
-        setTimeout(() => {
+        if (loginResult.success) {
+          // Update auth context to reflect onboarding is complete
+          await checkForUsers()
+          
+          toast({
+            title: 'Welcome to Payflow!',
+            description: 'Your account has been created successfully.',
+          })
+          
+          // Step 3: Redirect to dashboard
+          setLoadingMessage('Redirecting to dashboard...')
+          await new Promise(resolve => setTimeout(resolve, 500))
           navigate('/dashboard')
-        }, 1500)
+        } else {
+          // Registration succeeded but login failed - show error but allow manual login
+          toast({
+            title: 'Account Created',
+            description: 'Please log in with your credentials.',
+          })
+          navigate('/login')
+        }
       } else {
         console.error('Registration failed:', result.error)
+        setIsSuccess(false)
         toast({
           title: 'Registration Failed',
           description: result.error || 'Failed to create account',
@@ -118,6 +138,7 @@ export default function OnboardingPage() {
       }
     } catch (error) {
       console.error('Unexpected registration error:', error)
+      setIsSuccess(false)
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
@@ -125,6 +146,7 @@ export default function OnboardingPage() {
       })
     } finally {
       setIsLoading(false)
+      setLoadingMessage('')
     }
   }
 
@@ -135,7 +157,7 @@ export default function OnboardingPage() {
           <div className="flex justify-center">
             <div className="flex items-center gap-2 text-3xl font-bold">
               <CreditCard className="h-10 w-10 text-primary" />
-              <span>Payroll</span>
+              <span>Payflow</span>
             </div>
           </div>
           <CardTitle className="text-2xl">Welcome! Let's Get Started</CardTitle>
@@ -243,8 +265,12 @@ export default function OnboardingPage() {
             <Button type="submit" className="w-full h-12 text-base" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Creating Account...
+                  {isSuccess ? (
+                    <CheckCircle2 className="mr-2 h-5 w-5 text-green-500" />
+                  ) : (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  )}
+                  {loadingMessage || 'Creating Account...'}
                 </>
               ) : (
                 'Create Admin Account'

@@ -54,52 +54,13 @@ export function MainHeader() {
             <MainSidebar user={user} />
           </SheetContent>
         </Sheet>
-        <h1 className="text-2xl font-bold tracking-tight">{pageName}</h1>
+        {/* <h1 className="text-2xl font-bold tracking-tight">{pageName}</h1> */}
       </div>
 
       {/* Right side - Notifications + User profile */}
       <div className="flex items-center gap-3">
         {/* Notifications */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                3
-              </span>
-              <span className="sr-only">Notifications</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium">New leave request</span>
-                <span className="text-xs text-muted-foreground">Jane Smith requested leave</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium">Payroll generated</span>
-                <span className="text-xs text-muted-foreground">March 2025 payroll is ready</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium">New employee</span>
-                <span className="text-xs text-muted-foreground">Robert Johnson was added</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/notifications" className="w-full cursor-pointer justify-center">
-                View all
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
+        
         {/* User Profile */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -46,7 +46,7 @@ export function MainSidebar({ user }: MainSidebarProps) {
             <CreditCard className="h-7 w-7 text-primary" />
           </div>
           <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-            Payroll
+            Payflow
           </span>
         </Link>
       </div>

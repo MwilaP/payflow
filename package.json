@@ -1,10 +1,10 @@
 {
   "name": "payflow",
-  "productName": "PayFlow",
+  "productName": "Payflow",
   "version": "1.0.0",
   "description": "Professional payroll management application - Streamline Your Payroll",
   "main": "./out/main/index.js",
-  "author": "PayFlow Team",
+  "author": "Payflow Team",
   "homepage": "https://payflow.app",
   "scripts": {
     "format": "prettier --write .",

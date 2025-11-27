@@ -27,7 +27,7 @@ export function Titlebar() {
     >
       {/* App Title/Logo */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-foreground">Payroll System</span>
+        <span className="text-sm font-semibold text-foreground"></span>
       </div>
 
       {/* Window Controls */}

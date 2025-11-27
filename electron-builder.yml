@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: payroll
+appId: com.payflow.app
+productName: Payflow
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: payroll
+  executableName: Payflow
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
