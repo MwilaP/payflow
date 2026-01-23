@@ -11,15 +11,7 @@ import {
   calculateLeaveTaken,
   calculateAvailableLeave
 } from '@/lib/utils/leave-calculations'
-import {
-  Download,
-  Mail,
-  Printer,
-  ArrowLeft,
-  FileText,
-  CheckCircle,
-  AlertCircle
-} from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import {
   Table,
@@ -55,7 +47,7 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
     setShowRequestForm(false)
     toast({
       title: 'Success',
-      description: 'Leave request submitted'
+      description: 'Leave processed successfully'
     })
   }
 
@@ -70,12 +62,12 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
       )
       toast({
         title: 'Success',
-        description: 'Leave request cancelled'
+        description: 'Leave cancelled'
       })
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to cancel leave request',
+        description: 'Failed to cancel leave',
         variant: 'destructive'
       })
     }
@@ -126,7 +118,17 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
   if (isLoading) return <div>Loading...</div>
   if (!employee) return <div>Employee not found</div>
 
-  const remainingLeave = calculateLeaveBalance(employee.hireDate)
+  // Calculate days for each approved leave record
+  const leaveHistoryWithDays = leaveHistory
+    .filter((leave) => leave.status === 'approved')
+    .map((leave) => {
+      const startDate = new Date(leave.startDate)
+      const endDate = new Date(leave.endDate)
+      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      return { days }
+    })
+
+  const remainingLeave = calculateAvailableLeave(employee.hireDate, leaveHistoryWithDays)
 
   return (
     <div className="container mx-auto py-6 space-y-8">
@@ -147,24 +149,32 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               <div className="border rounded-lg p-4">
-                <h3 className="font-medium">Employee Number</h3>
+                <h3 className="text-sm font-medium text-muted-foreground">Employee Number</h3>
                 <p className="text-2xl font-bold">{employee?.employeeNumber || 'N/A'}</p>
               </div>
               <div className="border rounded-lg p-4">
-                <h3 className="font-medium">Remaining Leave</h3>
-                <p className="text-2xl font-bold">{remainingLeave} days</p>
+                <h3 className="text-sm font-medium text-muted-foreground">Earned Leave</h3>
+                <p className="text-2xl font-bold text-blue-600">
+                  {calculateLeaveBalance(employee.hireDate)} days
+                </p>
               </div>
               <div className="border rounded-lg p-4">
-                <h3 className="font-medium">Start Date</h3>
-                <p>{new Date(employee.hireDate).toLocaleDateString()}</p>
+                <h3 className="text-sm font-medium text-muted-foreground">Leave Taken</h3>
+                <p className="text-2xl font-bold text-orange-600">
+                  {calculateLeaveTaken(leaveHistoryWithDays)} days
+                </p>
+              </div>
+              <div className="border rounded-lg p-4 bg-green-50">
+                <h3 className="text-sm font-medium text-muted-foreground">Remaining Leave</h3>
+                <p className="text-2xl font-bold text-green-600">{remainingLeave} days</p>
               </div>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="font-medium">Leave History</h3>
-                <Button onClick={() => setShowRequestForm(true)}>Request Leave</Button>
+                <Button onClick={() => setShowRequestForm(true)}>Process Leave</Button>
               </div>
 
               <div className="border rounded-lg overflow-hidden">
@@ -236,7 +246,7 @@ export default function EmployeeLeaveManagement({ id }: { id: string }) {
                       startDate: formData.startDate.toISOString(),
                       endDate: formData.endDate.toISOString(),
                       reason: formData.reason || '',
-                      status: 'pending',
+                      status: 'approved',
                       createdAt: new Date().toISOString(),
                       updatedAt: new Date().toISOString()
                     })

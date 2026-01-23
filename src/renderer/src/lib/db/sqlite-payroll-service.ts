@@ -356,25 +356,76 @@ export const createPayrollStructureServiceCompat = () => {
     },
 
     async update(id: string, updates: any) {
-      const sqliteUpdates: Partial<SQLitePayrollStructure> = {}
+      return sqliteOperations.transaction(async (ops) => {
+        const sqliteUpdates: Partial<SQLitePayrollStructure> = {}
 
-      if (updates.name) sqliteUpdates.name = updates.name
-      if (updates.description) sqliteUpdates.description = updates.description
-      if (updates.frequency) sqliteUpdates.frequency = updates.frequency
-      if (updates.basicSalary) sqliteUpdates.basic_salary = updates.basicSalary
+        if (updates.name) sqliteUpdates.name = updates.name
+        if (updates.description) sqliteUpdates.description = updates.description
+        if (updates.frequency) sqliteUpdates.frequency = updates.frequency
+        if (updates.basicSalary) sqliteUpdates.basic_salary = updates.basicSalary
 
-      const result = await sqliteService.update(id, sqliteUpdates)
-      if (!result) return null
+        const result = await sqliteService.update(id, sqliteUpdates)
+        if (!result) return null
 
-      // Get the full structure with allowances and deductions
-      const fullResult = await sqliteService.getById(id)
-      if (!fullResult) return null
+        // Handle allowances updates
+        if (updates.allowances) {
+          // Delete existing allowances
+          const existingAllowances = await ops.find<SQLiteAllowance>('allowances', {
+            payroll_structure_id: id
+          })
+          for (const allowance of existingAllowances) {
+            await ops.delete('allowances', allowance.id)
+          }
 
-      return convertSQLiteToPouchDB.payrollStructure(
-        fullResult.structure,
-        fullResult.allowances,
-        fullResult.deductions
-      )
+          // Create new allowances
+          for (const allowanceData of updates.allowances) {
+            const allowance: SQLiteAllowance = {
+              id: `allowance_${uuidv4()}`,
+              payroll_structure_id: id,
+              name: allowanceData.name,
+              type: allowanceData.type,
+              value: allowanceData.value
+            }
+            const validated = sqliteAllowanceSchema.parse(allowance)
+            await ops.create('allowances', validated)
+          }
+        }
+
+        // Handle deductions updates
+        if (updates.deductions) {
+          // Delete existing deductions
+          const existingDeductions = await ops.find<SQLiteDeduction>('deductions', {
+            payroll_structure_id: id
+          })
+          for (const deduction of existingDeductions) {
+            await ops.delete('deductions', deduction.id)
+          }
+
+          // Create new deductions
+          for (const deductionData of updates.deductions) {
+            const deduction: SQLiteDeduction = {
+              id: `deduction_${uuidv4()}`,
+              payroll_structure_id: id,
+              name: deductionData.name,
+              type: deductionData.type,
+              value: deductionData.value,
+              pre_tax: deductionData.preTax
+            }
+            const validated = sqliteDeductionSchema.parse(deduction)
+            await ops.create('deductions', validated)
+          }
+        }
+
+        // Get the full structure with allowances and deductions
+        const fullResult = await sqliteService.getById(id)
+        if (!fullResult) return null
+
+        return convertSQLiteToPouchDB.payrollStructure(
+          fullResult.structure,
+          fullResult.allowances,
+          fullResult.deductions
+        )
+      })
     },
 
     async delete(id: string) {

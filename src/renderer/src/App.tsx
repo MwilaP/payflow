@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 // Note: Google Fonts will be loaded via CSS import in main.tsx
 import { AuthProvider, useAuth } from '@/lib/auth-context'
@@ -29,10 +29,16 @@ function AppContent() {
   const { isLoading: dbLoading, error: dbError } = useSQLiteDatabase()
   const { isLoading: authLoading } = useAuth()
   const [minLoadingTime, setMinLoadingTime] = useState(true)
+  const renderCount = useRef(0)
+  
+  renderCount.current++
+  console.log(`🔍 AppContent render #${renderCount.current}:`, { dbLoading, authLoading, minLoadingTime, dbError })
 
   useEffect(() => {
+    console.log('⏱️ Starting minimum loading timer (2 seconds)')
     // Show launch screen for minimum 2 seconds for better UX
     const timer = setTimeout(() => {
+      console.log('✅ Minimum loading time complete')
       setMinLoadingTime(false)
     }, 2000)
 
@@ -64,12 +70,13 @@ function AppContent() {
     )
   }
 
-  console.log('✅ Rendering app content - initialization complete')
+  console.log('✅ Rendering app content - initialization complete (render #' + renderCount.current + ')')
+  console.log('📍 Current window location:', window.location.pathname)
 
   return (
     <>
       <Titlebar />
-      <div className="pt-10">
+      <div className="pt-10 min-h-screen bg-background">
         <Routes>
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/" element={<LoginPage />} />

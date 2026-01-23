@@ -65,8 +65,12 @@ export function MainSidebar({ user }: MainSidebarProps) {
               label="Employees"
               isActive={pathname.startsWith('/employees')}
             />
-            {/* <NavItem href="/attendance" icon={Clock} label="Attendance" isActive={pathname.startsWith("/attendance")} />
-            <NavItem href="/leave" icon={Calendar} label="Leave" isActive={pathname.startsWith("/leave")} /> */}
+            <NavItem
+              href="/leave"
+              icon={Calendar}
+              label="Leave"
+              isActive={pathname.startsWith('/leave')}
+            />
             <NavItem
               href="/payroll"
               icon={CreditCard}

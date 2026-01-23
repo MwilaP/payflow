@@ -36,7 +36,7 @@ export class LeaveRequestService {
       _id: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      status: 'pending'
+      status: request.status || 'approved'
     }
     const response = await dbOperations.create(this.db, newRequest)
     return { ...newRequest, _rev: response.rev }

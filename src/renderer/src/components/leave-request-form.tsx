@@ -33,7 +33,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
 
 const formSchema = z.object({
-  employeeName: z.string().min(1, 'Employee name is required'),
   leaveType: z.string().min(1, 'Leave type is required'),
   startDate: z.date(),
   endDate: z.date(),
@@ -97,7 +96,7 @@ export function LeaveRequestForm({
       console.log(error)
       toast({
         title: 'Error',
-        description: 'Failed to submit leave request',
+        description: 'Failed to process leave',
         variant: 'destructive'
       })
     } finally {
@@ -111,9 +110,9 @@ export function LeaveRequestForm({
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <Alert>
             <Info className="h-4 w-4" />
-            <AlertTitle>Leave Request Guidelines</AlertTitle>
+            <AlertTitle>Process Leave</AlertTitle>
             <AlertDescription>
-              Please submit your request at least 3 days in advance for approval
+              Process employee leave and update leave records
             </AlertDescription>
           </Alert>
 
@@ -173,7 +172,6 @@ export function LeaveRequestForm({
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) => date < new Date()}
                         initialFocus
                       />
                     </PopoverContent>
@@ -210,7 +208,7 @@ export function LeaveRequestForm({
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) => date < form.getValues('startDate') || date < new Date()}
+                        disabled={(date) => date < form.getValues('startDate')}
                         initialFocus
                       />
                     </PopoverContent>
@@ -246,7 +244,7 @@ export function LeaveRequestForm({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Submitting...' : 'Submit Request'}
+              {isSubmitting ? 'Processing...' : 'Process Leave'}
             </Button>
           </div>
         </form>
