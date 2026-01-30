@@ -6,12 +6,19 @@
     "src/renderer/src/**/*.tsx",
     "src/preload/*.d.ts"
   ],
+  "exclude": [
+    "src/renderer/src/lib/test-*.ts",
+    "src/renderer/src/lib/db/test-*.ts"
+  ],
   "compilerOptions": {
     "composite": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
       "@renderer/*": [
+        "src/renderer/src/*"
+      ],
+      "@/*": [
         "src/renderer/src/*"
       ]
     }

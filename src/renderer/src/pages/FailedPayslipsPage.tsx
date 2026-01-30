@@ -147,7 +147,6 @@ export function FailedPayslipsPage() {
       })
 
       const emailResult = await emailService.sendPayslip({
-        employeeId: failedPayslip.employee_id,
         employeeName: failedPayslip.employee_name,
         employeeEmail: failedPayslip.employee_email,
         period: failedPayslip.period,
@@ -258,7 +257,7 @@ export function FailedPayslipsPage() {
           }
 
           // Generate PDF
-          const pdfResult = await pdfService.generatePayslip(pdfData)
+          const pdfResult = await pdfService.generatePayslipPDF(pdfData)
           if (!pdfResult.success || !pdfResult.data) {
             failCount++
             await window.api.db.failedPayslips.incrementRetryCount(failedPayslip.id)
@@ -267,7 +266,6 @@ export function FailedPayslipsPage() {
 
           // Send email
           const emailResult = await emailService.sendPayslip({
-            employeeId: failedPayslip.employee_id,
             employeeName: failedPayslip.employee_name,
             employeeEmail: failedPayslip.employee_email,
             period: failedPayslip.period,

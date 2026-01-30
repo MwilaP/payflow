@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { DollarSign, Users, FileText, BarChart4, ArrowRight } from 'lucide-react'
 import { AppLayout } from '@/components/app-layout'
 
-export default function DashboardPage(): JSX.Element {
+export default function DashboardPage() {
   return (
     <AppLayout>
       <div className="h-full p-8 md:p-12 bg-gradient-to-br from-background via-background to-muted/20">

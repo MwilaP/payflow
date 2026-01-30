@@ -5,8 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardFooter
+  CardDescription
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -354,7 +353,6 @@ export default function PayrollHistoryDetailPage() {
 
           // Prepare email data (will add PDF later)
           emailDataArray.push({
-            employeeId: item.employeeId,
             employeeName: `${employee.firstName} ${employee.lastName}`,
             employeeEmail: employee.email,
             period: payrollRecord.period || 'Monthly',
@@ -403,7 +401,7 @@ export default function PayrollHistoryDetailPage() {
         description: `Sending payslips to ${emailDataWithPDFs.length} employees...`
       })
 
-      const result = await emailService.sendBulkPayslips(emailDataWithPDFs, payrollRecord._id)
+      const result = await emailService.sendBulkPayslips(emailDataWithPDFs)
 
       // Update payroll record with email status results
       const updatedItems = payrollRecord.items.map((item: any) => {

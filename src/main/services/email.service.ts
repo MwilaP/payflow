@@ -423,10 +423,6 @@ class EmailService {
           <p>Dear ${data.employeeName},</p>
           <p>Your payslip for <strong>${data.period}</strong> is now available.</p>
           
-          <div class="info-box">
-            <p><strong>Period:</strong> ${data.period}</p>
-            <p><strong>Net Salary:</strong> <span class="amount">K ${data.netSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
-          </div>
 
           ${data.payslipPdfBase64 ? '<p>Please find your detailed payslip attached to this email.</p>' : '<p>Please contact HR for your detailed payslip.</p>'}
           
@@ -451,8 +447,6 @@ Dear ${data.employeeName},
 
 Your payslip for ${data.period} is now available.
 
-Period: ${data.period}
-Net Salary: K ${data.netSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 
 ${data.payslipPdfBase64 ? 'Please find your detailed payslip attached to this email.' : 'Please contact HR for your detailed payslip.'}
 
