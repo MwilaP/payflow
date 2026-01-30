@@ -1,7 +1,5 @@
 'use client'
 
-import { createSQLiteUserService } from '@/lib/db/sqlite-user-service'
-
 // Session type definition
 export interface User {
   _id: string
@@ -21,17 +19,7 @@ export interface Session {
 export const initializeAuth = async (): Promise<boolean> => {
   try {
     console.log('Initializing auth system...')
-
-    // First ensure database is initialized
-    const { initializeSQLiteDatabase } = await import('@/lib/db/indexeddb-sqlite-service')
-    const dbResult = await initializeSQLiteDatabase()
-
-    if (!dbResult.success) {
-      console.error('Failed to initialize database:', dbResult.error)
-      return false
-    }
-
-    console.log('Database initialized successfully')
+    console.log('SQLite database is initialized in main process')
     return true
   } catch (error) {
     console.error('Error initializing auth:', error)
@@ -42,9 +30,12 @@ export const initializeAuth = async (): Promise<boolean> => {
 // Check if any users exist in the system
 export const hasUsers = async (): Promise<boolean> => {
   try {
-    const userService = createSQLiteUserService()
-    const users = await userService.getAll()
-    return users.length > 0
+    const result = await window.api.db.users.getAll()
+    if (!result.success) {
+      console.error('Error checking for users:', result.error)
+      return false
+    }
+    return result.data.length > 0
   } catch (error) {
     console.error('Error checking for users:', error)
     return false
@@ -60,53 +51,46 @@ export const register = async (
 ): Promise<{ success: boolean; user: User | null; error?: string }> => {
   try {
     console.log('Starting registration process...')
-    
-    // Ensure database is initialized
-    const { initializeSQLiteDatabase } = await import('@/lib/db/indexeddb-sqlite-service')
-    const dbResult = await initializeSQLiteDatabase()
-
-    if (!dbResult.success) {
-      console.error('Failed to initialize database:', dbResult.error)
-      return { success: false, user: null, error: 'Database initialization failed' }
-    }
-
-    console.log('Database initialized, creating user...')
-    const userService = createSQLiteUserService()
 
     // Check if username already exists
-    const existingUsername = await userService.getByUsername(username)
-    if (existingUsername) {
+    const usernameCheck = await window.api.db.users.getByUsername(username)
+    if (usernameCheck.success && usernameCheck.data) {
       console.log('Username already exists')
       return { success: false, user: null, error: 'Username already exists' }
     }
 
     // Check if email already exists
-    const existingEmail = await userService.getByEmail(email)
-    if (existingEmail) {
+    const emailCheck = await window.api.db.users.getByEmail(email)
+    if (emailCheck.success && emailCheck.data) {
       console.log('Email already exists')
       return { success: false, user: null, error: 'Email already exists' }
     }
 
-    // Create the user
+    // Create the user (password will be hashed by bcrypt in main process)
     console.log('Creating user with data:', { username, email, name, role: 'admin' })
-    const newUser = await userService.create({
+    const result = await window.api.db.users.create({
       username,
       email,
-      password, // In production, this should be hashed
-      role: 'admin', // First user is always admin
+      password,
+      role: 'admin',
       name
     })
 
-    console.log('User created successfully:', newUser)
+    if (!result.success || !result.data) {
+      console.error('Failed to create user:', result.error)
+      return { success: false, user: null, error: result.error || 'Failed to create user' }
+    }
+
+    console.log('User created successfully:', result.data)
 
     return {
       success: true,
       user: {
-        _id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-        name: newUser.name,
-        role: newUser.role
+        _id: result.data.id,
+        username: result.data.username,
+        email: result.data.email,
+        name: result.data.name,
+        role: result.data.role
       }
     }
   } catch (error) {
@@ -121,40 +105,34 @@ export const login = async (
   password: string
 ): Promise<{ success: boolean; session: Session | null; error?: string }> => {
   try {
-    const userService = createSQLiteUserService()
-    console.log('login...')
+    console.log('Attempting login...')
 
-    // Validate credentials using SQLite user service
-    const user = await userService.validateCredentials(usernameOrEmail, password)
-    console.log('User validation result:', user)
+    // Validate credentials using SQLite IPC (bcrypt verification in main process)
+    const result = await window.api.db.users.validateCredentials(usernameOrEmail, password)
+    console.log('User validation result:', result.success ? 'Success' : 'Failed')
 
-    // if (!user) {
-    //   console.log("Invalid credentials")
-    //   return { success: false, session: null, error: "Invalid credentials" }
-    // }
-    if (user) {
-      const session: Session = {
-        user: {
-          _id: user.id,
-          username: user?.username,
-          email: user?.email,
-          name: user?.name,
-          role: user?.role
-        },
-        isLoggedIn: true,
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
-      }
-
-      // Store session in localStorage
-      localStorage.setItem('paylo_session', JSON.stringify(session))
-
-      return { success: true, session }
-    } else {
+    if (!result.success || !result.data) {
       console.log('Invalid credentials')
       return { success: false, session: null, error: 'Invalid credentials' }
     }
 
-    // Create session
+    const user = result.data
+    const session: Session = {
+      user: {
+        _id: user.id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      },
+      isLoggedIn: true,
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    }
+
+    // Store session in localStorage
+    localStorage.setItem('paylo_session', JSON.stringify(session))
+
+    return { success: true, session }
   } catch (error) {
     console.error('Login error:', error)
     return { success: false, session: null, error: 'Authentication failed' }

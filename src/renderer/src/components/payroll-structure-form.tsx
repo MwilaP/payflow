@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast'
 import { PayrollStructureSummary } from './payroll-structure-summary'
 import { createPayrollStructureServiceCompat } from '@/lib/db/sqlite-payroll-service'
 import { initializeSQLiteDatabase } from '@/lib/db/indexeddb-sqlite-service'
-import { calculateTaxDeduction, calculateNapsaContribution } from '@/lib/utils/payroll-calculations'
+import { calculateTaxDeduction, calculateNapsaContribution, calculateNhimaContribution } from '@/lib/utils/payroll-calculations'
 
 interface Allowance {
   id: string
@@ -72,7 +72,14 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
     {
       id: '2',
       name: 'NAPSA',
-      type: 'percentage',
+      type: 'fixed',
+      value: 0,
+      preTax: true
+    },
+    {
+      id: '3',
+      name: 'NHIMA',
+      type: 'fixed',
       value: 0,
       preTax: true
     }
@@ -104,13 +111,8 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
     initDb()
   }, [toast])
 
-  // Update tax deduction when salary or allowances change (only for new structures)
+  // Update tax deduction when salary or allowances change
   useEffect(() => {
-    // Skip auto-calculation completely when editing
-    if (isEditing) {
-      return
-    }
-
     if (basicSalary > 0) {
       // Calculate total allowances
       const totalAllowances = allowances.reduce((total, allowance) => {
@@ -123,37 +125,49 @@ export function PayrollStructureForm({ id }: PayrollStructureFormProps = {}) {
       const grossPay = basicSalary + totalAllowances
       const tax = calculateTaxDeduction(grossPay)
       const napsa = calculateNapsaContribution(grossPay)
-      const totalDeduction = tax
+      const nhima = calculateNhimaContribution(basicSalary)
 
       setDeductions((prev) => {
-        const otherDeductions = prev.filter((d) => d.id !== '2')
+        // Keep other deductions that are not PAYE, NAPSA, or NHIMA
+        const otherDeductions = prev.filter(
+          (d) => 
+            !d.name.toLowerCase().includes('paye') && 
+            !d.name.toLowerCase().includes('napsa') && 
+            !d.name.toLowerCase().includes('nhima')
+        )
+        
+        // Find existing PAYE, NAPSA, NHIMA deductions to preserve their IDs
+        const existingPaye = prev.find((d) => d.name.toLowerCase().includes('paye'))
+        const existingNapsa = prev.find((d) => d.name.toLowerCase().includes('napsa'))
+        const existingNhima = prev.find((d) => d.name.toLowerCase().includes('nhima'))
+
         return [
           {
-            id: '2',
+            id: existingPaye?.id || '1',
+            name: 'PAYE',
+            type: 'fixed',
+            value: parseFloat(tax.toFixed(2)),
+            preTax: true
+          },
+          {
+            id: existingNapsa?.id || '2',
             name: 'NAPSA',
             type: 'fixed',
             value: parseFloat(napsa.toFixed(2)),
             preTax: true
           },
-          ...otherDeductions
-        ]
-      })
-
-      setDeductions((prev) => {
-        const otherDeductions = prev.filter((d) => d.id !== '1')
-        return [
           {
-            id: '1',
-            name: 'PAYE',
+            id: existingNhima?.id || '3',
+            name: 'NHIMA',
             type: 'fixed',
-            value: parseFloat(totalDeduction.toFixed(2)),
+            value: parseFloat(nhima.toFixed(2)),
             preTax: true
           },
           ...otherDeductions
         ]
       })
     }
-  }, [basicSalary, allowances, isEditing])
+  }, [basicSalary, allowances])
 
   // Load data if editing
   useEffect(() => {

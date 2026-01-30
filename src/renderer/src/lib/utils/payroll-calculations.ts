@@ -18,6 +18,10 @@ export function calculateNapsaContribution(grossPay: number): number {
   return 1342
 }
 
+export function calculateNhimaContribution(basicPay: number): number {
+  return basicPay * 0.01
+}
+
 export interface PayrollDeductions {
   [key: string]: {
     type: 'fixed' | 'percentage'

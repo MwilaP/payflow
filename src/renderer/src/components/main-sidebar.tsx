@@ -13,7 +13,8 @@ import {
   Users,
   Clock,
   LogOut,
-  User
+  User,
+  AlertTriangle
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -76,6 +77,12 @@ export function MainSidebar({ user }: MainSidebarProps) {
               icon={CreditCard}
               label="Payroll"
               isActive={pathname.startsWith('/payroll')}
+            />
+            <NavItem
+              href="/failed-payslips"
+              icon={AlertTriangle}
+              label="Failed Payslips"
+              isActive={pathname.startsWith('/failed-payslips')}
             />
             {/* <NavItem href="/payslip" icon={FileText} label="Payslips" isActive={pathname.startsWith("/payslips")} />
             <NavItem href="/reports" icon={BarChart3} label="Reports" isActive={pathname.startsWith("/reports")} /> */}

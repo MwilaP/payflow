@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer'
 import type { Transporter } from 'nodemailer'
 import { saveSMTPConfig, loadSMTPConfig } from './settings.service'
+import { failedPayslipService } from './database.service'
 
 export interface EmailConfig {
   host: string
@@ -275,14 +276,37 @@ class EmailService {
         }
       } catch (error: any) {
         result.failed++
+        const errorMessage = error.message || 'Unknown error'
         result.errors.push({
           email: payslip.employeeEmail,
-          error: error.message || 'Unknown error'
+          error: errorMessage
         })
 
         // Update payroll record with failed status if ID is provided
         if (payrollRecordId && payslip.employeeId) {
-          await this.updatePayrollItemEmailStatus(payrollRecordId, payslip.employeeId, 'failed', error.message || 'Unknown error')
+          await this.updatePayrollItemEmailStatus(payrollRecordId, payslip.employeeId, 'failed', errorMessage)
+        }
+
+        // Log to database for persistent tracking and retry
+        if (payrollRecordId && payslip.employeeId) {
+          try {
+            await failedPayslipService.create({
+              payroll_record_id: payrollRecordId,
+              employee_id: payslip.employeeId,
+              employee_name: payslip.employeeName,
+              employee_email: payslip.employeeEmail,
+              employee_number: (payslip as any).employeeNumber || '',
+              period: payslip.period,
+              net_salary: payslip.netSalary,
+              error_message: errorMessage,
+              retry_count: 0,
+              payslip_data: JSON.stringify(payslip),
+              status: 'pending'
+            })
+            console.log(`✓ Failed payslip logged to database for ${payslip.employeeName}`)
+          } catch (dbError) {
+            console.error('✗ Failed to log failed payslip to database:', dbError)
+          }
         }
       }
     }

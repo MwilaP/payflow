@@ -6,6 +6,29 @@ import { emailService } from './services/email.service'
 import type { EmailConfig, EmailPayslipData } from './services/email.service'
 import { pdfGeneratorService } from './services/pdf-generator.service'
 import type { PayslipPDFData } from './services/pdf-generator.service'
+import {
+  initializeDatabase,
+  closeDatabase,
+  userService,
+  employeeService,
+  payrollStructureService,
+  allowanceService,
+  deductionService,
+  payrollHistoryService,
+  settingsService,
+  leaveRequestService,
+  failedPayslipService
+} from './services/database.service'
+import type {
+  User,
+  Employee,
+  PayrollStructure,
+  Allowance,
+  Deduction,
+  PayrollHistory,
+  Setting,
+  LeaveRequest
+} from './services/database.service'
 
 function createWindow(): void {
   console.log('🚀 Creating main window...')
@@ -110,6 +133,13 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
+  // Initialize SQLite database
+  try {
+    initializeDatabase()
+  } catch (error) {
+    console.error('Failed to initialize database:', error)
+  }
+
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.payflow')
 
@@ -253,6 +283,591 @@ app.whenReady().then(async () => {
     }
   })
 
+  // Database IPC handlers - Users
+  ipcMain.handle('db:users:create', async (_, user: Omit<User, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const result = await userService.create(user)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:users:getById', async (_, id: string) => {
+    try {
+      const result = userService.getById(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:users:getByUsername', async (_, username: string) => {
+    try {
+      const result = userService.getByUsername(username)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:users:getByEmail', async (_, email: string) => {
+    try {
+      const result = userService.getByEmail(email)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:users:getByUsernameOrEmail', async (_, usernameOrEmail: string) => {
+    try {
+      const result = userService.getByUsernameOrEmail(usernameOrEmail)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:users:update', async (_, id: string, updates: Partial<Omit<User, 'id' | 'created_at'>>) => {
+    try {
+      const result = await userService.update(id, updates)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:users:delete', async (_, id: string) => {
+    try {
+      const result = userService.delete(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:users:getAll', async () => {
+    try {
+      const result = userService.getAll()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:users:validateCredentials', async (_, usernameOrEmail: string, password: string) => {
+    try {
+      const result = await userService.validateCredentials(usernameOrEmail, password)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Database IPC handlers - Employees
+  ipcMain.handle('db:employees:create', async (_, employee: Omit<Employee, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const result = employeeService.create(employee)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:employees:getById', async (_, id: string) => {
+    try {
+      const result = employeeService.getById(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:employees:getAll', async () => {
+    try {
+      const result = employeeService.getAll()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:employees:update', async (_, id: string, updates: Partial<Omit<Employee, 'id' | 'created_at'>>) => {
+    try {
+      const result = employeeService.update(id, updates)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:employees:delete', async (_, id: string) => {
+    try {
+      const result = employeeService.delete(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:employees:find', async (_, conditions: Partial<Employee>) => {
+    try {
+      const result = employeeService.find(conditions)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Database IPC handlers - Payroll Structures
+  ipcMain.handle('db:payrollStructures:create', async (_, structure: Omit<PayrollStructure, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const result = payrollStructureService.create(structure)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:payrollStructures:getById', async (_, id: string) => {
+    try {
+      const result = payrollStructureService.getById(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:payrollStructures:getAll', async () => {
+    try {
+      const result = payrollStructureService.getAll()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:payrollStructures:update', async (_, id: string, updates: Partial<Omit<PayrollStructure, 'id' | 'created_at'>>) => {
+    try {
+      const result = payrollStructureService.update(id, updates)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:payrollStructures:delete', async (_, id: string) => {
+    try {
+      const result = payrollStructureService.delete(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Database IPC handlers - Allowances
+  ipcMain.handle('db:allowances:create', async (_, allowance: Omit<Allowance, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const result = allowanceService.create(allowance)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:allowances:getById', async (_, id: string) => {
+    try {
+      const result = allowanceService.getById(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:allowances:getByStructureId', async (_, structureId: string) => {
+    try {
+      const result = allowanceService.getByStructureId(structureId)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:allowances:getAll', async () => {
+    try {
+      const result = allowanceService.getAll()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:allowances:update', async (_, id: string, updates: Partial<Omit<Allowance, 'id' | 'created_at'>>) => {
+    try {
+      const result = allowanceService.update(id, updates)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:allowances:delete', async (_, id: string) => {
+    try {
+      const result = allowanceService.delete(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Database IPC handlers - Deductions
+  ipcMain.handle('db:deductions:create', async (_, deduction: Omit<Deduction, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const result = deductionService.create(deduction)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:deductions:getById', async (_, id: string) => {
+    try {
+      const result = deductionService.getById(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:deductions:getByStructureId', async (_, structureId: string) => {
+    try {
+      const result = deductionService.getByStructureId(structureId)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:deductions:getAll', async () => {
+    try {
+      const result = deductionService.getAll()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:deductions:update', async (_, id: string, updates: Partial<Omit<Deduction, 'id' | 'created_at'>>) => {
+    try {
+      const result = deductionService.update(id, updates)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:deductions:delete', async (_, id: string) => {
+    try {
+      const result = deductionService.delete(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Database IPC handlers - Payroll History
+  ipcMain.handle('db:payrollHistory:create', async (_, history: Omit<PayrollHistory, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const result = payrollHistoryService.create(history)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:payrollHistory:getById', async (_, id: string) => {
+    try {
+      const result = payrollHistoryService.getById(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:payrollHistory:getByEmployeeId', async (_, employeeId: string) => {
+    try {
+      const result = payrollHistoryService.getByEmployeeId(employeeId)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:payrollHistory:getAll', async () => {
+    try {
+      const result = payrollHistoryService.getAll()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:payrollHistory:update', async (_, id: string, updates: Partial<Omit<PayrollHistory, 'id' | 'created_at'>>) => {
+    try {
+      const result = payrollHistoryService.update(id, updates)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:payrollHistory:delete', async (_, id: string) => {
+    try {
+      const result = payrollHistoryService.delete(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Database IPC handlers - Settings
+  ipcMain.handle('db:settings:create', async (_, setting: Omit<Setting, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const result = settingsService.create(setting)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:settings:getById', async (_, id: string) => {
+    try {
+      const result = settingsService.getById(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:settings:getByKey', async (_, key: string) => {
+    try {
+      const result = settingsService.getByKey(key)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:settings:getAll', async () => {
+    try {
+      const result = settingsService.getAll()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:settings:update', async (_, id: string, updates: Partial<Omit<Setting, 'id' | 'created_at'>>) => {
+    try {
+      const result = settingsService.update(id, updates)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:settings:updateByKey', async (_, key: string, value: string) => {
+    try {
+      const result = settingsService.updateByKey(key, value)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:settings:delete', async (_, id: string) => {
+    try {
+      const result = settingsService.delete(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Database IPC handlers - Leave Requests
+  ipcMain.handle('db:leaveRequests:create', async (_, leave: Omit<LeaveRequest, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const result = leaveRequestService.create(leave)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:leaveRequests:getById', async (_, id: string) => {
+    try {
+      const result = leaveRequestService.getById(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:leaveRequests:getByEmployeeId', async (_, employeeId: string) => {
+    try {
+      const result = leaveRequestService.getByEmployeeId(employeeId)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:leaveRequests:getAll', async () => {
+    try {
+      const result = leaveRequestService.getAll()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:leaveRequests:update', async (_, id: string, updates: Partial<Omit<LeaveRequest, 'id' | 'created_at'>>) => {
+    try {
+      const result = leaveRequestService.update(id, updates)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:leaveRequests:delete', async (_, id: string) => {
+    try {
+      const result = leaveRequestService.delete(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:leaveRequests:find', async (_, conditions: Partial<LeaveRequest>) => {
+    try {
+      const result = leaveRequestService.find(conditions)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Failed Payslips IPC Handlers
+  ipcMain.handle('db:failedPayslips:create', async (_, failedPayslip) => {
+    try {
+      const result = failedPayslipService.create(failedPayslip)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:getById', async (_, id: string) => {
+    try {
+      const result = failedPayslipService.getById(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:getByEmployeeId', async (_, employeeId: string) => {
+    try {
+      const result = failedPayslipService.getByEmployeeId(employeeId)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:getByPayrollRecordId', async (_, payrollRecordId: string) => {
+    try {
+      const result = failedPayslipService.getByPayrollRecordId(payrollRecordId)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:getAll', async () => {
+    try {
+      const result = failedPayslipService.getAll()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:getPending', async () => {
+    try {
+      const result = failedPayslipService.getPending()
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:update', async (_, id: string, updates) => {
+    try {
+      const result = failedPayslipService.update(id, updates)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:incrementRetryCount', async (_, id: string) => {
+    try {
+      const result = failedPayslipService.incrementRetryCount(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:markAsResolved', async (_, id: string) => {
+    try {
+      const result = failedPayslipService.markAsResolved(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:delete', async (_, id: string) => {
+    try {
+      const result = failedPayslipService.delete(id)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:deleteByPayrollRecordId', async (_, payrollRecordId: string) => {
+    try {
+      const result = failedPayslipService.deleteByPayrollRecordId(payrollRecordId)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('db:failedPayslips:find', async (_, conditions) => {
+    try {
+      const result = failedPayslipService.find(conditions)
+      return { success: true, data: result }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
   // Create window immediately - don't wait for SMTP
   createWindow()
 
@@ -282,8 +897,14 @@ app.whenReady().then(async () => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    closeDatabase()
     app.quit()
   }
+})
+
+// Close database when app is quitting
+app.on('before-quit', () => {
+  closeDatabase()
 })
 
 // In this file you can include the rest of your app's specific main process

@@ -23,6 +23,7 @@ import PayrollPage from './pages/PayrollPage'
 import ReportsPage from './pages/ReportsPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import SettingsPage from './pages/SettingsPage'
+import { FailedPayslipsPage } from './pages/FailedPayslipsPage'
 
 // Inner component that waits for context initialization
 function AppContent() {
@@ -89,6 +90,7 @@ function AppContent() {
           <Route path="/employees/:id/leave" element={<EmployeeLeavePage />} />
           <Route path="/leave" element={<LeavePage />} />
           <Route path="/payroll/*" element={<PayrollPage />} />
+          <Route path="/failed-payslips" element={<FailedPayslipsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
