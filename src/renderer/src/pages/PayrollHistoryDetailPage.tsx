@@ -46,6 +46,36 @@ import { getCompanySettings } from '@/components/company-settings'
 import { FailedEmailsDialog } from '@/components/failed-emails-dialog'
 import type { PayslipPDFData } from '../../../preload'
 import type { EmailPayslipData } from '@/lib/email-service'
+import { leaveRequestService } from '@/lib/db/services/leave-request.service'
+import {
+  calculateLeaveBalance,
+  calculateLeaveTaken,
+  calculateAvailableLeave
+} from '@/lib/utils/leave-calculations'
+
+const fetchEmployeeLeaveDays = async (employeeId: string, hireDate?: string) => {
+  try {
+    const leaveService = await leaveRequestService
+    const allLeaveRequests = await leaveService.getAll()
+    const empLeaveRequests = allLeaveRequests.filter(
+      (req: any) => req.employeeId === employeeId && req.status === 'approved'
+    )
+    const leaveHistoryWithDays = empLeaveRequests.map((leave: any) => {
+      const startDate = new Date(leave.startDate)
+      const endDate = new Date(leave.endDate)
+      const days =
+        Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      return { days }
+    })
+    const dateToUse = hireDate || new Date().toISOString()
+    const earned = calculateLeaveBalance(dateToUse)
+    const taken = calculateLeaveTaken(leaveHistoryWithDays)
+    const remaining = calculateAvailableLeave(dateToUse, leaveHistoryWithDays)
+    return { earned, taken, remaining }
+  } catch (e) {
+    return undefined
+  }
+}
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,7 +94,6 @@ export default function PayrollHistoryDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   const [isSendingEmails, setIsSendingEmails] = useState(false)
-  const [isEmailConfigured, setIsEmailConfigured] = useState(false)
   const [showEmailConfig, setShowEmailConfig] = useState(false)
   const [isCompletingPayroll, setIsCompletingPayroll] = useState(false)
   const [isProcessingPayroll, setIsProcessingPayroll] = useState(false)
@@ -325,6 +354,8 @@ export default function PayrollHistoryDetailPage() {
             })
           }
 
+          const leaveDays = item.leaveDays || (await fetchEmployeeLeaveDays(item.employeeId, employee.hireDate || employee.hire_date || employee.createdAt))
+
           // Create PDF data
           const pdfData: PayslipPDFData = {
             companyName: companySettings.companyName,
@@ -346,7 +377,8 @@ export default function PayrollHistoryDetailPage() {
             grossPay: (item.basicSalary || 0) + (item.allowances || 0),
             deductions: deductions,
             totalDeductions: item.deductions || 0,
-            netPay: item.netSalary || 0
+            netPay: item.netSalary || 0,
+            leaveDays: leaveDays
           }
 
           payslipPDFDataArray.push(pdfData)
@@ -526,6 +558,8 @@ export default function PayrollHistoryDetailPage() {
             })
           }
 
+          const leaveDays = item.leaveDays || (await fetchEmployeeLeaveDays(item.employeeId, employee.hireDate || employee.hire_date || employee.createdAt))
+
           // Create PDF data
           const pdfData: PayslipPDFData = {
             companyName: companySettings.companyName,
@@ -547,7 +581,8 @@ export default function PayrollHistoryDetailPage() {
             grossPay: (item.basicSalary || 0) + (item.allowances || 0),
             deductions: deductions,
             totalDeductions: item.deductions || 0,
-            netPay: item.netSalary || 0
+            netPay: item.netSalary || 0,
+            leaveDays: leaveDays
           }
 
           payslipPDFDataArray.push(pdfData)

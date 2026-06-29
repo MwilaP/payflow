@@ -18,6 +18,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { createEmployeeServiceCompat } from '@/lib/db/sqlite-employee-service'
 import { createPayrollStructureServiceCompat } from '@/lib/db/sqlite-payroll-service'
 import { createPayrollHistoryServiceCompat } from '@/lib/db/sqlite-payroll-history-service'
+import { leaveRequestService } from '@/lib/db/services/leave-request.service'
+import {
+  calculateLeaveBalance,
+  calculateLeaveTaken,
+  calculateAvailableLeave
+} from '@/lib/utils/leave-calculations'
 import { useToast } from '@/hooks/use-toast'
 
 export function EmployeeProfile({ id }: { id: string }) {
@@ -38,6 +44,7 @@ export function EmployeeProfile({ id }: { id: string }) {
   const [payslips, setPayslips] = useState<any[]>([]) // Added state for payslips
   const [payslipsLoading, setPayslipsLoading] = useState<boolean>(false) // Added loading state for payslips
   const [payslipsError, setPayslipsError] = useState<string | null>(null) // Added error state for payslips
+  const [leaveStats, setLeaveStats] = useState<{ earned: number; taken: number; remaining: number } | null>(null)
   const calculateTimeAtCompany = (joinDateStr: string | undefined): string => {
     if (!joinDateStr) return 'N/A'
     try {
@@ -178,17 +185,43 @@ export function EmployeeProfile({ id }: { id: string }) {
     fetchStructureAndCalculateSalary()
   }, [employee, payrollStructureService])
 
-  // Fetch payslips for the employee
+  // Fetch payslips and leave statistics for the employee
   useEffect(() => {
     if (!id || !servicesLoaded) {
       return
     }
 
-    const fetchPayslips = async () => {
+    const fetchPayslipsAndLeave = async () => {
       setPayslipsLoading(true)
       setPayslipsError(null)
 
       try {
+        // Fetch leave requests and calculate leave stats
+        let computedLeaveStats = { earned: 0, taken: 0, remaining: 0 }
+        try {
+          const leaveService = await leaveRequestService
+          const allLeaveRequests = await leaveService.getAll()
+          const empLeaveRequests = allLeaveRequests.filter(
+            (req: any) => req.employeeId === id && req.status === 'approved'
+          )
+          const leaveHistoryWithDays = empLeaveRequests.map((leave: any) => {
+            const startDate = new Date(leave.startDate)
+            const endDate = new Date(leave.endDate)
+            const days =
+              Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+            return { days }
+          })
+
+          const hireDate = employee?.hireDate || employee?.hire_date || employee?.createdAt || new Date().toISOString()
+          const earned = calculateLeaveBalance(hireDate)
+          const taken = calculateLeaveTaken(leaveHistoryWithDays)
+          const remaining = calculateAvailableLeave(hireDate, leaveHistoryWithDays)
+          computedLeaveStats = { earned, taken, remaining }
+          setLeaveStats(computedLeaveStats)
+        } catch (err) {
+          console.error('Error fetching leave data for employee profile:', err)
+        }
+
         // Use SQLite payroll history service
         const payrollHistoryService = createPayrollHistoryServiceCompat()
 
@@ -226,7 +259,9 @@ export function EmployeeProfile({ id }: { id: string }) {
             netPay: record.netPay || employeeItem?.netSalary || 0,
             status: record.status || 'paid',
             payrollHistoryId: record._id,
-            employeeId: id
+            employeeId: id,
+            leaveDetails: employeeItem?.leaveDays || computedLeaveStats,
+            leaveDays: employeeItem?.leaveDays || computedLeaveStats
           }
         })
 
@@ -239,8 +274,8 @@ export function EmployeeProfile({ id }: { id: string }) {
       }
     }
 
-    fetchPayslips()
-  }, [id, servicesLoaded])
+    fetchPayslipsAndLeave()
+  }, [id, servicesLoaded, employee])
   // Handle loading and error states
   if (loading) {
     return (
@@ -399,9 +434,12 @@ export function EmployeeProfile({ id }: { id: string }) {
                 </div>
                 <div className="rounded-lg border p-4">
                   <h3 className="text-sm font-medium text-muted-foreground">Leave Balance</h3>
-                  {/* TODO: Fetch actual leave balance */}
-                  <p className="mt-1 text-2xl font-bold">N/A</p>
-                  <p className="text-xs text-muted-foreground">Remaining (Placeholder)</p>
+                  <p className="mt-1 text-2xl font-bold">
+                    {leaveStats !== null ? `${leaveStats.remaining} days` : 'N/A'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {leaveStats !== null ? `${leaveStats.taken} days taken of ${leaveStats.earned} earned` : 'Remaining leave balance'}
+                  </p>
                 </div>
                 <div className="rounded-lg border p-4">
                   <h3 className="text-sm font-medium text-muted-foreground">Time at Company</h3>

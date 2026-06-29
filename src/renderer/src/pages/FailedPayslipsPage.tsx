@@ -135,7 +135,7 @@ export function FailedPayslipsPage() {
         description: `Generating PDF for ${failedPayslip.employee_name}...`
       })
 
-      const pdfResult = await pdfService.generatePayslip(pdfData)
+      const pdfResult = await pdfService.generatePayslipPDF(pdfData)
       if (!pdfResult.success || !pdfResult.data) {
         throw new Error(pdfResult.error || 'Failed to generate PDF')
       }

@@ -14,6 +14,10 @@ import { Download, Eye, Mail } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { pdfService } from '@/lib/pdf-service'
+import { getCompanySettings } from '@/components/company-settings'
+import { getEmployeeService } from '@/lib/db/services/service-factory'
+import type { PayslipPDFData } from '../../../preload'
 
 // Define props interface
 interface EmployeePayslipsProps {
@@ -70,18 +74,82 @@ export function EmployeePayslips({ payslips, isLoading, error }: EmployeePayslip
   const handleDownloadPayslip = async (payslip: any) => {
     try {
       setIsDownloading(true)
-      // Simulate download delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const companySettings = getCompanySettings()
+      let employee: any = null
+      if (payslip.employeeId) {
+        try {
+          const employeeService = await getEmployeeService()
+          employee = await employeeService.getEmployeeById(payslip.employeeId)
+        } catch (e) {
+          console.error('Error fetching employee details:', e)
+        }
+      }
 
-      toast({
-        title: 'Payslip downloaded',
-        description: `Payslip for ${payslip.period} has been downloaded.`
-      })
-    } catch (error) {
+      const allowances: Array<{ name: string; amount: number }> = []
+      if (payslip.allowanceBreakdown && Array.isArray(payslip.allowanceBreakdown)) {
+        payslip.allowanceBreakdown.forEach((a: any) => {
+          allowances.push({ name: a.name || 'Allowance', amount: a.value || a.amount || 0 })
+        })
+      } else {
+        if (payslip.housingAllowance > 0) allowances.push({ name: 'Housing Allowance', amount: payslip.housingAllowance })
+        if (payslip.transportAllowance > 0) allowances.push({ name: 'Transport Allowance', amount: payslip.transportAllowance })
+      }
+
+      const deductions: Array<{ name: string; amount: number }> = []
+      if (payslip.deductionBreakdown && Array.isArray(payslip.deductionBreakdown)) {
+        payslip.deductionBreakdown.forEach((d: any) => {
+          deductions.push({ name: d.name || 'Deduction', amount: d.value || d.amount || 0 })
+        })
+      } else {
+        if (payslip.paye > 0) deductions.push({ name: 'PAYE Tax', amount: payslip.paye })
+        if (payslip.napsa > 0) deductions.push({ name: 'NAPSA', amount: payslip.napsa })
+        if (payslip.nhima > 0) deductions.push({ name: 'NHIMA', amount: payslip.nhima })
+      }
+
+      const pdfData: PayslipPDFData = {
+        companyName: companySettings.companyName,
+        companyAddress: companySettings.companyAddress,
+        employeeName: employee ? `${employee.firstName} ${employee.lastName}` : (payslip.employeeName || 'Employee'),
+        employeeNumber: employee?.employeeNumber || payslip.employeeNumber || 'N/A',
+        department: employee?.department || payslip.department || 'N/A',
+        designation: employee?.designation || payslip.designation || 'N/A',
+        nrc: employee?.nationalId || payslip.nrc || 'N/A',
+        tpin: employee?.taxNumber || payslip.tpin || 'N/A',
+        accountNumber: employee?.accountNumber || payslip.accountNumber || 'N/A',
+        bankName: employee?.bankName || payslip.bankName || 'N/A',
+        period: payslip.period || 'Monthly',
+        paymentDate: payslip.date || new Date().toISOString(),
+        basicSalary: payslip.basicSalary || 0,
+        allowances: allowances,
+        totalAllowances: payslip.allowances || 0,
+        grossPay: payslip.grossPay || 0,
+        deductions: deductions,
+        totalDeductions: payslip.totalDeductions || payslip.deductions || 0,
+        netPay: payslip.netPay || 0,
+        leaveDays: payslip.leaveDays || payslip.leaveDetails
+      }
+
+      const result = await pdfService.generatePayslipPDF(pdfData)
+      if (result.success && result.data) {
+        const link = document.createElement('a')
+        link.href = `data:application/pdf;base64,${result.data}`
+        link.download = `Payslip-${employee ? `${employee.firstName}_${employee.lastName}` : 'Employee'}-${payslip.period || 'Period'}.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        toast({
+          title: 'Payslip downloaded',
+          description: `Payslip for ${payslip.period} has been downloaded.`
+        })
+      } else {
+        throw new Error(result.error || 'Failed to generate PDF')
+      }
+    } catch (error: any) {
       console.error('Error downloading payslip:', error)
       toast({
         title: 'Download failed',
-        description: 'There was an error downloading the payslip.',
+        description: error.message || 'There was an error downloading the payslip.',
         variant: 'destructive'
       })
     } finally {
@@ -383,6 +451,33 @@ export function EmployeePayslips({ payslips, isLoading, error }: EmployeePayslip
                   </Table>
                 </div>
               </div>
+
+              {/* Leave Details / Summary */}
+              {(selectedPayslip.leaveDetails || selectedPayslip.leaveDays) && (
+                <div className="border-t pt-4">
+                  <h4 className="mb-2 text-sm font-medium">Leave Summary</h4>
+                  <div className="grid grid-cols-3 gap-4 rounded-lg bg-muted/40 p-3 text-sm">
+                    <div>
+                      <span className="text-muted-foreground block text-xs">Earned Leave</span>
+                      <span className="font-semibold text-blue-600">
+                        {selectedPayslip.leaveDetails?.earned ?? selectedPayslip.leaveDays?.earned ?? 0} days
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block text-xs">Leave Taken</span>
+                      <span className="font-semibold text-orange-600">
+                        {selectedPayslip.leaveDetails?.taken ?? selectedPayslip.leaveDays?.taken ?? 0} days
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block text-xs">Remaining Balance</span>
+                      <span className="font-semibold text-green-600">
+                        {selectedPayslip.leaveDetails?.remaining ?? selectedPayslip.leaveDays?.remaining ?? 0} days
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="border-t pt-4">
                 <div className="flex justify-between font-bold text-lg">

@@ -11,7 +11,14 @@ const payrollItemSchema = z.object({
   allowances: z.number(),
   deductions: z.number(),
   netSalary: z.number(),
-  payrollStructureId: z.string().optional()
+  payrollStructureId: z.string().optional(),
+  leaveDays: z
+    .object({
+      earned: z.number().optional(),
+      taken: z.number().optional(),
+      remaining: z.number().optional()
+    })
+    .optional()
 })
 
 // Payroll history schema for validation

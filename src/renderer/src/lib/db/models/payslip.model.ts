@@ -115,6 +115,13 @@ export interface Payslip {
 
   /** Additional notes */
   notes?: string
+
+  /** Leave summary details */
+  leaveDetails?: {
+    earned?: number
+    taken?: number
+    remaining?: number
+  }
 }
 
 /**

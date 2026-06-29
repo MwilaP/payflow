@@ -40,6 +40,11 @@ export interface PayslipPDFData {
   deductions: Array<{ name: string; amount: number }>
   totalDeductions: number
   netPay: number
+  leaveDays?: {
+    earned: number
+    taken: number
+    remaining: number
+  }
 }
 
 // Custom APIs for renderer

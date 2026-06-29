@@ -32,6 +32,13 @@ export interface PayslipPDFData {
 
   // Net Pay
   netPay: number
+
+  // Leave Details
+  leaveDays?: {
+    earned: number
+    taken: number
+    remaining: number
+  }
 }
 
 /**
@@ -177,7 +184,33 @@ class PDFGeneratorService {
       .font('Helvetica')
       .text(data.bankName, col2X + 80, yPosition + 45)
 
-    yPosition += 80
+    yPosition += 70
+
+    if (data.leaveDays) {
+      doc.fontSize(12).font('Helvetica-Bold').text('LEAVE SUMMARY', leftMargin, yPosition)
+      yPosition += 18
+      doc.fontSize(10).font('Helvetica')
+      const labelOffset = 105
+      doc
+        .font('Helvetica-Bold')
+        .text('Earned Leave:', col1X, yPosition)
+        .font('Helvetica')
+        .text(`${data.leaveDays.earned} days`, col1X + labelOffset, yPosition)
+      doc
+        .font('Helvetica-Bold')
+        .text('Leave Taken:', col2X, yPosition)
+        .font('Helvetica')
+        .text(`${data.leaveDays.taken} days`, col2X + labelOffset, yPosition)
+      yPosition += 15
+      doc
+        .font('Helvetica-Bold')
+        .text('Remaining Leave:', col1X, yPosition)
+        .font('Helvetica')
+        .text(`${data.leaveDays.remaining} days`, col1X + labelOffset, yPosition)
+      yPosition += 25
+    } else {
+      yPosition += 10
+    }
 
     // Divider line
     doc

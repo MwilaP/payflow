@@ -10,6 +10,12 @@ import {
   savePayrollHistory
 } from '@/lib/db/services/service-factory'
 import type { PayrollHistory } from '@/lib/db/models/payroll-history.model'
+import { leaveRequestService } from '@/lib/db/services/leave-request.service'
+import {
+  calculateLeaveBalance,
+  calculateLeaveTaken,
+  calculateAvailableLeave
+} from '@/lib/utils/leave-calculations'
 import { useNavigate } from 'react-router-dom'
 import { CalendarIcon, CreditCard, Download, Search, FileUp } from 'lucide-react'
 import ImportPayrollModal, { ImportedPayrollItem } from './import-payroll-modal'
@@ -244,79 +250,134 @@ export function PayrollGenerator() {
       } else {
         // Calculate payroll items from employee data
         console.log('Calculating payroll items from employee data')
-        payrollItems = selectedEmployeeData.map((employee) => {
-          const basicSalary = employee.baseSalary || 0
-          const payrollStructure = employee.payrollStructure
+        const leaveService = await leaveRequestService
+        const allLeaveRequests = await leaveService.getAll().catch(() => [])
 
-          // Use the same calculation logic as the data loading
-          let housingAllowance = 0
-          let transportAllowance = 0
-          let napsa = 0
-          let nhima = 0
-          let paye = 0
-          let allowanceBreakdown = []
-          let deductionBreakdown = []
+        payrollItems = await Promise.all(
+          selectedEmployeeData.map(async (employee) => {
+            const basicSalary = employee.baseSalary || 0
+            const payrollStructure = employee.payrollStructure
 
-          if (payrollStructure) {
-            // Debug logging
-            console.log('Employee:', employee.firstName, employee.lastName)
-            console.log('Basic Salary:', basicSalary)
-            console.log('Payroll Structure:', payrollStructure)
-            console.log('Allowances:', payrollStructure.allowances)
-            console.log('Deductions:', payrollStructure.deductions)
-
-            // Calculate using the same function as data loading
-            const salaryCalculation = calculateNetSalary(
-              basicSalary,
-              payrollStructure.allowances || [],
-              payrollStructure.deductions || []
-            )
-            console.log('Salary Calculation Result:', salaryCalculation)
-
-            // Extract individual allowances
-            if (payrollStructure.allowances) {
-              allowanceBreakdown = payrollStructure.allowances.map((allowance: any) => {
-                const amount =
-                  allowance.type === 'percentage'
-                    ? (basicSalary * allowance.value) / 100
-                    : allowance.value || 0
-
-                // Identify specific allowances by name
-                if (allowance.name.toLowerCase().includes('housing')) {
-                  housingAllowance = amount
-                }
-                if (allowance.name.toLowerCase().includes('transport')) {
-                  transportAllowance = amount
-                }
-
-                return { ...allowance, value: amount }
+            // Calculate employee leave days
+            let leaveDays
+            try {
+              const empLeaveRequests = allLeaveRequests.filter(
+                (req: any) => req.employeeId === employee._id && req.status === 'approved'
+              )
+              const leaveHistoryWithDays = empLeaveRequests.map((leave: any) => {
+                const startDate = new Date(leave.startDate)
+                const endDate = new Date(leave.endDate)
+                const days =
+                  Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+                return { days }
               })
+              const hireDate = employee.hireDate || employee.hire_date || employee.createdAt || new Date().toISOString()
+              leaveDays = {
+                earned: calculateLeaveBalance(hireDate),
+                taken: calculateLeaveTaken(leaveHistoryWithDays),
+                remaining: calculateAvailableLeave(hireDate, leaveHistoryWithDays)
+              }
+            } catch (e) {
+              console.error('Error calculating leave for payroll generation:', e)
             }
 
-            // Extract individual deductions
-            if (payrollStructure.deductions) {
-              deductionBreakdown = payrollStructure.deductions.map((deduction: any) => {
-                const grossPay = salaryCalculation.grossSalary
-                const amount =
-                  deduction.type === 'percentage'
-                    ? (grossPay * deduction.value) / 100
-                    : deduction.value || 0
+            // Use the same calculation logic as the data loading
+            let housingAllowance = 0
+            let transportAllowance = 0
+            let napsa = 0
+            let nhima = 0
+            let paye = 0
+            let allowanceBreakdown = []
+            let deductionBreakdown = []
 
-                // Identify specific deductions by name
-                if (deduction.name.toLowerCase().includes('napsa')) {
-                  napsa = amount
-                }
-                if (deduction.name.toLowerCase().includes('nhima')) {
-                  nhima = amount
-                }
-                if (deduction.name.toLowerCase().includes('paye')) {
-                  paye = amount
-                }
+            if (payrollStructure) {
+              // Debug logging
+              console.log('Employee:', employee.firstName, employee.lastName)
+              console.log('Basic Salary:', basicSalary)
+              console.log('Payroll Structure:', payrollStructure)
+              console.log('Allowances:', payrollStructure.allowances)
+              console.log('Deductions:', payrollStructure.deductions)
 
-                return { ...deduction, value: amount }
-              })
+              // Calculate using the same function as data loading
+              const salaryCalculation = calculateNetSalary(
+                basicSalary,
+                payrollStructure.allowances || [],
+                payrollStructure.deductions || []
+              )
+              console.log('Salary Calculation Result:', salaryCalculation)
+
+              // Extract individual allowances
+              if (payrollStructure.allowances) {
+                allowanceBreakdown = payrollStructure.allowances.map((allowance: any) => {
+                  const amount =
+                    allowance.type === 'percentage'
+                      ? (basicSalary * allowance.value) / 100
+                      : allowance.value || 0
+
+                  // Identify specific allowances by name
+                  if (allowance.name.toLowerCase().includes('housing')) {
+                    housingAllowance = amount
+                  }
+                  if (allowance.name.toLowerCase().includes('transport')) {
+                    transportAllowance = amount
+                  }
+
+                  return { ...allowance, value: amount }
+                })
+              }
+
+              // Extract individual deductions
+              if (payrollStructure.deductions) {
+                deductionBreakdown = payrollStructure.deductions.map((deduction: any) => {
+                  const grossPay = salaryCalculation.grossSalary
+                  const amount =
+                    deduction.type === 'percentage'
+                      ? (grossPay * deduction.value) / 100
+                      : deduction.value || 0
+
+                  // Identify specific deductions by name
+                  if (deduction.name.toLowerCase().includes('napsa')) {
+                    napsa = amount
+                  }
+                  if (deduction.name.toLowerCase().includes('nhima')) {
+                    nhima = amount
+                  }
+                  if (deduction.name.toLowerCase().includes('paye')) {
+                    paye = amount
+                  }
+
+                  return { ...deduction, value: amount }
+                })
+              }
+
+              return {
+                employeeId: employee._id,
+                employeeNumber: employee.employeeNumber || 'N/A',
+                employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`.trim(),
+                accountNumber: employee.accountNumber || employee.account_number || '',
+                nrc: employee.nationalId || employee.national_id || '',
+                tpin: employee.taxNumber || employee.tax_number || '',
+                department: employee.department || 'General',
+                basicSalary: basicSalary,
+                housingAllowance: housingAllowance,
+                transportAllowance: transportAllowance,
+                grossPay: salaryCalculation.grossSalary,
+                napsa: napsa,
+                nhima: nhima,
+                paye: paye,
+                totalDeductions: salaryCalculation.totalDeductions,
+                netSalary: salaryCalculation.netSalary,
+                payrollStructureId: employee.payrollStructureId || '',
+                // Keep detailed breakdown for expandable view
+                allowanceBreakdown: allowanceBreakdown,
+                deductionBreakdown: deductionBreakdown,
+                allowances: salaryCalculation.totalAllowances,
+                deductions: salaryCalculation.totalDeductions,
+                leaveDays: leaveDays
+              }
             }
 
+            // Fallback for employees without payroll structure
             return {
               employeeId: employee._id,
               employeeNumber: employee.employeeNumber || 'N/A',
@@ -326,48 +387,23 @@ export function PayrollGenerator() {
               tpin: employee.taxNumber || employee.tax_number || '',
               department: employee.department || 'General',
               basicSalary: basicSalary,
-              housingAllowance: housingAllowance,
-              transportAllowance: transportAllowance,
-              grossPay: salaryCalculation.grossSalary,
-              napsa: napsa,
-              nhima: nhima,
-              paye: paye,
-              totalDeductions: salaryCalculation.totalDeductions,
-              netSalary: salaryCalculation.netSalary,
+              housingAllowance: 0,
+              transportAllowance: 0,
+              grossPay: basicSalary,
+              napsa: 0,
+              nhima: 0,
+              paye: 0,
+              totalDeductions: 0,
+              netSalary: basicSalary,
               payrollStructureId: employee.payrollStructureId || '',
-              // Keep detailed breakdown for expandable view
-              allowanceBreakdown: allowanceBreakdown,
-              deductionBreakdown: deductionBreakdown,
-              allowances: salaryCalculation.totalAllowances,
-              deductions: salaryCalculation.totalDeductions
+              allowanceBreakdown: [],
+              deductionBreakdown: [],
+              allowances: 0,
+              deductions: 0,
+              leaveDays: leaveDays
             }
-          }
-
-          // Fallback for employees without payroll structure
-          return {
-            employeeId: employee._id,
-            employeeNumber: employee.employeeNumber || 'N/A',
-            employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`.trim(),
-            accountNumber: employee.accountNumber || employee.account_number || '',
-            nrc: employee.nationalId || employee.national_id || '',
-            tpin: employee.taxNumber || employee.tax_number || '',
-            department: employee.department || 'General',
-            basicSalary: basicSalary,
-            housingAllowance: 0,
-            transportAllowance: 0,
-            grossPay: basicSalary,
-            napsa: 0,
-            nhima: 0,
-            paye: 0,
-            totalDeductions: 0,
-            netSalary: basicSalary,
-            payrollStructureId: employee.payrollStructureId || '',
-            allowanceBreakdown: [],
-            deductionBreakdown: [],
-            allowances: 0,
-            deductions: 0
-          }
-        })
+          })
+        )
       }
 
       // Calculate total amount as the sum of all net salaries
