@@ -36,7 +36,8 @@ import {
   XCircle,
   Clock
 } from 'lucide-react'
-import { getPayrollHistoryService, getEmployeeService } from '@/lib/db/services/service-factory'
+import { getPayrollHistoryService, getEmployeeService, getPayrollStructureService } from '@/lib/db/services/service-factory'
+import { calculateNetSalary } from '@/lib/utils/payroll-calculations'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
 import { emailService } from '@/lib/email-service'
@@ -98,6 +99,8 @@ export default function PayrollHistoryDetailPage() {
   const [isCompletingPayroll, setIsCompletingPayroll] = useState(false)
   const [isProcessingPayroll, setIsProcessingPayroll] = useState(false)
   const [showFailedEmails, setShowFailedEmails] = useState(false)
+  const [isEmailConfigured, setIsEmailConfigured] = useState(false)
+  const [employeesMap, setEmployeesMap] = useState<Record<string, any>>({})
 
   useEffect(() => {
     const loadPayrollRecord = async () => {
@@ -110,15 +113,142 @@ export default function PayrollHistoryDetailPage() {
       try {
         setIsLoading(true)
         const payrollService = await getPayrollHistoryService()
-        const record = await payrollService.getPayrollRecordById(id)
+        let record = await payrollService.getPayrollRecordById(id)
 
         if (!record) {
           setError('Payroll record not found')
-        } else {
-          setPayrollRecord(record)
+          setIsLoading(false)
+          return
         }
+
+        // Fetch current employees and build map
+        const employeeService = await getEmployeeService()
+        const allEmployees = await employeeService.getAll()
+        const empMap: Record<string, any> = {}
+        allEmployees.forEach((emp: any) => {
+          empMap[emp._id] = emp
+        })
+        setEmployeesMap(empMap)
+
+        // If the payroll is draft or pending, automatically sync with latest Employee details & Payroll structures
+        if (record.status === 'draft' || record.status === 'pending') {
+          const structService = await getPayrollStructureService()
+          const structures = await structService.getAll()
+          const structuresMap: Record<string, any> = {}
+          structures.forEach((str: any) => {
+            structuresMap[str._id] = str
+          })
+
+          let needsUpdate = false
+          const updatedItems = await Promise.all(
+            (record.items || []).map(async (item: any) => {
+              const currentEmp = empMap[item.employeeId]
+              if (!currentEmp) return item // Fallback if employee deleted
+
+              const structureId = currentEmp.payrollStructureId || currentEmp.payroll_structure_id
+              const currentStructure = structureId ? structuresMap[structureId] : null
+
+              const basicSalary = currentStructure?.basicSalary || 0
+              let grossPay = basicSalary
+              let totalAllowances = 0
+              let totalDeductions = 0
+              let netSalary = basicSalary
+              let allowanceBreakdown: any[] = []
+              let deductionBreakdown: any[] = []
+
+              if (currentStructure) {
+                const salaryCalculation = calculateNetSalary(
+                  basicSalary,
+                  currentStructure.allowances || [],
+                  currentStructure.deductions || []
+                )
+                grossPay = salaryCalculation.grossSalary
+                totalAllowances = salaryCalculation.totalAllowances
+                totalDeductions = salaryCalculation.totalDeductions
+                netSalary = salaryCalculation.netSalary
+
+                // Build breakdowns
+                if (currentStructure.allowances) {
+                  allowanceBreakdown = currentStructure.allowances.map((allowance: any) => {
+                    const amount =
+                      allowance.type === 'percentage'
+                        ? (basicSalary * allowance.value) / 100
+                        : allowance.value || 0
+                    return { name: allowance.name, value: amount, type: allowance.type, percentage: allowance.value }
+                  })
+                }
+
+                if (currentStructure.deductions) {
+                  deductionBreakdown = currentStructure.deductions.map((deduction: any) => {
+                    const amount =
+                      deduction.type === 'percentage'
+                        ? (grossPay * deduction.value) / 100
+                        : deduction.value || 0
+                    return { name: deduction.name, value: amount, type: deduction.type, percentage: deduction.value, preTax: deduction.preTax }
+                  })
+                }
+              }
+
+              // Check if anything has changed
+              const currentEmpName = `${currentEmp.firstName || ''} ${currentEmp.lastName || ''}`.trim()
+              const currentEmpNo = currentEmp.employeeNumber || 'N/A'
+
+              if (
+                item.employeeName !== currentEmpName ||
+                item.employeeNumber !== currentEmpNo ||
+                item.basicSalary !== basicSalary ||
+                item.allowances !== totalAllowances ||
+                item.deductions !== totalDeductions ||
+                item.netSalary !== netSalary ||
+                item.department !== (currentEmp.department || 'General')
+              ) {
+                needsUpdate = true
+              }
+
+              return {
+                ...item,
+                employeeName: currentEmpName,
+                employeeNumber: currentEmpNo,
+                accountNumber: currentEmp.accountNumber || currentEmp.account_number || '',
+                nrc: currentEmp.nationalId || currentEmp.national_id || '',
+                tpin: currentEmp.taxNumber || currentEmp.tax_number || '',
+                department: currentEmp.department || 'General',
+                basicSalary,
+                housingAllowance: allowanceBreakdown.find((a: any) => a.name.toLowerCase().includes('housing'))?.value || 0,
+                transportAllowance: allowanceBreakdown.find((a: any) => a.name.toLowerCase().includes('transport'))?.value || 0,
+                grossPay,
+                napsa: deductionBreakdown.find((d: any) => d.name.toLowerCase().includes('napsa'))?.value || 0,
+                nhima: deductionBreakdown.find((d: any) => d.name.toLowerCase().includes('nhima'))?.value || 0,
+                paye: deductionBreakdown.find((d: any) => d.name.toLowerCase().includes('paye'))?.value || 0,
+                totalDeductions,
+                netSalary,
+                payrollStructureId: structureId || '',
+                allowanceBreakdown,
+                deductionBreakdown,
+                allowances: totalAllowances,
+                deductions: totalDeductions
+              }
+            })
+          )
+
+          if (needsUpdate) {
+            // Recalculate totalAmount
+            const totalAmount = updatedItems.reduce((sum, item) => sum + item.netSalary, 0)
+            const updatedRecord = {
+              ...record,
+              items: updatedItems,
+              totalAmount,
+              employeeCount: updatedItems.length,
+              updatedAt: new Date().toISOString()
+            }
+            await payrollService.updatePayrollRecord(id, updatedRecord)
+            record = updatedRecord
+          }
+        }
+
+        setPayrollRecord(record)
       } catch (err: any) {
-        console.error('Error loading payroll record:', err)
+        console.error('Error loading/syncing payroll record:', err)
         setError(err.message || 'Failed to load payroll record')
       } finally {
         setIsLoading(false)
@@ -1046,10 +1176,14 @@ export default function PayrollHistoryDetailPage() {
                               )}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
-                              {item.employeeNumber || 'N/A'}
+                              {employeesMap[item.employeeId]
+                                ? (employeesMap[item.employeeId].employeeNumber || employeesMap[item.employeeId].employee_number || 'N/A')
+                                : (item.employeeNumber || 'N/A')}
                             </TableCell>
                             <TableCell className="font-medium">
-                              {item.employeeName || `Employee ${index + 1}`}
+                              {employeesMap[item.employeeId]
+                                ? `${employeesMap[item.employeeId].firstName || ''} ${employeesMap[item.employeeId].lastName || ''}`.trim()
+                                : (item.employeeName || `Employee ${index + 1}`)}
                             </TableCell>
                             <TableCell>K{item.basicSalary?.toLocaleString() || '0'}</TableCell>
                             <TableCell>

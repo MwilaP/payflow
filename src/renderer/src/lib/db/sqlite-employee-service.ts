@@ -268,15 +268,30 @@ export const createEmployeeServiceCompat = () => {
       // Convert PouchDB format updates to SQLite format
       const sqliteUpdates: Partial<SQLiteEmployee> = {}
 
-      if (updates.firstName) sqliteUpdates.first_name = updates.firstName
-      if (updates.lastName) sqliteUpdates.last_name = updates.lastName
-      if (updates.email) sqliteUpdates.email = updates.email
-      if (updates.phone) sqliteUpdates.phone = updates.phone
-      if (updates.department) sqliteUpdates.department = updates.department
-      if (updates.designation) sqliteUpdates.designation = updates.designation
-      if (updates.employmentType) sqliteUpdates.employment_type = updates.employmentType
-      if (updates.status) sqliteUpdates.status = updates.status
-      if (updates.payrollStructureId)
+      if (updates.employeeNumber !== undefined) sqliteUpdates.employee_number = updates.employeeNumber
+      if (updates.firstName !== undefined) sqliteUpdates.first_name = updates.firstName
+      if (updates.lastName !== undefined) sqliteUpdates.last_name = updates.lastName
+      if (updates.email !== undefined) sqliteUpdates.email = updates.email
+      if (updates.phone !== undefined) sqliteUpdates.phone = updates.phone
+      if (updates.dob !== undefined) sqliteUpdates.dob = updates.dob
+      if (updates.gender !== undefined) sqliteUpdates.gender = updates.gender
+      if (updates.address !== undefined) sqliteUpdates.address = updates.address
+      if (updates.department !== undefined) sqliteUpdates.department = updates.department
+      if (updates.designation !== undefined) sqliteUpdates.designation = updates.designation
+      if (updates.employmentType !== undefined) sqliteUpdates.employment_type = updates.employmentType
+      if (updates.hireDate !== undefined) sqliteUpdates.hire_date = updates.hireDate
+      if (updates.reportingTo !== undefined) sqliteUpdates.reporting_to = updates.reportingTo
+      if (updates.workLocation !== undefined) sqliteUpdates.work_location = updates.workLocation
+      if (updates.status !== undefined) sqliteUpdates.status = updates.status
+      if (updates.accountNumber !== undefined) sqliteUpdates.account_number = updates.accountNumber
+      if (updates.bankName !== undefined) sqliteUpdates.bank_name = updates.bankName
+      if (updates.branchName !== undefined) sqliteUpdates.branch_name = updates.branchName
+      if (updates.ifscCode !== undefined) sqliteUpdates.ifsc_code = updates.ifscCode
+      if (updates.nationalId !== undefined) sqliteUpdates.national_id = updates.nationalId
+      if (updates.taxNumber !== undefined) sqliteUpdates.tax_number = updates.taxNumber
+      if (updates.pensionNumber !== undefined) sqliteUpdates.pension_number = updates.pensionNumber
+      if (updates.taxStatus !== undefined) sqliteUpdates.tax_status = updates.taxStatus
+      if (updates.payrollStructureId !== undefined)
         sqliteUpdates.payroll_structure_id = updates.payrollStructureId
 
       const result = await sqliteService.update(id, sqliteUpdates)

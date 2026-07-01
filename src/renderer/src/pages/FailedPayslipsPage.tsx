@@ -22,6 +22,36 @@ import { getCompanySettings } from '@/components/company-settings'
 import { getEmployeeService } from '@/lib/db/services/service-factory'
 import { AppLayout } from '@/components/app-layout'
 import type { PayslipPDFData } from '../../../preload'
+import { leaveRequestService } from '@/lib/db/services/leave-request.service'
+import {
+  calculateLeaveBalance,
+  calculateLeaveTaken,
+  calculateAvailableLeave
+} from '@/lib/utils/leave-calculations'
+
+const fetchEmployeeLeaveDays = async (employeeId: string, hireDate?: string) => {
+  try {
+    const leaveService = await leaveRequestService
+    const allLeaveRequests = await leaveService.getAll()
+    const empLeaveRequests = allLeaveRequests.filter(
+      (req: any) => req.employeeId === employeeId && req.status === 'approved'
+    )
+    const leaveHistoryWithDays = empLeaveRequests.map((leave: any) => {
+      const startDate = new Date(leave.startDate)
+      const endDate = new Date(leave.endDate)
+      const days =
+        Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      return { days }
+    })
+    const dateToUse = hireDate || new Date().toISOString()
+    const earned = calculateLeaveBalance(dateToUse)
+    const taken = calculateLeaveTaken(leaveHistoryWithDays)
+    const remaining = calculateAvailableLeave(dateToUse, leaveHistoryWithDays)
+    return { earned, taken, remaining }
+  } catch (e) {
+    return undefined
+  }
+}
 
 interface FailedPayslip {
   id: string
@@ -106,6 +136,8 @@ export function FailedPayslipsPage() {
         throw new Error('Employee not found')
       }
 
+      const leaveDays = storedData.leaveDays || (await fetchEmployeeLeaveDays(employee._id, employee.hireDate || employee.hire_date || employee.createdAt))
+
       // Prepare PDF data
       const pdfData: PayslipPDFData = {
         companyName: companySettings.companyName,
@@ -126,7 +158,8 @@ export function FailedPayslipsPage() {
         grossPay: storedData.grossPay || 0,
         deductions: storedData.deductions || [],
         totalDeductions: storedData.totalDeductions || 0,
-        netPay: failedPayslip.net_salary
+        netPay: failedPayslip.net_salary,
+        leaveDays: leaveDays
       }
 
       // Generate PDF
